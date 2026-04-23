@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>C.L.O.E COACH · DOCE ENGINE</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;
+  --accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{background:#101622;padding:24px 20px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:2px}
+.brand span{color:var(--accent)}
+.tagline{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:20px;letter-spacing:1px}
+.nav-section{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:12px 0 6px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;background:transparent;color:var(--muted);border:none;padding:10px 12px;border-radius:10px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;text-align:left;transition:all .2s}
+.nav button:hover{background:var(--surface2);color:var(--text)}
+.nav button.active{background:var(--surface2);color:var(--accent);border-left:2px solid var(--accent)}
+.nav button .icon{font-size:16px;width:20px;text-align:center}
+.week-badge{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);padding:8px 12px;border-radius:10px;margin-top:auto;color:var(--muted)}
+.week-badge span{color:var(--accent);font-weight:500}
+
+.main{padding:28px;overflow-y:auto}
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:24px;font-weight:800}
+.page-header p{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:4px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.card{background:var(--surface);padding:18px;border-radius:16px;border:1px solid var(--border)}
+.card-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.kpi{font-size:32px;font-weight:800;font-family:'DM Mono',monospace}
+.kpi.accent{color:var(--accent)}
+.kpi.blue{color:var(--accent2)}
+.kpi.orange{color:var(--accent3)}
+.card-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
+
+.section-title{font-size:16px;font-weight:800;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.day-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.day-tab{font-family:'DM Mono',monospace;font-size:12px;padding:8px 16px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s}
+.day-tab:hover{color:var(--text)}
+.day-tab.active{background:var(--accent);color:#111;border-color:var(--accent);font-weight:500}
+.day-tab.rest{border-color:transparent}
+
+.workout-block{background:var(--surface);border-radius:16px;border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+.workout-header{background:var(--surface2);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.workout-title{font-size:14px;font-weight:800}
+.workout-badge{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;background:var(--bg)}
+.workout-badge.strength{color:var(--accent3);border:1px solid var(--accent3)}
+.workout-badge.running{color:var(--accent);border:1px solid var(--accent)}
+.workout-badge.rest{color:var(--muted);border:1px solid var(--border)}
+.workout-body{padding:18px}
+
+.exercise-row{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:10px 14px;border-radius:10px;background:var(--surface2);margin-bottom:8px;border:1px solid transparent;transition:border .2s}
+.exercise-row:hover{border-color:var(--border)}
+.ex-name{font-size:13px;font-weight:700}
+.ex-detail{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.ex-rir{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent3);background:rgba(241,161,53,.1);padding:3px 8px;border-radius:6px}
+.ex-prog{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2)}
+.ex-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+
+.intervals-block{background:#0a1020;border-radius:12px;border:1px solid var(--border);padding:16px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.9;margin-bottom:12px;position:relative}
+.intervals-block .copy-btn{position:absolute;top:12px;right:12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s}
+.intervals-block .copy-btn:hover{color:var(--accent);border-color:var(--accent)}
+.intervals-line{display:flex;gap:12px;padding:2px 0}
+.il-phase{color:var(--muted)}
+.il-pace{color:var(--accent)}
+.il-dist{color:var(--accent2)}
+.il-note{color:var(--accent3)}
+.session-goal{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:10px 14px;background:var(--surface2);border-radius:8px;margin-top:10px;line-height:1.7;border-left:2px solid var(--accent2)}
+
+.nutrition-day{display:grid;gap:12px}
+.meal-card{background:var(--surface2);border-radius:12px;padding:16px;border:1px solid var(--border)}
+.meal-header{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;justify-content:space-between}
+.meal-kcal{color:var(--muted)}
+.food-item{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(43,52,72,.5)}
+.food-item:last-child{border-bottom:none}
+.food-name{font-size:13px}
+.food-amount{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.macro-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.macro-item{text-align:center;background:var(--surface);padding:10px;border-radius:10px}
+.macro-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--accent)}
+.macro-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase}
+
+.checklist-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:all .2s}
+.checklist-item:hover{border-color:var(--border)}
+.checklist-item.done{border-color:var(--accent);background:rgba(200,241,53,.05)}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
+.checklist-item.done .check-box{background:var(--accent);border-color:var(--accent);color:#111}
+.check-text{font-size:13px}
+.check-sub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px}
+
+.btn{background:var(--accent);color:#111;border:none;padding:10px 18px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:13px;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn.danger{background:rgba(241,53,53,.15);color:#f13535;border:1px solid rgba(241,53,53,.3)}
+
+input,textarea,select{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;margin-top:6px;outline:none;transition:border .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent2)}
+label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{margin-bottom:14px}
+
+.report-area{background:var(--surface2);border-radius:12px;padding:18px;border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;min-height:200px;color:var(--text)}
+.report-area.loading{color:var(--muted)}
+.report-section{margin-bottom:16px}
+.report-section-title{color:var(--accent);font-weight:500;margin-bottom:8px;font-size:13px}
+
+.progress-ring{display:flex;align-items:center;gap:16px}
+.ring-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+
+.alert-box{background:rgba(241,161,53,.08);border:1px solid rgba(241,161,53,.3);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent3);margin-bottom:12px}
+.success-box{background:rgba(200,241,53,.08);border:1px solid rgba(200,241,53,.3);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:12px}
+
+.plan-grid{display:grid;gap:8px}
+.plan-row{display:grid;grid-template-columns:80px 120px 1fr;gap:12px;align-items:center;padding:10px 14px;background:var(--surface2);border-radius:10px;font-family:'DM Mono',monospace;font-size:12px}
+.plan-week{color:var(--accent);font-weight:500}
+.plan-phase{color:var(--accent2)}
+.plan-desc{color:var(--muted)}
+
+.phase-block{background:var(--surface2);border-radius:12px;padding:14px 18px;margin-bottom:10px;border-left:3px solid var(--accent2)}
+.phase-block.phase1{border-color:var(--accent2)}
+.phase-block.phase2{border-color:var(--accent3)}
+.phase-block.phase3{border-color:var(--accent)}
+.phase-block.phase4{border-color:#f1356a}
+.phase-title{font-size:14px;font-weight:800;margin-bottom:4px}
+.phase-detail{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:16px}
+  .brand{font-size:22px}
+  .exercise-row{grid-template-columns:1fr auto}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div>
+    <div class="brand">C.L.O.E <span>COACH</span></div>
+    <div class="tagline">DOCE ENGINE · v2.0</div>
+  </div>
+
+  <div class="nav-section">Core</div>
+  <div class="nav">
+    <button class="active" onclick="view('dashboard')"><span class="icon">⚡</span>Dashboard</button>
+    <button onclick="view('training')"><span class="icon">🏋️</span>Fuerza</button>
+    <button onclick="view('running')"><span class="icon">🏃</span>Running</button>
+    <button onclick="view('nutrition')"><span class="icon">🥗</span>Nutrición DOCE</button>
+  </div>
+  <div class="nav-section">Gestión</div>
+  <div class="nav">
+    <button onclick="view('plan')"><span class="icon">📅</span>Plan 16 semanas</button>
+    <button onclick="view('review')"><span class="icon">📊</span>Review semanal IA</button>
+    <button onclick="view('settings')"><span class="icon">⚙️</span>Perfil</button>
+  </div>
+
+  <div class="week-badge" style="margin-top:20px">
+    Semana <span id="sb-week">1</span> / 16 &nbsp;·&nbsp; Fase <span id="sb-phase">BASE</span>
+  </div>
+</aside>
+
+<main class="main" id="main-content"></main>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  week: 1,
+  dayIndex: 0,
+  currentView: 'dashboard',
+  weights: {}, // {exerciseKey: kg}
+  repsLog: {},
+  checklist: {},
+  weeklyLogs: [],
+  profile: {
+    age: 47, sex: 'H', height: 180, weight: 78,
+    goal: 'Recomposición + HM 5:30/km',
+    kcal: 2475, protein: 154, carbs: 310, fat: 69
+  }
+};
+
+function save(){ try{ localStorage.setItem('cloe_v2', JSON.stringify(state)); }catch(e){} }
+function load(){ try{ const s=localStorage.getItem('cloe_v2'); if(s) state=JSON.parse(s); }catch(e){} }
+load();
+
+// ============================================================
+// PLAN DATA
+// ============================================================
+const DAYS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+// Each week: array of 7 days, each day has type + content
+function getWeekPlan(w) {
+  const phases = [
+    {name:'BASE', weeks:[1,4]},
+    {name:'VOLUMEN', weeks:[5,8]},
+    {name:'RITMO', weeks:[9,12]},
+    {name:'ESPECÍFICO', weeks:[13,16]}
+  ];
+  const p = phases.find(ph=> w>=ph.weeks[0] && w<=ph.weeks[1]) || phases[3];
+  
+  // Running paces evolve by week
+  const easyPace = w<=4 ? '6:45' : w<=8 ? '6:30' : w<=12 ? '6:15' : '6:00';
+  const tempoBase = w<=4 ? '5:50' : w<=8 ? '5:40' : w<=12 ? '5:30' : '5:20';
+  const intervalPace = w<=4 ? '5:20' : w<=8 ? '5:10' : w<=12 ? '5:00' : '4:55';
+  const longDist = w<=4 ? 60 : w<=8 ? 70 : w<=12 ? 80 : 90;
+
+  const strengthA = getStrengthDay('A', w);
+  const strengthB = getStrengthDay('B', w);
+
+  return [
+    { day:'Lun', type:'strength', label:'FUERZA A', data: strengthA },
+    { day:'Mar', type:'running', label:'INTERVALOS', data: getRunIntervals(w, intervalPace, easyPace) },
+    { day:'Mié', type:'rest', label:'DESCANSO', data: null },
+    { day:'Jue', type:'strength', label:'FUERZA B', data: strengthB },
+    { day:'Vie', type:'running', label:'TEMPO / CONTINUO', data: getRunTempo(w, tempoBase, easyPace) },
+    { day:'Sáb', type:'running', label:'TIRADA LARGA', data: getRunLong(w, easyPace, longDist) },
+    { day:'Dom', type:'rest', label:'DESCANSO', data: null }
+  ];
+}
+
+function getPhase(w){
+  if(w<=4) return 'BASE';
+  if(w<=8) return 'VOLUMEN';
+  if(w<=12) return 'RITMO';
+  return 'ESPECÍFICO';
+}
+
+// ---- STRENGTH ----
+const baseExercisesA = [
+  {name:'Prensa de piernas', muscle:'Cuádriceps / Glúteo', sets:3, reps:'8', rir:'RIR 3', key:'prensa', prog:'inferior'},
+  {name:'Press banca plano', muscle:'Pectoral / Tríceps', sets:3, reps:'8', rir:'RIR 2', key:'prensa_banca', prog:'upper'},
+  {name:'Remo con barra', muscle:'Dorsal / Bíceps', sets:3, reps:'10', rir:'RIR 2', key:'remo', prog:'upper'},
+  {name:'Peso muerto rumano', muscle:'Isquios / Glúteo', sets:3, reps:'10', rir:'RIR 2', key:'rdl', prog:'inferior'},
+  {name:'Elevaciones laterales', muscle:'Deltoides lateral', sets:3, reps:'15', rir:'RIR 1', key:'laterales', prog:'upper'},
+];
+const baseExercisesB = [
+  {name:'Hack squat', muscle:'Cuádriceps', sets:3, reps:'8', rir:'RIR 3', key:'hack', prog:'inferior'},
+  {name:'Press inclinado mancuernas', muscle:'Pectoral alto', sets:3, reps:'10', rir:'RIR 2', key:'inclinado', prog:'upper'},
+  {name:'Jalón al pecho', muscle:'Dorsal / Bíceps', sets:3, reps:'10', rir:'RIR 2', key:'jalon', prog:'upper'},
+  {name:'Hip thrust', muscle:'Glúteo máximo', sets:3, reps:'10', rir:'RIR 2', key:'hip_thrust', prog:'inferior'},
+  {name:'Face pull', muscle:'Deltoides post. / Manguito', sets:3, reps:'15', rir:'RIR 1', key:'face_pull', prog:'upper'},
+];
+
+function getStrengthDay(day, w) {
+  const base = day==='A' ? baseExercisesA : baseExercisesB;
+  // Volume progression: w5+ add 1 set on compound
+  return base.map(ex => {
+    let sets = ex.sets;
+    if(w>=5 && ['prensa','remo','hack','jalon','rdl','hip_thrust'].includes(ex.key)) sets = 4;
+    if(w>=9) sets = Math.min(sets, 5);
+    return {...ex, sets};
+  });
+}
+
+// ---- RUNNING SESSIONS ----
+function getRunIntervals(w, iP, eP) {
+  // w1-4: 6x400, w5-8: 8x400 or 5x800, w9-12: 6x800, w13-16: 4x1200
+  let sets, dist, rest;
+  if(w<=4){ sets=6; dist='400m'; rest='2m'; }
+  else if(w<=8){ sets=8; dist='400m'; rest='90s'; }
+  else if(w<=12){ sets=6; dist='800m'; rest='2m'; }
+  else { sets=4; dist='1200m'; rest='2m30s'; }
+
+  const distNum = dist==='400m'?0.4:dist==='800m'?0.8:1.2;
+  const distKm = (distNum * sets).toFixed(1);
+
+  return {
+    type: 'intervals',
+    goal: `Desarrollar capacidad anaeróbica y economía de carrera. Total calidad: ~${distKm}km a ${iP}/km.`,
+    warmup: `10m ${eP}/km (1.4km)`,
+    sets: sets,
+    setDist: dist,
+    setPace: iP,
+    rest: rest,
+    restPace: eP,
+    cooldown: `10m ${eP}/km (1.4km)`,
+    intervalsFormat: generateIntervalsFormat_Intervals(sets, dist, iP, eP, rest)
+  };
+}
+
+function getRunTempo(w, tP, eP) {
+  const dur = w<=4 ? 20 : w<=8 ? 25 : w<=12 ? 30 : 35;
+  return {
+    type: 'tempo',
+    goal: `Mejora del umbral de lactato. ${dur}min a ritmo tempo ${tP}/km. Controla sensaciones.`,
+    warmup: `10m ${eP}/km (1.4km)`,
+    main: `${dur}m ${tP}/km`,
+    cooldown: `10m ${eP}/km (1.4km)`,
+    intervalsFormat: generateTempoFormat(dur, tP, eP)
+  };
+}
+
+function getRunLong(w, eP, dur) {
+  const km = (dur/60 * (60/parseFloat(eP.replace(':','.')||6.75))).toFixed(1);
+  return {
+    type: 'long',
+    goal: `Construir base aeróbica. Completamente conversacional. NO te pases del ritmo ${eP}/km.`,
+    main: `${dur}m ${eP}/km (~${km}km)`,
+    intervalsFormat: generateLongFormat(dur, eP)
+  };
+}
+
+function generateIntervalsFormat_Intervals(sets, dist, iP, eP, rest) {
+  const distMin = dist==='400m'?'2m30s':dist==='800m'?'5m':'7m30s';
+  const distKm = dist==='400m'?'0.4km':dist==='800m'?'0.8km':'1.2km';
+  const restMin = rest;
+  const restKm = rest==='90s'?'0.2km':rest==='2m'?'0.22km':'0.27km';
+  return `Warmup\n10m ${eP}/km (1.4km) Pace\n\nMain set ${sets}x\n${distMin} ${iP}/km (${distKm}) Pace\n${restMin} ${eP}/km (${restKm}) Pace\n\nCooldown\n10m ${eP}/km (1.4km) Pace`;
+}
+
+function generateTempoFormat(dur, tP, eP) {
+  const tempoKm = ((dur/60)/(parseFloat(tP.split(':')[0])+(parseFloat(tP.split(':')[1])/60))*60).toFixed(1);
+  return `Warmup\n10m ${eP}/km (1.4km) Pace\n\nMain set\n${dur}m ${tP}/km (~${tempoKm}km) Pace\n\nCooldown\n10m ${eP}/km (1.4km) Pace`;
+}
+
+function generateLongFormat(dur, eP) {
+  const km = (dur*(1/(parseFloat(eP.split(':')[0])+(parseFloat(eP.split(':')[1])/60)))).toFixed(1);
+  return `Easy Run\n${dur}m ${eP}/km (~${km}km) Pace`;
+}
+
+// ---- NUTRITION ----
+const NUTRITION = {
+  training_day: {
+    label: 'Día con entreno',
+    kcal: 2475,
+    meals: [
+      { name: 'Desayuno', kcal: 520, items: [
+        {food:'Avena', amount:'80g (seco)'},
+        {food:'Plátano', amount:'1 ud (120g)'},
+        {food:'Whey protein', amount:'30g'},
+        {food:'Leche semidesnatada', amount:'200ml'},
+      ]},
+      { name: 'Comida', kcal: 720, items: [
+        {food:'Pollo pechuga', amount:'200g (cocinado)'},
+        {food:'Arroz blanco', amount:'80g (seco = 220g cocido)'},
+        {food:'Verduras salteadas', amount:'200g'},
+        {food:'AOVE', amount:'10g'},
+      ]},
+      { name: 'Merienda pre-entreno', kcal: 380, items: [
+        {food:'Yogur griego 0%', amount:'200g'},
+        {food:'Avena', amount:'40g'},
+        {food:'Miel', amount:'10g'},
+        {food:'Plátano', amount:'½ ud'},
+      ]},
+      { name: 'Cena post-entreno', kcal: 620, items: [
+        {food:'Salmón o ternera', amount:'180g'},
+        {food:'Patata cocida', amount:'300g'},
+        {food:'Ensalada grande', amount:'150g'},
+        {food:'AOVE', amount:'10g'},
+      ]},
+      { name: 'Post-cena', kcal: 235, items: [
+        {food:'Queso cottage / requesón', amount:'150g'},
+        {food:'Nueces', amount:'20g'},
+      ]},
+    ]
+  },
+  rest_day: {
+    label: 'Día de descanso',
+    kcal: 2150,
+    meals: [
+      { name: 'Desayuno', kcal: 420, items: [
+        {food:'Huevos revueltos', amount:'3 uds'},
+        {food:'Pan integral', amount:'60g'},
+        {food:'Aguacate', amount:'60g'},
+        {food:'Tomate', amount:'1 ud'},
+      ]},
+      { name: 'Comida', kcal: 680, items: [
+        {food:'Pavo o pollo', amount:'200g'},
+        {food:'Quinoa', amount:'70g (seco)'},
+        {food:'Verduras al vapor', amount:'250g'},
+        {food:'AOVE', amount:'10g'},
+      ]},
+      { name: 'Merienda', kcal: 280, items: [
+        {food:'Yogur griego 0%', amount:'200g'},
+        {food:'Frutos rojos', amount:'100g'},
+        {food:'Whey protein', amount:'20g'},
+      ]},
+      { name: 'Cena', kcal: 530, items: [
+        {food:'Merluza al horno', amount:'200g'},
+        {food:'Boniato', amount:'200g'},
+        {food:'Ensalada', amount:'150g'},
+        {food:'AOVE', amount:'8g'},
+      ]},
+      { name: 'Post-cena', kcal: 240, items: [
+        {food:'Requesón', amount:'200g'},
+        {food:'Nueces', amount:'15g'},
+      ]},
+    ]
+  }
+};
+
+// ============================================================
+// RENDER ENGINE
+// ============================================================
+function view(v){
+  state.currentView = v;
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  const map = {dashboard:0, training:1, running:2, nutrition:3, plan:4, review:5, settings:6};
+  const btns = document.querySelectorAll('.nav button');
+  if(map[v]!==undefined) btns[map[v]]?.classList.add('active');
+  document.getElementById('sb-week').textContent = state.week;
+  document.getElementById('sb-phase').textContent = getPhase(state.week);
+  renderView();
+  save();
+}
+
+function renderView(){
+  const c = document.getElementById('main-content');
+  switch(state.currentView){
+    case 'dashboard': c.innerHTML = renderDashboard(); break;
+    case 'training': c.innerHTML = renderTraining(); break;
+    case 'running': c.innerHTML = renderRunning(); break;
+    case 'nutrition': c.innerHTML = renderNutrition(); break;
+    case 'plan': c.innerHTML = renderPlan(); break;
+    case 'review': c.innerHTML = renderReview(); break;
+    case 'settings': c.innerHTML = renderSettings(); break;
+  }
+  attachHandlers();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  const week = state.week;
+  const plan = getWeekPlan(week);
+  const today = plan[state.dayIndex];
+
+  const completedChecks = Object.keys(state.checklist).filter(k=> state.checklist[k] && k.startsWith(`w${week}_`)).length;
+  const totalChecks = 7 * week;
+  const adherence = totalChecks>0 ? Math.round((completedChecks / (7*week)) * 100) : 82;
+
+  return `
+  <div class="page-header">
+    <h1>Dashboard CLOE</h1>
+    <p class="mono">Semana ${week} · ${getPhase(week)} · Recomposición + HM 5:30/km</p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Adherencia</div>
+      <div class="kpi accent">${adherence}%</div>
+      <div class="card-sub">checks completados</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Objetivo Kcal</div>
+      <div class="kpi blue">2.475</div>
+      <div class="card-sub">154P · 310HC · 69G</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Bloque</div>
+      <div class="kpi">S${week}/16</div>
+      <div class="card-sub">Fase ${getPhase(week)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Ritmo objetivo</div>
+      <div class="kpi orange">5:30</div>
+      <div class="card-sub">/km media maratón</div>
+    </div>
+  </div>
+
+  <div class="section-title">Checklist diario — ${DAYS[state.dayIndex]}</div>
+  ${renderChecklist(week, state.dayIndex)}
+
+  <div class="section-title">Resumen semana ${week}</div>
+  <div class="plan-grid">
+    ${plan.map((d,i)=>`
+      <div class="plan-row" style="${i===state.dayIndex?'border:1px solid var(--accent2)':''}">
+        <span class="plan-week">${d.day}</span>
+        <span class="plan-phase">${d.label}</span>
+        <span class="plan-desc">${getDayShortDesc(d)}</span>
+      </div>
+    `).join('')}
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+    <button class="btn" onclick="view('training')">→ Ir a Fuerza</button>
+    <button class="btn secondary" onclick="view('running')">→ Ir a Running</button>
+    <button class="btn secondary" onclick="view('review')">📊 Review semanal IA</button>
+  </div>`;
+}
+
+function getDayShortDesc(d){
+  if(d.type==='rest') return 'Descanso activo · movilidad';
+  if(d.type==='strength') return `${d.data.length} ejercicios · progresión`;
+  if(d.data.type==='intervals') return `Intervalos ${d.data.setDist} @ ${d.data.setPace}/km`;
+  if(d.data.type==='tempo') return `Tempo ${d.data.main}`;
+  if(d.data.type==='long') return `Tirada larga ${d.data.main}`;
+  return '-';
+}
+
+function renderChecklist(week, day){
+  const items = [
+    {key:'steps', text:'Pasos 8.000+', sub:'Objetivo diario actividad NEAT'},
+    {key:'sleep', text:'Sueño 7h mínimo', sub:'Recuperación y composición corporal'},
+    {key:'nutrition', text:'Nutrición 80/20', sub:'Al menos 4/5 comidas según plan'},
+    {key:'workout', text:'Entreno completado', sub:'Fuerza o running según plan'},
+    {key:'protein', text:'Proteína objetivo', sub:'>150g proteína total hoy'},
+    {key:'hydration', text:'Hidratación 2.5L', sub:'Fundamental en días de entreno'},
+    {key:'mobility', text:'Movilidad / foam roller', sub:'5-10 min tras entreno'},
+  ];
+  return items.map(item=>{
+    const k = `w${week}_d${day}_${item.key}`;
+    const done = !!state.checklist[k];
+    return `<div class="checklist-item ${done?'done':''}" onclick="toggleCheck('${k}')">
+      <div class="check-box">${done?'✓':''}</div>
+      <div>
+        <div class="check-text">${item.text}</div>
+        <div class="check-sub">${item.sub}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// TRAINING
+// ============================================================
+function renderTraining(){
+  const week = state.week;
+  const plan = getWeekPlan(week);
+  const strengthDays = plan.filter(d=>d.type==='strength');
+
+  const tabs = ['Día A — Lunes','Día B — Jueves'];
+  const selDay = state.trainingTab||0;
+
+  const session = strengthDays[selDay];
+  if(!session) return '<p>No hay sesión de fuerza hoy.</p>';
+
+  return `
+  <div class="page-header">
+    <h1>Fuerza · Semana ${week}</h1>
+    <p class="mono">Progresión DOCE · RIR · Sobrecarga progresiva</p>
+  </div>
+
+  <div class="day-tabs">
+    <div class="day-tab ${selDay===0?'active':''}" onclick="setTrainingTab(0)">Día A · Lunes</div>
+    <div class="day-tab ${selDay===1?'active':''}" onclick="setTrainingTab(1)">Día B · Jueves</div>
+  </div>
+
+  <div class="alert-box">
+    ⚠️ Regla DOCE: Si completas todas las reps con el RIR indicado → próxima semana +2.5kg tren superior / +5kg tren inferior.
+  </div>
+
+  <div class="workout-block">
+    <div class="workout-header">
+      <div class="workout-title">${session.label} · ${session.day}</div>
+      <div class="workout-badge strength">FUERZA</div>
+    </div>
+    <div class="workout-body">
+      ${session.data.map(ex=>{
+        const prevWeight = state.weights[`w${week-1}_${ex.key}`] || 0;
+        const target = prevWeight > 0 ? (prevWeight + (ex.prog==='upper'?2.5:5)) : '—';
+        const currentWeight = state.weights[`w${week}_${ex.key}`] || '';
+        return `
+        <div class="exercise-row">
+          <div>
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-detail mono">${ex.sets} × ${ex.reps} reps · ${ex.muscle}</div>
+            <div class="ex-inputs grid2">
+              <div>
+                <label>Peso (kg)</label>
+                <input type="number" placeholder="${target!=='—'?target+' kg (objetivo)':'—'}" value="${currentWeight}" onchange="logWeight('${ex.key}','${week}',this.value)">
+              </div>
+              <div>
+                <label>Reps hechas</label>
+                <input type="number" placeholder="${ex.reps}">
+              </div>
+            </div>
+          </div>
+          <div><div class="ex-rir">${ex.rir}</div></div>
+          <div><div class="ex-prog">${prevWeight>0?'→ '+target+'kg':'Peso libre'}</div></div>
+          <div></div>
+        </div>`;
+      }).join('')}
+      <textarea placeholder="Observaciones, sensaciones, notas..."></textarea>
+      <br><br>
+      <button class="btn" onclick="saveTrainingNotes()">💾 Guardar sesión</button>
+    </div>
+  </div>
+
+  <div class="session-goal">
+    💡 OBJETIVO DÍA: Completar todas las series dentro del RIR indicado. Si en algún ejercicio sobra mucho esfuerzo, anota el peso para subir la semana que viene. Si no llegas al RIR mínimo, mantén peso.
+  </div>`;
+}
+
+// ============================================================
+// RUNNING
+// ============================================================
+function renderRunning(){
+  const week = state.week;
+  const plan = getWeekPlan(week);
+  const runDays = plan.filter(d=>d.type==='running');
+  const selTab = state.runningTab||0;
+  const session = runDays[selTab];
+
+  const tabLabels = runDays.map(d=>d.label);
+
+  return `
+  <div class="page-header">
+    <h1>Running · Semana ${week}</h1>
+    <p class="mono">Formato Intervals.icu · Ritmos en min:seg/km</p>
+  </div>
+
+  <div class="day-tabs">
+    ${tabLabels.map((l,i)=>`<div class="day-tab ${i===selTab?'active':''}" onclick="setRunningTab(${i})">${l}</div>`).join('')}
+  </div>
+
+  ${renderRunSession(session, week)}
+
+  <div class="section-title">Progresión de ritmos</div>
+  <div class="plan-grid">
+    <div class="plan-row" style="font-family:'DM Mono',monospace;font-size:11px;background:var(--bg)">
+      <span style="color:var(--muted)">FASE</span>
+      <span style="color:var(--muted)">EASY</span>
+      <span style="color:var(--muted)">INTERVALO / TEMPO</span>
+    </div>
+    ${[
+      ['BASE (S1-4)', '6:45/km', '5:20 / 5:50'],
+      ['VOLUMEN (S5-8)', '6:30/km', '5:10 / 5:40'],
+      ['RITMO (S9-12)', '6:15/km', '5:00 / 5:30'],
+      ['ESPECÍFICO (S13-16)', '6:00/km', '4:55 / 5:20'],
+    ].map(r=>`
+      <div class="plan-row">
+        <span class="plan-phase">${r[0]}</span>
+        <span class="plan-week">${r[1]}</span>
+        <span class="plan-desc">${r[2]}</span>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function renderRunSession(session, week){
+  if(!session) return '';
+  const data = session.data;
+  const fmt = data.intervalsFormat;
+
+  let details = '';
+  if(data.type==='intervals'){
+    details = `
+      <div class="intervals-line"><span class="il-phase">Warmup:</span><span class="il-pace">${data.warmup}</span></div>
+      <div class="intervals-line"><span class="il-phase">Main:</span><span class="il-pace">${data.sets}×</span><span class="il-dist">${data.setDist} @ ${data.setPace}/km</span><span class="il-note">rec ${data.rest}</span></div>
+      <div class="intervals-line"><span class="il-phase">Cooldown:</span><span class="il-pace">${data.cooldown}</span></div>`;
+  } else if(data.type==='tempo'){
+    details = `
+      <div class="intervals-line"><span class="il-phase">Warmup:</span><span class="il-pace">${data.warmup}</span></div>
+      <div class="intervals-line"><span class="il-phase">Main:</span><span class="il-pace">${data.main}</span></div>
+      <div class="intervals-line"><span class="il-phase">Cooldown:</span><span class="il-pace">${data.cooldown}</span></div>`;
+  } else {
+    details = `<div class="intervals-line"><span class="il-phase">Sesión:</span><span class="il-pace">${data.main}</span></div>`;
+  }
+
+  return `
+  <div class="workout-block">
+    <div class="workout-header">
+      <div class="workout-title">${session.label} · ${session.day}</div>
+      <div class="workout-badge running">RUNNING</div>
+    </div>
+    <div class="workout-body">
+      <div class="intervals-block">
+        <button class="copy-btn" onclick="copyIntervals(${JSON.stringify(fmt).replace(/"/g,'&quot;')})">📋 Copiar</button>
+        <div style="font-weight:500;color:var(--text);margin-bottom:12px">FORMATO INTERVALS.ICU</div>
+        <pre style="white-space:pre-wrap;color:var(--accent);font-family:'DM Mono',monospace;font-size:12px;line-height:1.9">${fmt}</pre>
+      </div>
+      <div style="margin-top:16px">
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Resumen visual</div>
+        ${details}
+      </div>
+      <div class="session-goal">💡 ${data.goal}</div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// NUTRITION
+// ============================================================
+function renderNutrition(){
+  const week = state.week;
+  const plan = getWeekPlan(week);
+  const dayType = ['training','running'].includes(plan[state.dayIndex]?.type) ? 'training_day' : 'rest_day';
+  const nutr = NUTRITION[dayType];
+  const otherType = dayType==='training_day' ? 'rest_day' : 'training_day';
+  const selTab = state.nutritionTab || dayType;
+
+  const activeNutr = NUTRITION[state.nutritionTab || dayType];
+
+  return `
+  <div class="page-header">
+    <h1>Nutrición DOCE</h1>
+    <p class="mono">Intercambios · ${state.profile.kcal}kcal · ${state.profile.protein}P · ${state.profile.carbs}HC · ${state.profile.fat}G</p>
+  </div>
+
+  <div class="day-tabs">
+    <div class="day-tab ${(!state.nutritionTab||state.nutritionTab==='training_day')?'active':''}" onclick="setNutritionTab('training_day')">🏋️ Día entreno</div>
+    <div class="day-tab ${state.nutritionTab==='rest_day'?'active':''}" onclick="setNutritionTab('rest_day')">😴 Día descanso</div>
+  </div>
+
+  <div class="macro-bar" style="margin-bottom:20px">
+    <div class="macro-item"><div class="macro-val">${activeNutr.kcal}</div><div class="macro-label">Kcal</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${state.profile.protein}g</div><div class="macro-label">Proteína</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${state.profile.carbs}g</div><div class="macro-label">HC</div></div>
+  </div>
+
+  <div class="nutrition-day">
+    ${activeNutr.meals.map(meal=>`
+      <div class="meal-card">
+        <div class="meal-header">
+          <span>${meal.name}</span>
+          <span class="meal-kcal">~${meal.kcal} kcal</span>
+        </div>
+        ${meal.items.map(item=>`
+          <div class="food-item">
+            <span class="food-name">${item.food}</span>
+            <span class="food-amount">${item.amount}</span>
+          </div>
+        `).join('')}
+      </div>
+    `).join('')}
+  </div>
+
+  <div class="session-goal" style="margin-top:16px">
+    💡 DOCE NUTRITION: Ajusta porciones de HC (arroz, patata, avena) según rendimiento. Si hay fatiga extrema, +30g HC. Si hay retención notable, -20g HC. Proteína NUNCA baja de 140g.
+  </div>`;
+}
+
+// ============================================================
+// PLAN 16 SEMANAS
+// ============================================================
+function renderPlan(){
+  return `
+  <div class="page-header">
+    <h1>Plan 16 semanas</h1>
+    <p class="mono">HM 5:30/km · Recomposición corporal · Fuerza + Running</p>
+  </div>
+
+  <div class="phase-block phase1">
+    <div class="phase-title">FASE 1 · BASE AERÓBICA (Semanas 1–4)</div>
+    <div class="phase-detail">
+      · Running: 3 sesiones/semana · easy 6:45/km · intervalos 5:20 · tirada larga hasta 60min<br>
+      · Fuerza: 2×/sem · 3 series · RIR 3-2 · aprendizaje técnico<br>
+      · Nutrición: establecer patrón de intercambios · proteína 154g/día<br>
+      · Objetivo: adaptación · sin lesiones · pasos > 7.000/día
+    </div>
+  </div>
+
+  <div class="phase-block phase2">
+    <div class="phase-title">FASE 2 · VOLUMEN (Semanas 5–8)</div>
+    <div class="phase-detail">
+      · Running: ritmos evolucionan · easy 6:30 · intervalos 5:10 · tirada 70min<br>
+      · Fuerza: +1 serie en ejercicios compuestos · sobrecarga progresiva activa<br>
+      · Nutrición: igual · ajuste si progreso se estanca<br>
+      · Objetivo: consolidar base · aguantar carga sin fatiga acumulada
+    </div>
+  </div>
+
+  <div class="phase-block phase3">
+    <div class="phase-title">FASE 3 · RITMO OBJETIVO (Semanas 9–12)</div>
+    <div class="phase-detail">
+      · Running: tempo a 5:30/km · intervalos 5:00 · tirada 80min<br>
+      · Fuerza: mantenimiento · volumen estable · intensidad alta<br>
+      · Nutrición: posible ajuste carbos pre-running<br>
+      · Objetivo: sentirte cómodo al ritmo objetivo de la media
+    </div>
+  </div>
+
+  <div class="phase-block phase4">
+    <div class="phase-title">FASE 4 · ESPECÍFICO / PEAK (Semanas 13–16)</div>
+    <div class="phase-detail">
+      · Running: 4×1200m @ 4:55 · tirada 90min · semana 15 reducción 30% · semana 16 taper<br>
+      · Fuerza: reducción volumen · mantenimiento fuerza<br>
+      · Nutrición: carbo-loading semana previa a carrera<br>
+      · Objetivo: llegar fresco, confiado, en forma a la línea de salida
+    </div>
+  </div>
+
+  <div class="section-title">Semana a semana</div>
+  <div class="plan-grid">
+    <div class="plan-row" style="font-family:'DM Mono',monospace;font-size:10px;background:var(--bg)">
+      <span style="color:var(--muted)">SEM</span><span style="color:var(--muted)">FASE</span><span style="color:var(--muted)">FOCO</span>
+    </div>
+    ${Array.from({length:16},(_,i)=>i+1).map(w=>{
+      const phase = getPhase(w);
+      const isCurrentWeek = w===state.week;
+      return `<div class="plan-row" style="${isCurrentWeek?'border:1px solid var(--accent);':''}">
+        <span class="plan-week" style="${isCurrentWeek?'color:var(--accent)':''}">S${w}${isCurrentWeek?' ←':''}</span>
+        <span class="plan-phase">${phase}</span>
+        <span class="plan-desc">${getPlanDesc(w)}</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function getPlanDesc(w){
+  if(w===15) return 'Reducción 30% · descanso activo';
+  if(w===16) return '🏁 TAPER · carrera';
+  if(w<=4) return `Easy ${w<=2?'6:45':'6:45'}/km · 6×400 · tirada ${50+(w-1)*5}min`;
+  if(w<=8) return `Easy 6:30/km · 8×400 · tirada ${60+(w-5)*5}min`;
+  if(w<=12) return `Tempo 5:30 · 6×800 · tirada ${70+(w-9)*5}min`;
+  return `Tempo 5:20 · 4×1200 · tirada ${85+(w-13)*5}min`;
+}
+
+// ============================================================
+// REVIEW SEMANAL IA
+// ============================================================
+function renderReview(){
+  return `
+  <div class="page-header">
+    <h1>Review Semanal IA</h1>
+    <p class="mono">Análisis como entrenador + nutricionista + médico deportivo</p>
+  </div>
+
+  <div class="alert-box">
+    ℹ️ Pega aquí tus datos de la semana. CLOE analizará como coach, nutricionista y médico deportivo y generará ajustes + semana siguiente.
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-label">Datos básicos</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="form-group">
+        <label>Peso esta semana (kg)</label>
+        <input type="number" id="rev-weight" placeholder="78.2">
+      </div>
+      <div class="form-group">
+        <label>Cintura (cm)</label>
+        <input type="number" id="rev-waist" placeholder="88">
+      </div>
+      <div class="form-group">
+        <label>Energía media (1-10)</label>
+        <input type="number" id="rev-energy" placeholder="7" min="1" max="10">
+      </div>
+      <div class="form-group">
+        <label>Hambre (1-10)</label>
+        <input type="number" id="rev-hunger" placeholder="5" min="1" max="10">
+      </div>
+      <div class="form-group">
+        <label>Sueño medio (h)</label>
+        <input type="number" id="rev-sleep" placeholder="7.2" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>Adherencia entreno (%)</label>
+        <input type="number" id="rev-adherence" placeholder="85" min="0" max="100">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Datos CSV Intervals.icu (pega aquí o describe)</label>
+      <textarea id="rev-intervals" placeholder="Pega datos de Intervals.icu: distancia total, TSS, ritmo medio, etc." rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Notas libres (sensaciones, dolor, fatiga, vida...)</label>
+      <textarea id="rev-notes" placeholder="Cuéntame cómo fue la semana. Dolores, bloqueos, éxitos, contexto vital..." rows="4"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn" onclick="generateReview()">🤖 Generar análisis CLOE IA</button>
+      <button class="btn secondary" onclick="generateNextWeek()">📅 Generar semana siguiente</button>
+    </div>
+  </div>
+
+  <div id="review-output" style="display:none">
+    <div class="section-title">Análisis CLOE</div>
+    <div class="report-area" id="review-text"></div>
+  </div>`;
+}
+
+async function generateReview(){
+  const weight = document.getElementById('rev-weight')?.value;
+  const waist = document.getElementById('rev-waist')?.value;
+  const energy = document.getElementById('rev-energy')?.value;
+  const hunger = document.getElementById('rev-hunger')?.value;
+  const sleep = document.getElementById('rev-sleep')?.value;
+  const adherence = document.getElementById('rev-adherence')?.value;
+  const intervals = document.getElementById('rev-intervals')?.value;
+  const notes = document.getElementById('rev-notes')?.value;
+
+  const outEl = document.getElementById('review-output');
+  const textEl = document.getElementById('review-text');
+  outEl.style.display='block';
+  textEl.innerHTML='<span style="color:var(--muted)">⏳ CLOE está analizando tu semana...</span>';
+
+  const prompt = `Eres C.L.O.E COACH, un sistema de coaching deportivo con expertise simultáneo en:
+1. Entrenamiento de fuerza (principios DOCE: RIR, sobrecarga progresiva, mínimo volumen efectivo)
+2. Running (plan 16 semanas para media maratón de 5:30/km)
+3. Nutrición deportiva (recomposición corporal, intercambios, timing)
+4. Medicina deportiva preventiva (alertas de fatiga, lesión, recuperación)
+
+PERFIL USUARIO:
+- 47 años, hombre, 180cm, 78kg, principiante running
+- Objetivo: recomposición corporal + media maratón a 5:30/km
+- Semana ${state.week} de 16
+- Fase: ${getPhase(state.week)}
+- Kcal objetivo: 2.475 kcal | 154P / 310HC / 69G
+
+DATOS SEMANA ${state.week}:
+- Peso: ${weight||'n/d'} kg
+- Cintura: ${waist||'n/d'} cm
+- Energía (1-10): ${energy||'n/d'}
+- Hambre (1-10): ${hunger||'n/d'}
+- Sueño medio: ${sleep||'n/d'}h
+- Adherencia entreno: ${adherence||'n/d'}%
+- Datos Intervals: ${intervals||'n/d'}
+- Notas libres: ${notes||'n/d'}
+
+Responde como CLOE COACH con este formato EXACTO:
+
+## 1. ANÁLISIS RENDIMIENTO
+[analiza fuerza + running, progresos, ritmos, sensaciones]
+
+## 2. ANÁLISIS COMPOSICIÓN CORPORAL
+[peso, tendencia, si está en déficit/mantenimiento/surplus, cintura]
+
+## 3. ANÁLISIS RECUPERACIÓN
+[sueño, energía, HRV si disponible, señales de fatiga]
+
+## 4. ALERTAS O RIESGOS
+[cualquier señal de lesión, sobreentrenamiento, déficit extremo, o riesgo médico]
+
+## 5. AJUSTES SEMANA SIGUIENTE
+[cambios concretos en entreno, nutrición o recuperación — sé específico]
+
+## 6. SEMANA ${state.week+1} COMPLETA
+[genera el plan completo de la semana siguiente en formato:
+FUERZA DÍA A: ejercicios, series, reps, RIR, peso objetivo
+FUERZA DÍA B: ejercicios, series, reps, RIR, peso objetivo
+RUNNING: 3 sesiones en formato Intervals.icu exacto
+NUTRICIÓN: ajustes si procede
+OBJETIVOS: pasos, sueño, adherencia]
+
+Sé directo, práctico, como un coach real. Sin teoría innecesaria. Justifica brevemente cada decisión.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.map(b=>b.text||'').join('') || 'Error al obtener respuesta.';
+    textEl.innerHTML = formatReviewText(text);
+  } catch(e) {
+    textEl.innerHTML = `<span style="color:#f13535">Error conectando con la IA: ${e.message}</span>`;
+  }
+}
+
+function formatReviewText(text){
+  return text
+    .replace(/## (.+)/g, '<div class="report-section-title">$1</div>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+async function generateNextWeek(){
+  state.week = Math.min(state.week + 1, 16);
+  save();
+  document.getElementById('sb-week').textContent = state.week;
+  document.getElementById('sb-phase').textContent = getPhase(state.week);
+  
+  const outEl = document.getElementById('review-output');
+  const textEl = document.getElementById('review-text');
+  if(outEl) {
+    outEl.style.display='block';
+    textEl.innerHTML=`<span style="color:var(--accent)">✅ Semana ${state.week} activada. Ve a Dashboard para ver el plan actualizado.</span>`;
+  }
+  
+  alert(`✅ Semana ${state.week} activada — Fase ${getPhase(state.week)}\n\nRevisa el Dashboard para el plan actualizado.`);
+  view('dashboard');
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function renderSettings(){
+  const p = state.profile;
+  return `
+  <div class="page-header">
+    <h1>Perfil CLOE</h1>
+    <p class="mono">Datos base para cálculo de planes y progresión</p>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-label">Datos físicos</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="form-group"><label>Edad</label><input id="s-age" value="${p.age}"></div>
+      <div class="form-group"><label>Peso (kg)</label><input id="s-weight" value="${p.weight}"></div>
+      <div class="form-group"><label>Altura (cm)</label><input id="s-height" value="${p.height}"></div>
+      <div class="form-group"><label>Kcal objetivo</label><input id="s-kcal" value="${p.kcal}"></div>
+      <div class="form-group"><label>Proteína (g)</label><input id="s-protein" value="${p.protein}"></div>
+      <div class="form-group"><label>Carbos (g)</label><input id="s-carbs" value="${p.carbs}"></div>
+    </div>
+    <button class="btn" onclick="saveProfile()">💾 Guardar perfil</button>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-label">Control de semana</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="form-group">
+        <label>Semana actual (1-16)</label>
+        <input type="number" id="s-week" value="${state.week}" min="1" max="16">
+      </div>
+    </div>
+    <button class="btn" onclick="setWeek()">✅ Actualizar semana</button>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Reset</div>
+    <p class="mono" style="font-size:12px;color:var(--muted);margin:12px 0">Borra todo el historial y vuelve a la semana 1. Irreversible.</p>
+    <button class="btn danger" onclick="resetAll()">🗑️ Reset completo</button>
+  </div>`;
+}
+
+// ============================================================
+// HANDLERS
+// ============================================================
+function attachHandlers(){}
+
+function toggleCheck(key){
+  state.checklist[key] = !state.checklist[key];
+  save();
+  renderView();
+}
+
+function logWeight(key, week, val){
+  state.weights[`w${week}_${key}`] = parseFloat(val);
+  save();
+}
+
+function setTrainingTab(i){
+  state.trainingTab = i;
+  renderView();
+}
+
+function setRunningTab(i){
+  state.runningTab = i;
+  renderView();
+}
+
+function setNutritionTab(t){
+  state.nutritionTab = t;
+  renderView();
+}
+
+function saveTrainingNotes(){
+  // Visual feedback only
+  const btn = document.querySelector('.workout-body .btn');
+  if(btn){ btn.textContent = '✅ Guardado'; setTimeout(()=>btn.textContent='💾 Guardar sesión', 2000); }
+  save();
+}
+
+function copyIntervals(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.querySelector('.copy-btn');
+    if(btn){ btn.textContent='✅ Copiado'; setTimeout(()=>btn.textContent='📋 Copiar', 2000); }
+  });
+}
+
+function saveProfile(){
+  state.profile.age = parseInt(document.getElementById('s-age')?.value)||47;
+  state.profile.weight = parseFloat(document.getElementById('s-weight')?.value)||78;
+  state.profile.height = parseInt(document.getElementById('s-height')?.value)||180;
+  state.profile.kcal = parseInt(document.getElementById('s-kcal')?.value)||2475;
+  state.profile.protein = parseInt(document.getElementById('s-protein')?.value)||154;
+  state.profile.carbs = parseInt(document.getElementById('s-carbs')?.value)||310;
+  save();
+  alert('✅ Perfil guardado');
+}
+
+function setWeek(){
+  const w = parseInt(document.getElementById('s-week')?.value);
+  if(w>=1 && w<=16){ state.week=w; save(); view('dashboard'); }
+}
+
+function resetAll(){
+  if(confirm('¿Seguro? Se borrará todo el historial.')){
+    localStorage.removeItem('cloe_v2');
+    location.reload();
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+view('dashboard');
+</script>
+</body>
+</html>
