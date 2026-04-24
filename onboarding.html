@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>C.L.O.E · Cuestionario inicial</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
+.hdr{background:#101622;border-bottom:1px solid var(--border);padding:16px 28px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:20px;font-weight:800}.brand span{color:var(--accent)}
+.prog-bar{height:4px;background:var(--surface2)}
+.prog-fill{height:4px;background:var(--accent);transition:width .4s;width:20%}
+.steps-row{background:#101622;border-bottom:1px solid var(--border);padding:12px 28px;display:flex;gap:6px;align-items:center;justify-content:center}
+.s-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;transition:all .2s}
+.s-dot.on{border-color:var(--accent);color:var(--accent);background:rgba(200,241,53,.1)}
+.s-dot.ok{background:var(--accent);border-color:var(--accent);color:#111}
+.s-line{flex:1;max-width:60px;height:1px;background:var(--border)}
+.s-line.ok{background:var(--accent)}
+.main{max-width:660px;margin:0 auto;padding:32px 20px}
+.panel{display:none}.panel.on{display:block}
+.ptitle{font-size:20px;font-weight:800;margin-bottom:5px}
+.psub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:28px}
+.field{margin-bottom:20px}
+.fl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;display:block;margin-bottom:7px}
+input[type=text],input[type=number],input[type=email],select,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:11px 14px;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.pill{font-family:'DM Mono',monospace;font-size:11px;padding:8px 14px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;user-select:none}
+.pill:hover{color:var(--text);border-color:var(--muted)}
+.pill.sel{background:rgba(200,241,53,.1);border-color:var(--accent);color:var(--accent)}
+.pill.msel{background:rgba(91,156,246,.1);border-color:var(--accent2);color:var(--accent2)}
+.cpills{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:4px}
+.cpill{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;background:var(--surface2)}
+.cpill:hover{border-color:var(--muted)}
+.cpill.sel{border-color:var(--accent);background:rgba(200,241,53,.08)}
+.cpill-t{font-size:13px;font-weight:700;margin-bottom:4px}
+.cpill-s{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.5}
+.sl-wrap{display:flex;align-items:center;gap:12px;margin-top:6px}
+.sl-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:45px}
+input[type=range]{flex:1;accent-color:var(--accent)}
+.sl-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);min-width:55px;text-align:right}
+.nav{display:flex;gap:10px;margin-top:32px;padding-top:20px;border-top:1px solid var(--border)}
+.btn{background:var(--accent);color:#111;border:none;padding:11px 22px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:13px;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+/* resultado */
+.alert{background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:14px;line-height:1.6}
+.mcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+.mlbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mc{background:var(--surface2);padding:12px;border-radius:10px;text-align:center}
+.mv{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent)}
+.ml{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;text-transform:uppercase}
+.prompt-area{width:100%;background:#070e1c;color:var(--accent);border:1px solid var(--border);border-radius:12px;padding:18px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.9;min-height:460px;resize:vertical;outline:none}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="brand">C.L.O.E <span>COACH</span></div>
+  <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">Cuestionario inicial · Semana 1</span>
+</div>
+<div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+<div class="steps-row">
+  <div class="s-dot on" id="d1">1</div><div class="s-line" id="l1"></div>
+  <div class="s-dot" id="d2">2</div><div class="s-line" id="l2"></div>
+  <div class="s-dot" id="d3">3</div><div class="s-line" id="l3"></div>
+  <div class="s-dot" id="d4">4</div><div class="s-line" id="l4"></div>
+  <div class="s-dot" id="d5">✓</div>
+</div>
+
+<div class="main">
+
+<!-- PASO 1 -->
+<div class="panel on" id="p1">
+  <div class="ptitle">Datos físicos</div>
+  <div class="psub">La base para calcular tus macros y ritmos de entrenamiento</div>
+
+  <div class="field">
+    <label class="fl">Nombre completo</label>
+    <input type="text" id="name" placeholder="María García">
+  </div>
+  <div class="g3">
+    <div class="field"><label class="fl">Edad</label><input type="number" id="age" placeholder="35" min="16" max="80"></div>
+    <div class="field"><label class="fl">Peso (kg)</label><input type="number" id="weight" placeholder="72" step="0.1"></div>
+    <div class="field"><label class="fl">Altura (cm)</label><input type="number" id="height" placeholder="170"></div>
+  </div>
+  <div class="field">
+    <label class="fl">Sexo biológico</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'sex','Hombre')">Hombre</div>
+      <div class="pill" onclick="pick(this,'sex','Mujer')">Mujer</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Lesiones o limitaciones físicas</label>
+    <div class="pills">
+      <div class="pill sel" onclick="pick(this,'injury','Ninguna')">Ninguna</div>
+      <div class="pill" onclick="pick(this,'injury','Rodilla')">Rodilla</div>
+      <div class="pill" onclick="pick(this,'injury','Espalda')">Espalda</div>
+      <div class="pill" onclick="pick(this,'injury','Hombro')">Hombro</div>
+      <div class="pill" onclick="pick(this,'injury','Otra')">Otra</div>
+    </div>
+    <input type="text" id="injury-detail" placeholder="Describe la lesión..." style="margin-top:10px;display:none">
+  </div>
+  <div class="field">
+    <label class="fl">Pasos diarios actuales (aprox.)</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'steps','menos de 5.000')">Menos de 5.000</div>
+      <div class="pill" onclick="pick(this,'steps','5.000–8.000')">5.000–8.000</div>
+      <div class="pill" onclick="pick(this,'steps','8.000–12.000')">8.000–12.000</div>
+      <div class="pill" onclick="pick(this,'steps','más de 12.000')">Más de 12.000</div>
+    </div>
+  </div>
+  <div class="nav"><button class="btn" onclick="go(2)">Siguiente →</button></div>
+</div>
+
+<!-- PASO 2 -->
+<div class="panel" id="p2">
+  <div class="ptitle">Objetivo</div>
+  <div class="psub">Define qué quieres conseguir en estas 16 semanas</div>
+
+  <div class="field">
+    <label class="fl">Objetivo principal</label>
+    <div class="cpills">
+      <div class="cpill" onclick="cpick(this,'goal','Recomposición corporal')">
+        <div class="cpill-t">Recomposición</div>
+        <div class="cpill-s">Bajar grasa sin perder músculo</div>
+      </div>
+      <div class="cpill" onclick="cpick(this,'goal','Perder grasa')">
+        <div class="cpill-t">Perder grasa</div>
+        <div class="cpill-s">Déficit calórico · reducir peso</div>
+      </div>
+      <div class="cpill" onclick="cpick(this,'goal','Ganar músculo')">
+        <div class="cpill-t">Ganar músculo</div>
+        <div class="cpill-s">Superávit controlado · masa</div>
+      </div>
+      <div class="cpill" onclick="cpick(this,'goal','Rendimiento deportivo')">
+        <div class="cpill-t">Rendimiento</div>
+        <div class="cpill-s">Mejorar marca deportiva</div>
+      </div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Evento o fecha clave (opcional)</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'event','Media maratón')">Media maratón</div>
+      <div class="pill" onclick="pick(this,'event','Maratón')">Maratón</div>
+      <div class="pill" onclick="pick(this,'event','10K')">Carrera 10K</div>
+      <div class="pill" onclick="pick(this,'event','Competición fuerza')">Fuerza</div>
+      <div class="pill sel" onclick="pick(this,'event','Sin evento concreto')">Sin evento</div>
+    </div>
+    <input type="text" id="event-date" placeholder="¿Fecha aproximada? ej: octubre 2025" style="margin-top:10px">
+  </div>
+  <div class="field">
+    <label class="fl">Ritmo de referencia en running (si lo tienes)</label>
+    <div class="g2">
+      <div><label class="fl" style="margin-top:0">Ritmo easy actual (min:seg/km)</label><input type="text" id="easy-pace" placeholder="ej. 6:30"></div>
+      <div><label class="fl" style="margin-top:0">Ritmo objetivo (min:seg/km)</label><input type="text" id="target-pace" placeholder="ej. 5:30"></div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="btn sec" onclick="go(1)">← Atrás</button>
+    <button class="btn" onclick="go(3)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO 3 -->
+<div class="panel" id="p3">
+  <div class="ptitle">Entrenamiento</div>
+  <div class="psub">Tu experiencia y disponibilidad</div>
+
+  <div class="field">
+    <label class="fl">Nivel en running</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'run-lvl','Principiante (menos de 6 meses)')">Principiante</div>
+      <div class="pill" onclick="pick(this,'run-lvl','Intermedio (corre regularmente)')">Intermedio</div>
+      <div class="pill" onclick="pick(this,'run-lvl','Avanzado (compite o tiene marcas)')">Avanzado</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Nivel en fuerza / gimnasio</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'gym-lvl','Sin experiencia')">Sin experiencia</div>
+      <div class="pill" onclick="pick(this,'gym-lvl','Menos de 1 año')">Menos de 1 año</div>
+      <div class="pill" onclick="pick(this,'gym-lvl','1-3 años')">1-3 años</div>
+      <div class="pill" onclick="pick(this,'gym-lvl','Más de 3 años')">Más de 3 años</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Días disponibles por semana</label>
+    <div class="sl-wrap">
+      <span class="sl-lbl">2 días</span>
+      <input type="range" id="days" min="2" max="6" step="1" value="4" oninput="document.getElementById('days-v').textContent=this.value+' días'">
+      <span class="sl-lbl">6 días</span>
+      <span class="sl-val" id="days-v">4 días</span>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Distribución preferida</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'split','2 fuerza + 2 running')">2F + 2R</div>
+      <div class="pill" onclick="pick(this,'split','2 fuerza + 3 running')">2F + 3R</div>
+      <div class="pill" onclick="pick(this,'split','3 fuerza + 2 running')">3F + 2R</div>
+      <div class="pill" onclick="pick(this,'split','Solo fuerza')">Solo fuerza</div>
+      <div class="pill" onclick="pick(this,'split','Solo running')">Solo running</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Tiempo disponible por sesión</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'session-t','30-45 min')">30-45 min</div>
+      <div class="pill" onclick="pick(this,'session-t','45-60 min')">45-60 min</div>
+      <div class="pill" onclick="pick(this,'session-t','60-75 min')">60-75 min</div>
+      <div class="pill" onclick="pick(this,'session-t','75-90 min')">75-90 min</div>
+      <div class="pill" onclick="pick(this,'session-t','+90 min')">+90 min</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Equipamiento disponible (múltiple)</label>
+    <div class="pills">
+      <div class="pill" onclick="multi(this,'equip','Gimnasio completo')">Gimnasio completo</div>
+      <div class="pill" onclick="multi(this,'equip','Mancuernas')">Mancuernas</div>
+      <div class="pill" onclick="multi(this,'equip','Barra y discos')">Barra y discos</div>
+      <div class="pill" onclick="multi(this,'equip','Máquinas (prensa, hack...)')">Máquinas</div>
+      <div class="pill" onclick="multi(this,'equip','Solo peso corporal')">Peso corporal</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="btn sec" onclick="go(2)">← Atrás</button>
+    <button class="btn" onclick="go(4)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO 4 -->
+<div class="panel" id="p4">
+  <div class="ptitle">Nutrición</div>
+  <div class="psub">Calculamos tus macros con el método DOCE</div>
+
+  <div class="field">
+    <label class="fl">Actividad laboral (fuera del entreno)</label>
+    <div class="pills">
+      <div class="pill" onclick="pick(this,'activity','Sedentario (oficina, poco movimiento)')">Sedentario</div>
+      <div class="pill" onclick="pick(this,'activity','Ligero (de pie parte del día)')">Ligero</div>
+      <div class="pill" onclick="pick(this,'activity','Moderado (movimiento habitual)')">Moderado</div>
+      <div class="pill" onclick="pick(this,'activity','Activo (trabajo físico)')">Activo</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Restricciones alimentarias (múltiple)</label>
+    <div class="pills">
+      <div class="pill msel" onclick="multi(this,'diet','Ninguna')">Ninguna</div>
+      <div class="pill" onclick="multi(this,'diet','Sin lactosa')">Sin lactosa</div>
+      <div class="pill" onclick="multi(this,'diet','Sin gluten')">Sin gluten</div>
+      <div class="pill" onclick="multi(this,'diet','Vegetariano')">Vegetariano</div>
+      <div class="pill" onclick="multi(this,'diet','Vegano')">Vegano</div>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Horas de sueño habituales</label>
+    <div class="sl-wrap">
+      <span class="sl-lbl">4h</span>
+      <input type="range" id="sleep" min="4" max="10" step="0.5" value="7" oninput="document.getElementById('sleep-v').textContent=this.value+'h'">
+      <span class="sl-lbl">10h</span>
+      <span class="sl-val" id="sleep-v">7h</span>
+    </div>
+  </div>
+  <div class="field">
+    <label class="fl">Contexto adicional (trabajo, estrés, vida...)</label>
+    <textarea id="context" placeholder="Ej: trabajo en oficina, mucho estrés, viajo frecuentemente, tengo hijos..." rows="3"></textarea>
+  </div>
+  <div class="nav">
+    <button class="btn sec" onclick="go(3)">← Atrás</button>
+    <button class="btn" onclick="generate()">Generar plan Semana 1 →</button>
+  </div>
+</div>
+
+<!-- PASO 5: RESULTADO -->
+<div class="panel" id="p5">
+  <div class="ptitle">Plan Semana 1 generado</div>
+  <div class="psub">Copia este texto · pégalo en el chat · CLOE genera el plan completo</div>
+
+  <div class="alert" id="res-summary"></div>
+  <div class="mcard">
+    <div class="mlbl">Macros calculados — método DOCE</div>
+    <div class="mgrid" id="mgrid"></div>
+  </div>
+
+  <div class="mlbl" style="margin-bottom:8px">Prompt para la IA</div>
+  <textarea class="prompt-area" id="prompt-out" readonly></textarea>
+
+  <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+    <button class="btn" id="copy-btn" onclick="copyPrompt()">📋 Copiar prompt</button>
+    <button class="btn sec" onclick="go(1)">↩ Nuevo cuestionario</button>
+  </div>
+  <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:18px;padding:12px;background:var(--surface2);border-radius:10px;line-height:1.7">
+    📌 Pasos siguientes:<br>
+    1. Copia el prompt de arriba<br>
+    2. Pégalo en el chat del Proyecto CLOE<br>
+    3. CLOE genera el plan completo de la Semana 1<br>
+    4. Ve al panel Admin → crea el usuario → pega el plan en sus notas<br>
+    5. El usuario entra con su email y contraseña y ve su plan
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const F={};
+const M={};
+
+function go(n){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p'+n).classList.add('on');
+  for(let i=1;i<=5;i++){
+    const d=document.getElementById('d'+i);
+    if(i<n){d.textContent='✓';d.className='s-dot ok';}
+    else if(i===n){d.textContent=i;d.className='s-dot on';}
+    else{d.textContent=i;d.className='s-dot';}
+    if(i<5) document.getElementById('l'+i).className='s-line'+(i<n?' ok':'');
+  }
+  document.getElementById('prog').style.width=(n/5*100)+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function pick(el,k,v){
+  el.closest('.pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  F[k]=v;
+  if(k==='injury'){
+    document.getElementById('injury-detail').style.display=(v==='Ninguna'?'none':'block');
+  }
+}
+
+function cpick(el,k,v){
+  el.closest('.cpills').querySelectorAll('.cpill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  F[k]=v;
+}
+
+function multi(el,k,v){
+  if(!M[k]) M[k]=new Set();
+  if(el.classList.contains('msel')){el.classList.remove('msel');M[k].delete(v);}
+  else{el.classList.add('msel');M[k].add(v);}
+}
+
+function calcMacros(){
+  const age=parseFloat(document.getElementById('age').value)||35;
+  const w=parseFloat(document.getElementById('weight').value)||72;
+  const h=parseFloat(document.getElementById('height').value)||170;
+  const sex=F['sex']||'Hombre';
+  const act=F['activity']||'Sedentario';
+  const goal=F['goal']||'Recomposición corporal';
+
+  let tmb = sex==='Hombre' ? 10*w+6.25*h-5*age+5 : 10*w+6.25*h-5*age-161;
+  const amap={'Sedentario':1.375,'Ligero':1.55,'Moderado':1.65,'Activo':1.725};
+  const afactor = Object.entries(amap).find(([k])=>act.startsWith(k))?.[1]||1.375;
+  const tdee=Math.round(tmb*afactor);
+
+  const dmap={'Recomposición':-150,'Perder':-400,'Ganar':+300,'Rendimiento':0};
+  const def = Object.entries(dmap).find(([k])=>goal.startsWith(k))?.[1]||0;
+  const kcal=tdee+def;
+  const protein=Math.round(w*2.0);
+  const fat=Math.round(w*0.9);
+  const carbs=Math.max(0,Math.round((kcal-protein*4-fat*9)/4));
+  return {kcal,protein,carbs,fat,tdee};
+}
+
+function generate(){
+  const name=document.getElementById('name').value||'Usuario';
+  const age=document.getElementById('age').value||'?';
+  const weight=document.getElementById('weight').value||'?';
+  const height=document.getElementById('height').value||'?';
+  const sex=F['sex']||'?';
+  const injury=F['injury']||'Ninguna';
+  const injuryD=document.getElementById('injury-detail').value||'';
+  const steps=F['steps']||'no indicado';
+  const goal=F['goal']||'?';
+  const event=F['event']||'Sin evento';
+  const eventDate=document.getElementById('event-date').value||'';
+  const easyPace=document.getElementById('easy-pace').value||'no indicado';
+  const targetPace=document.getElementById('target-pace').value||'no indicado';
+  const runLvl=F['run-lvl']||'no indicado';
+  const gymLvl=F['gym-lvl']||'no indicado';
+  const days=document.getElementById('days').value;
+  const split=F['split']||'no indicado';
+  const sessionT=F['session-t']||'no indicado';
+  const equip=M['equip']?[...M['equip']].join(', '):'no indicado';
+  const activity=F['activity']||'Sedentario';
+  const diet=M['diet']?[...M['diet']].join(', '):'Ninguna';
+  const sleep=document.getElementById('sleep').value;
+  const context=document.getElementById('context').value||'ninguno';
+
+  const mac=calcMacros();
+
+  document.getElementById('res-summary').textContent=
+    `${name} · TDEE: ${mac.tdee} kcal · Objetivo: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G`;
+
+  document.getElementById('mgrid').innerHTML=`
+    <div class="mc"><div class="mv">${mac.kcal}</div><div class="ml">Kcal</div></div>
+    <div class="mc"><div class="mv" style="color:var(--accent3)">${mac.protein}g</div><div class="ml">Proteína</div></div>
+    <div class="mc"><div class="mv" style="color:var(--accent2)">${mac.carbs}g</div><div class="ml">HC</div></div>
+    <div class="mc"><div class="mv" style="color:var(--muted)">${mac.fat}g</div><div class="ml">Grasa</div></div>`;
+
+  const p=
+`═══════════════════════════════════════════════════════
+C.L.O.E COACH · ONBOARDING SEMANA 1
+Usuario: ${name}
+Fecha: ${new Date().toLocaleDateString('es-ES')}
+═══════════════════════════════════════════════════════
+
+── PERFIL FÍSICO ──────────────────────────────────────
+Nombre:  ${name}
+Edad:    ${age} años · Sexo: ${sex}
+Peso:    ${weight} kg · Altura: ${height} cm
+Pasos actuales: ${steps}
+Lesiones: ${injury}${injuryD?' — '+injuryD:''}
+Sueño habitual: ${sleep}h/noche
+Contexto: ${context}
+
+── OBJETIVO ───────────────────────────────────────────
+Objetivo principal:  ${goal}
+Evento / fecha:      ${event}${eventDate?' ('+eventDate+')':''}
+Ritmo easy actual:   ${easyPace}/km
+Ritmo objetivo:      ${targetPace}/km
+
+── ENTRENAMIENTO ──────────────────────────────────────
+Nivel running:  ${runLvl}
+Nivel fuerza:   ${gymLvl}
+Días/semana:    ${days}
+Distribución:   ${split}
+Tiempo/sesión:  ${sessionT}
+Equipamiento:   ${equip}
+
+── NUTRICIÓN ──────────────────────────────────────────
+Actividad laboral: ${activity}
+Restricciones:     ${diet}
+
+Cálculo DOCE (Mifflin-St Jeor):
+  TDEE estimado:  ${mac.tdee} kcal
+  Objetivo:       ${mac.kcal} kcal (${goal})
+  Proteína:       ${mac.protein}g  (2.0 g/kg)
+  Grasa:          ${mac.fat}g  (0.9 g/kg)
+  Hidratos:       ${mac.carbs}g  (resto)
+
+═══════════════════════════════════════════════════════
+INSTRUCCIÓN PARA C.L.O.E COACH · GENERA SEMANA 1
+═══════════════════════════════════════════════════════
+
+Actúa como C.L.O.E COACH (entrenador fuerza + running
++ nutricionista DOCE + médico deportivo preventivo).
+
+Con el perfil anterior, genera la SEMANA 1 completa
+en el siguiente formato EXACTO:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A. FUERZA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DÍA A (Lunes):
+• Prensa de piernas / sentadilla
+• Press banca plano
+• Remo con barra
+• Peso muerto rumano
+• Elevaciones laterales
+
+DÍA B (Jueves):
+• Hack squat
+• Press inclinado mancuernas
+• Jalón al pecho
+• Hip thrust
+• Face pull
+
+Para CADA ejercicio especifica:
+  series × reps · RIR · peso inicial sugerido (kg)
+  Justifica el peso inicial para nivel ${gymLvl}
+
+Regla progresión DOCE:
+  Si completa reps + RIR correcto → +2.5kg tren superior / +5kg inferior
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+B. RUNNING  (3 sesiones en formato EXACTO Intervals.icu)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Adapta los ritmos a: nivel ${runLvl}, ritmo easy actual ${easyPace}/km
+
+MARTES — Intervalos:
+Warmup
+[X]m [ritmo easy]/km ([distancia]km) Pace
+
+Main set [N]x
+[X]m [ritmo intervalo]/km ([distancia]km) Pace
+[X]m [ritmo easy]/km ([distancia]km) Pace
+
+Cooldown
+[X]m [ritmo easy]/km ([distancia]km) Pace
+
+VIERNES — Tempo:
+[mismo formato]
+
+SÁBADO — Tirada larga:
+Easy Run
+[X]m [ritmo easy]/km (~[distancia]km) Pace
+
+NO usar zonas de FC. Solo ritmos en min:seg/km.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+C. NUTRICIÓN DOCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Macros: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G
+Restricciones: ${diet}
+
+Genera menús con cantidades exactas para:
+
+DÍA CON ENTRENO (5 comidas):
+• Desayuno:
+• Comida principal:
+• Merienda / Pre-entreno (60-90min antes):
+• Cena / Post-entreno:
+• Post-cena:
+
+DÍA DESCANSO (5 comidas, -~55g HC):
+• Desayuno:
+• Comida:
+• Merienda:
+• Cena:
+• Post-cena:
+
+Usa sistema de intercambios DOCE.
+Regla 80/20: 80% alimentos densos, 20% flexible.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+D. OBJETIVOS SEMANA 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Pasos diarios objetivo
+• Sueño mínimo
+• Adherencia entreno / nutrición
+• Foco y mensaje motivador para semana 1
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Sé directo. Sin teoría innecesaria.
+Justifica brevemente cada decisión de carga/volumen
+adaptada al nivel de ${name}.
+═══════════════════════════════════════════════════════`;
+
+  document.getElementById('prompt-out').value=p;
+  go(5);
+}
+
+function copyPrompt(){
+  const a=document.getElementById('prompt-out');
+  a.select(); document.execCommand('copy');
+  const b=document.getElementById('copy-btn');
+  b.textContent='✅ Copiado';
+  setTimeout(()=>b.textContent='📋 Copiar prompt',2500);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>C.L.O.E · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
+.hdr{background:#101622;border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:20px;font-weight:800}.brand span{color:var(--accent)}
+.badge{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:6px;background:rgba(241,161,53,.12);color:var(--accent3);border:1px solid rgba(241,161,53,.3)}
+.main{padding:24px 28px;max-width:1200px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:24px}
+.kcard{background:var(--surface);padding:14px;border-radius:14px;border:1px solid var(--border)}
+.klbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.kval{font-size:26px;font-weight:800;font-family:'DM Mono',monospace}
+.kval.a{color:var(--accent)}.kval.b{color:var(--accent2)}.kval.o{color:var(--accent3)}
+.stitle{font-size:14px;font-weight:800;margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.stitle::after{content:'';flex:1;height:1px;background:var(--border)}
+.tbl{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:12px}
+.tbl th{text-align:left;padding:9px 12px;background:var(--surface2);color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 12px;border-bottom:1px solid rgba(43,52,72,.4);vertical-align:middle}
+.tbl tr:hover td{background:rgba(28,36,51,.5)}
+.sbadge{font-size:10px;padding:3px 9px;border-radius:6px}
+.sa{background:rgba(200,241,53,.1);color:var(--accent);border:1px solid rgba(200,241,53,.25)}
+.sp{background:rgba(241,161,53,.1);color:var(--accent3);border:1px solid rgba(241,161,53,.25)}
+.si{background:rgba(43,52,72,.5);color:var(--muted);border:1px solid var(--border)}
+.abtn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;margin-right:4px}
+.abtn:hover{color:var(--text);border-color:var(--muted)}
+.abtn.p{color:var(--accent2);border-color:var(--accent2)}
+.abtn.d:hover{color:#f46;border-color:#f46}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay.on{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;padding:26px}
+.modal h2{font-size:16px;font-weight:800;margin-bottom:18px}
+label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;display:block;margin-top:12px;margin-bottom:4px}
+input,select,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{background:var(--accent);color:#111;border:none;padding:10px 18px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:12px;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.btn:hover{opacity:.85}
+.btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn.dan{background:rgba(241,53,53,.1);color:#f46;border:1px solid rgba(241,53,53,.25)}
+.mact{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.plan-area{width:100%;background:#070e1c;color:var(--accent);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.8;min-height:240px;resize:vertical;outline:none}
+.plan-hint{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:10px 12px;background:var(--surface2);border-radius:8px;margin-top:10px;line-height:1.7;border-left:2px solid var(--accent2)}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--surface);border:1px solid var(--accent);border-radius:10px;padding:11px 18px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);display:none;z-index:200;max-width:320px}
+.toast.on{display:block}
+.pass-box{background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:12px;margin-top:12px;display:none}
+.pass-box.on{display:block}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="brand">C.L.O.E <span>COACH</span> <span style="font-size:13px;color:var(--muted);font-weight:400">· Panel Admin</span></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="badge">ADMIN</span>
+    <a href="onboarding.html" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);text-decoration:none">+ Cuestionario</a>
+    <button class="btn sec" style="padding:6px 14px;font-size:11px" onclick="logout()">Salir</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="cards">
+    <div class="kcard"><div class="klbl">Usuarios activos</div><div class="kval a" id="st-active">—</div></div>
+    <div class="kcard"><div class="klbl">Pendientes</div><div class="kval o" id="st-pending">—</div></div>
+    <div class="kcard"><div class="klbl">Total</div><div class="kval b" id="st-total">—</div></div>
+    <div class="kcard"><div class="klbl">Semana media</div><div class="kval" id="st-week">—</div></div>
+  </div>
+
+  <div class="stitle">Usuarios</div>
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <button class="btn" onclick="openCreate()">+ Crear usuario</button>
+    <button class="btn sec" onclick="load()">↻ Actualizar</button>
+  </div>
+
+  <div style="background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Nombre</th><th>Email</th><th>Semana</th><th>Fase</th>
+          <th>Estado</th><th>Objetivo</th><th>Plan S1</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Cargando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL CREAR USUARIO -->
+<div class="overlay" id="m-create">
+  <div class="modal">
+    <h2>Crear usuario</h2>
+    <label>Nombre completo</label>
+    <input id="c-name" placeholder="María García">
+    <label>Email</label>
+    <input type="email" id="c-email" placeholder="maria@email.com">
+    <label>Contraseña inicial</label>
+    <input id="c-pass" placeholder="mínimo 8 caracteres">
+    <button class="btn sec" style="margin-top:8px;font-size:11px;padding:6px 12px" onclick="genPass()">Generar contraseña</button>
+    <div class="g2" style="margin-top:4px">
+      <div><label>Edad</label><input type="number" id="c-age" placeholder="35"></div>
+      <div><label>Sexo</label><select id="c-sex"><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option></select></div>
+      <div><label>Peso (kg)</label><input type="number" id="c-weight" placeholder="72"></div>
+      <div><label>Altura (cm)</label><input type="number" id="c-height" placeholder="170"></div>
+    </div>
+    <label>Objetivo</label>
+    <select id="c-goal">
+      <option>Recomposición corporal</option>
+      <option>Perder grasa</option>
+      <option>Ganar músculo</option>
+      <option>Rendimiento deportivo</option>
+    </select>
+    <label>Plan Semana 1 (pega aquí el output de CLOE IA)</label>
+    <textarea id="c-plan" class="plan-area" rows="8" placeholder="Pega aquí el plan completo que ha generado CLOE después de analizar el cuestionario...&#10;&#10;Incluye fuerza, running, nutrición y objetivos de semana 1."></textarea>
+    <div class="plan-hint">💡 Flujo: rellena el cuestionario en onboarding.html → copia el prompt → pégalo en el chat de CLOE → CLOE genera el plan → cópialo aquí</div>
+    <div class="pass-box" id="pass-box"></div>
+    <div class="mact">
+      <button class="btn" onclick="createUser()">✅ Crear usuario</button>
+      <button class="btn sec" onclick="close('m-create')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR USUARIO -->
+<div class="overlay" id="m-edit">
+  <div class="modal" style="max-width:640px">
+    <h2 id="edit-title">Editar usuario</h2>
+    <div class="g2">
+      <div><label>Semana activa</label><input type="number" id="e-week" min="1" max="16"></div>
+      <div><label>Estado</label>
+        <select id="e-status">
+          <option value="active">Activo</option>
+          <option value="pending">Pendiente</option>
+          <option value="inactive">Inactivo</option>
+        </select>
+      </div>
+    </div>
+    <label>Notas del coach</label>
+    <textarea id="e-notes" rows="2" placeholder="Observaciones, ajustes, alertas..."></textarea>
+
+    <label>Plan Semana activa (editar o pegar plan nuevo de CLOE)</label>
+    <textarea id="e-plan" class="plan-area" rows="10"></textarea>
+    <div class="plan-hint">💡 Para actualizar el plan: genera el reporte semanal desde la app del usuario → pégalo en el chat → CLOE genera semana siguiente → pega aquí el resultado</div>
+
+    <div class="mact">
+      <button class="btn" onclick="saveEdit()">💾 Guardar</button>
+      <button class="btn sec" onclick="advWeek()">Avanzar semana →</button>
+      <button class="btn dan" onclick="delUser()">🗑️ Eliminar</button>
+      <button class="btn sec" onclick="close('m-edit')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://wxvgxcogrlcflxldaemw.supabase.co';
+const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
+const {createClient}=supabase;
+const sb=createClient(SB_URL,SB_KEY);
+
+let users=[];
+let editId=null;
+
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+  const {data}=await sb.from('profiles').select('role').eq('id',session.user.id).single();
+  if(data?.role!=='admin'){window.location.href='login.html';return;}
+  load();
+})();
+
+async function load(){
+  const {data,error}=await sb.from('profiles').select('*').neq('role','admin').order('created_at',{ascending:false});
+  if(error){toast('Error: '+error.message);return;}
+  users=data||[];
+  const active=users.filter(u=>u.status==='active').length;
+  const pending=users.filter(u=>u.status==='pending').length;
+  document.getElementById('st-active').textContent=active;
+  document.getElementById('st-pending').textContent=pending;
+  document.getElementById('st-total').textContent=users.length;
+  document.getElementById('st-week').textContent=users.length?
+    'S'+(users.reduce((s,u)=>s+(u.week||1),0)/users.length).toFixed(1):'—';
+  renderTable();
+}
+
+function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÍFICO';}
+
+function renderTable(){
+  const tb=document.getElementById('tbody');
+  if(!users.length){
+    tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Sin usuarios. Crea el primero.</td></tr>';
+    return;
+  }
+  tb.innerHTML=users.map(u=>{
+    const w=u.week||1;
+    const sc=u.status==='active'?'sa':u.status==='pending'?'sp':'si';
+    const sl=u.status==='active'?'Activo':u.status==='pending'?'Pendiente':'Inactivo';
+    const hasPlan=u.week1_plan&&u.week1_plan.length>10;
+    return `<tr>
+      <td style="font-weight:700">${u.full_name||'—'}</td>
+      <td style="color:var(--muted)">${u.email||'—'}</td>
+      <td><span style="color:var(--accent)">S${w}</span><span style="color:var(--muted)">/16</span></td>
+      <td style="color:var(--accent2)">${phase(w)}</td>
+      <td><span class="sbadge ${sc}">${sl}</span></td>
+      <td style="color:var(--muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.goal||'—'}</td>
+      <td><span style="font-family:'DM Mono',monospace;font-size:10px;color:${hasPlan?'var(--accent)':'var(--muted)'}">${hasPlan?'✓ Sí':'— No'}</span></td>
+      <td>
+        <button class="abtn p" onclick="openEdit('${u.id}')">Editar</button>
+        <button class="abtn" onclick="advWeekDirect('${u.id}',${w})">S→</button>
+        <button class="abtn d" onclick="delDirect('${u.id}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCreate(){
+  document.getElementById('c-name').value='';
+  document.getElementById('c-email').value='';
+  document.getElementById('c-pass').value='';
+  document.getElementById('c-age').value='';
+  document.getElementById('c-weight').value='';
+  document.getElementById('c-height').value='';
+  document.getElementById('c-plan').value='';
+  document.getElementById('pass-box').classList.remove('on');
+  document.getElementById('m-create').classList.add('on');
+}
+
+function genPass(){
+  const p='Cloe'+Math.floor(1000+Math.random()*9000)+'!';
+  document.getElementById('c-pass').value=p;
+  const pb=document.getElementById('pass-box');
+  pb.textContent='Contraseña generada: '+p+' — guárdala antes de continuar';
+  pb.classList.add('on');
+}
+
+async function createUser(){
+  const name=document.getElementById('c-name').value.trim();
+  const email=document.getElementById('c-email').value.trim();
+  const pass=document.getElementById('c-pass').value.trim();
+  const age=parseInt(document.getElementById('c-age').value)||null;
+  const sex=document.getElementById('c-sex').value;
+  const weight=parseFloat(document.getElementById('c-weight').value)||null;
+  const height=parseInt(document.getElementById('c-height').value)||null;
+  const goal=document.getElementById('c-goal').value;
+  const plan=document.getElementById('c-plan').value.trim();
+
+  if(!name||!email||!pass){toast('Nombre, email y contraseña son obligatorios.');return;}
+  if(pass.length<8){toast('La contraseña debe tener al menos 8 caracteres.');return;}
+
+  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+  if(error){toast('Error auth: '+error.message);return;}
+  const uid=data.user?.id;
+  if(!uid){toast('No se pudo obtener el ID. Intenta de nuevo.');return;}
+
+  const {error:pe}=await sb.from('profiles').upsert({
+    id:uid, full_name:name, email, role:'user', status:'pending',
+    week:1, age, sex, weight_kg:weight, height_cm:height, goal,
+    week1_plan:plan||null,
+    current_plan:plan||null,
+    created_at:new Date().toISOString()
+  });
+  if(pe){toast('Error perfil: '+pe.message);return;}
+
+  close('m-create');
+  toast(`✅ Usuario ${name} creado. Email: ${email}`);
+  load();
+}
+
+function openEdit(id){
+  const u=users.find(x=>x.id===id);
+  if(!u) return;
+  editId=id;
+  document.getElementById('edit-title').textContent=u.full_name||'Editar usuario';
+  document.getElementById('e-week').value=u.week||1;
+  document.getElementById('e-status').value=u.status||'pending';
+  document.getElementById('e-notes').value=u.notes||'';
+  document.getElementById('e-plan').value=u.current_plan||u.week1_plan||'';
+  document.getElementById('m-edit').classList.add('on');
+}
+
+async function saveEdit(){
+  if(!editId) return;
+  const week=parseInt(document.getElementById('e-week').value)||1;
+  const status=document.getElementById('e-status').value;
+  const notes=document.getElementById('e-notes').value.trim();
+  const plan=document.getElementById('e-plan').value.trim();
+
+  const {error}=await sb.from('profiles').update({
+    week, status, notes,
+    current_plan:plan||null
+  }).eq('id',editId);
+  if(error){toast('Error: '+error.message);return;}
+  close('m-edit');
+  toast('✅ Guardado.');
+  load();
+}
+
+async function advWeek(){
+  if(!editId) return;
+  const u=users.find(x=>x.id===editId);
+  if(!u) return;
+  const next=Math.min((u.week||1)+1,16);
+  await sb.from('profiles').update({week:next}).eq('id',editId);
+  close('m-edit');
+  toast('✅ Avanzado a semana '+next);
+  load();
+}
+
+async function advWeekDirect(id,w){
+  const next=Math.min(w+1,16);
+  await sb.from('profiles').update({week:next}).eq('id',id);
+  toast('✅ Semana '+next);
+  load();
+}
+
+async function delUser(){
+  if(!editId||!confirm('¿Eliminar este usuario?')) return;
+  await sb.from('profiles').delete().eq('id',editId);
+  close('m-edit');
+  toast('🗑️ Eliminado.');
+  load();
+}
+
+async function delDirect(id){
+  if(!confirm('¿Eliminar?')) return;
+  await sb.from('profiles').delete().eq('id',id);
+  toast('🗑️ Eliminado.');
+  load();
+}
+
+function close(id){document.getElementById(id).classList.remove('on');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3500);}
+async function logout(){await sb.auth.signOut();window.location.href='login.html';}
+</script>
+</body>
+</html>

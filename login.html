@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>C.L.O.E COACH · Acceso</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--text:#eef4ff;--muted:#9aa7bd;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;font-size:18px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.wrap{width:100%;max-width:380px;padding:24px}
+.brand{font-size:38px;font-weight:800;margin-bottom:4px}.brand span{color:var(--accent)}
+.sub{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:1px;margin-bottom:36px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px}
+label{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.5px;display:block;margin-bottom:5px;margin-top:16px}
+input{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:14px 16px;border-radius:10px;font-family:'DM Mono',monospace;font-size:15px;outline:none;transition:border .2s}
+input:focus{border-color:var(--accent)}
+.btn{width:100%;background:var(--accent);color:#111;border:none;padding:14px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:16px;cursor:pointer;margin-top:22px;transition:opacity .2s}
+.btn:hover{opacity:.85}.btn:disabled{opacity:.35;cursor:not-allowed}
+.err{font-family:'DM Mono',monospace;font-size:13px;color:#f46;background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);border-radius:8px;padding:10px 12px;margin-top:14px;display:none}
+.err.show{display:block}
+.spin{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);text-align:center;margin-top:12px;display:none}
+.spin.show{display:block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">C.L.O.E <span>COACH</span></div>
+  <div class="sub">DOCE ENGINE · acceso privado</div>
+  <div class="card">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="tu@email.com" autocomplete="email">
+    <label>Contraseña</label>
+    <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn" id="btn" onclick="login()">Entrar</button>
+    <div class="err" id="err"></div>
+    <div class="spin" id="spin">Verificando acceso...</div>
+  </div>
+</div>
+<script>
+const SB_URL='https://wxvgxcogrlcflxldaemw.supabase.co';
+const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
+const {createClient}=supabase;
+const sb=createClient(SB_URL,SB_KEY);
+
+// Si ya hay sesión, redirigir
+sb.auth.getSession().then(({data:{session}})=>{
+  if(!session) return;
+  redirect(session.user.id);
+});
+
+async function login(){
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('pass').value;
+  const btn=document.getElementById('btn');
+  const err=document.getElementById('err');
+  const spin=document.getElementById('spin');
+  err.classList.remove('show');
+  if(!email||!pass){showErr('Rellena email y contraseña.');return;}
+  btn.disabled=true; spin.classList.add('show');
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  spin.classList.remove('show'); btn.disabled=false;
+  if(error){showErr(error.message);return;}
+  redirect(data.user.id);
+}
+
+async function redirect(uid){
+  const {data}=await sb.from('profiles').select('role').eq('id',uid).single();
+  if(data?.role==='admin') window.location.href='admin.html';
+  else window.location.href='app.html';
+}
+
+function showErr(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show');}
+document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+</script>
+</body>
+</html>

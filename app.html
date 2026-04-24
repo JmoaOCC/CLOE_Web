@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>C.L.O.E COACH</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.sidebar{background:#101622;padding:22px 18px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{font-size:26px;font-weight:800;margin-bottom:2px}.brand span{color:var(--accent)}
+.tagline{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:18px}
+.user-info{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:16px}
+.user-name{font-size:13px;font-weight:700;margin-bottom:2px}
+.user-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+.ns{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:10px 0 4px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;background:transparent;color:var(--muted);border:none;padding:9px 12px;border-radius:10px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;text-align:left;transition:all .2s}
+.nav button:hover{background:var(--surface2);color:var(--text)}
+.nav button.on{background:var(--surface2);color:var(--accent);border-left:2px solid var(--accent)}
+.nav button .ic{font-size:14px;width:18px;text-align:center}
+.week-pill{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);padding:8px 12px;border-radius:10px;margin-top:auto;color:var(--muted)}
+.week-pill span{color:var(--accent);font-weight:500}
+.main{padding:26px;overflow-y:auto}
+.ph{margin-bottom:20px}.ph h1{font-size:22px;font-weight:800}
+.ph p{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:20px}
+.card{background:var(--surface);padding:15px;border-radius:14px;border:1px solid var(--border)}
+.cl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.cv{font-size:28px;font-weight:800;font-family:'DM Mono',monospace}
+.cv.a{color:var(--accent)}.cv.b{color:var(--accent2)}.cv.o{color:var(--accent3)}
+.cs{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
+.stitle{font-size:13px;font-weight:800;margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.stitle::after{content:'';flex:1;height:1px;background:var(--border)}
+/* plan viewer */
+.plan-viewer{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.plan-viewer-hdr{background:var(--surface2);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.plan-viewer-title{font-size:13px;font-weight:800}
+.plan-viewer-body{padding:18px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;max-height:600px;overflow-y:auto}
+.plan-viewer-body.empty{color:var(--muted);font-style:italic}
+/* checklist */
+.chk{display:flex;align-items:center;gap:12px;padding:10px;background:var(--surface2);border-radius:10px;margin-bottom:7px;cursor:pointer;border:1px solid var(--border);transition:all .2s}
+.chk.done{border-color:var(--accent);background:rgba(200,241,53,.04)}
+.chkbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:all .2s}
+.chk.done .chkbox{background:var(--accent);border-color:var(--accent);color:#111}
+.chkt{font-size:12px;font-weight:700}
+.chks{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px}
+/* report */
+.report-area{width:100%;background:#070e1c;color:var(--accent);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.9;min-height:340px;resize:vertical;outline:none}
+.alert{background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:11px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:12px;line-height:1.6}
+.btn{background:var(--accent);color:#111;border:none;padding:10px 18px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:12px;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.btn:hover{opacity:.85}
+.btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+input,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border .2s}
+input:focus,textarea:focus{border-color:var(--accent2)}
+label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:block;margin-top:10px;margin-bottom:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* loading */
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'DM Mono',monospace;color:var(--muted)}
+@media(max-width:860px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto;padding:14px}}
+</style>
+</head>
+<body>
+
+<div id="loading-screen" class="loading-screen">Cargando tu plan...</div>
+
+<div class="app" id="app-shell" style="display:none">
+<aside class="sidebar">
+  <div class="brand">C.L.O.E <span>COACH</span></div>
+  <div class="tagline">DOCE ENGINE</div>
+  <div class="user-info">
+    <div class="user-name" id="sb-name">—</div>
+    <div class="user-meta" id="sb-meta">—</div>
+  </div>
+  <div class="ns">App</div>
+  <div class="nav">
+    <button class="on" onclick="view('dashboard')"><span class="ic">⚡</span>Dashboard</button>
+    <button onclick="view('plan')"><span class="ic">📋</span>Mi plan</button>
+    <button onclick="view('report')"><span class="ic">📊</span>Reporte semanal</button>
+    <button onclick="view('checkin')"><span class="ic">✅</span>Checklist</button>
+  </div>
+  <div class="week-pill">
+    Semana <span id="sb-week">1</span>/16 · <span id="sb-phase">BASE</span>
+  </div>
+  <div style="margin-top:12px">
+    <button class="btn sec" style="width:100%;padding:8px;font-size:11px" onclick="logout()">Cerrar sesión</button>
+  </div>
+</aside>
+<main class="main" id="main"></main>
+</div>
+
+<script>
+const SB_URL='https://wxvgxcogrlcflxldaemw.supabase.co';
+const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
+const {createClient}=supabase;
+const sb=createClient(SB_URL,SB_KEY);
+
+let profile=null;
+let checklist={};
+let currentView='dashboard';
+
+function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÍFICO';}
+
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+
+  const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
+  if(error||!data){window.location.href='login.html';return;}
+  if(data.role==='admin'){window.location.href='admin.html';return;}
+
+  profile=data;
+  // Cargar checklist desde localStorage (por usuario)
+  const saved=localStorage.getItem('cloe_chk_'+profile.id);
+  if(saved) checklist=JSON.parse(saved);
+
+  document.getElementById('sb-name').textContent=profile.full_name||'—';
+  document.getElementById('sb-meta').textContent=(profile.goal||'—');
+  document.getElementById('sb-week').textContent=profile.week||1;
+  document.getElementById('sb-phase').textContent=phase(profile.week||1);
+
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('app-shell').style.display='grid';
+
+  view('dashboard');
+})();
+
+function view(v){
+  currentView=v;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
+  const map={dashboard:0,plan:1,report:2,checkin:3};
+  document.querySelectorAll('.nav button')[map[v]]?.classList.add('on');
+  render();
+}
+
+function render(){
+  const c=document.getElementById('main');
+  const w=profile?.week||1;
+  switch(currentView){
+    case 'dashboard': c.innerHTML=renderDashboard(w); break;
+    case 'plan':      c.innerHTML=renderPlan(w); break;
+    case 'report':    c.innerHTML=renderReport(w); break;
+    case 'checkin':   c.innerHTML=renderCheckin(w); break;
+  }
+}
+
+function renderDashboard(w){
+  const checks=Object.keys(checklist).filter(k=>k.startsWith(`w${w}_`)&&checklist[k]).length;
+  const hasPlan=!!(profile?.current_plan||profile?.week1_plan);
+  return `
+  <div class="ph"><h1>Hola, ${(profile?.full_name||'').split(' ')[0] || 'coach'} 👋</h1>
+  <p>Semana ${w} · ${phase(w)} · ${profile?.goal||'—'}</p></div>
+  <div class="cards">
+    <div class="card"><div class="cl">Semana</div><div class="cv a">S${w}</div><div class="cs">${phase(w)}</div></div>
+    <div class="card"><div class="cl">Checks hoy</div><div class="cv b">${checks}</div><div class="cs">de 7</div></div>
+    <div class="card"><div class="cl">Plan</div><div class="cv o">${hasPlan?'✓':'—'}</div><div class="cs">${hasPlan?'disponible':'pendiente'}</div></div>
+    <div class="card"><div class="cl">Objetivo</div><div class="cv" style="font-size:14px;margin-top:4px">${profile?.goal||'—'}</div></div>
+  </div>
+  <div class="stitle">Acceso rápido</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn" onclick="view('plan')">📋 Ver mi plan</button>
+    <button class="btn sec" onclick="view('report')">📊 Generar reporte</button>
+    <button class="btn sec" onclick="view('checkin')">✅ Checklist del día</button>
+  </div>
+  ${!hasPlan?`<div style="margin-top:20px;padding:14px;background:rgba(241,161,53,.07);border:1px solid rgba(241,161,53,.25);border-radius:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent3);line-height:1.7">
+    ⏳ Tu plan de Semana 1 está siendo preparado por tu coach. Aparecerá aquí en cuanto esté listo.
+  </div>`:''}`;
+}
+
+function renderPlan(w){
+  const plan=profile?.current_plan||profile?.week1_plan;
+  return `
+  <div class="ph"><h1>Mi plan — Semana ${w}</h1><p>${phase(w)} · ${profile?.goal||'—'}</p></div>
+  <div class="plan-viewer">
+    <div class="plan-viewer-hdr">
+      <div class="plan-viewer-title">Plan semana ${w} · ${phase(w)}</div>
+      ${plan?`<button class="btn sec" style="padding:5px 12px;font-size:10px" onclick="copyPlan()">📋 Copiar</button>`:''}
+    </div>
+    <div class="plan-viewer-body ${plan?'':'empty'}" id="plan-body">
+${plan||'Tu coach está preparando tu plan. Aparecerá aquí cuando esté listo.'}
+    </div>
+  </div>`;
+}
+
+function copyPlan(){
+  const text=document.getElementById('plan-body').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.querySelector('.plan-viewer-hdr .btn');
+    if(b){b.textContent='✅ Copiado';setTimeout(()=>b.textContent='📋 Copiar',2000);}
+  });
+}
+
+function renderReport(w){
+  return `
+  <div class="ph"><h1>Reporte semanal</h1><p>Genera el texto para enviárselo a tu coach</p></div>
+  <div class="alert">1. Rellena los datos · 2. Pulsa "Generar reporte" · 3. Cópialo y envíaselo a tu coach junto con fotos y CSV de Intervals</div>
+  <div class="g2">
+    <div><label>Peso esta semana (kg)</label><input type="number" id="r-weight" placeholder="72.5" step="0.1"></div>
+    <div><label>Cintura (cm)</label><input type="number" id="r-waist" placeholder="82"></div>
+    <div><label>Energía media (1-10)</label><input type="number" id="r-energy" placeholder="7" min="1" max="10"></div>
+    <div><label>Hambre media (1-10)</label><input type="number" id="r-hunger" placeholder="5" min="1" max="10"></div>
+    <div><label>Sueño medio (h)</label><input type="number" id="r-sleep" placeholder="7.2" step="0.5"></div>
+    <div><label>Adherencia entreno (%)</label><input type="number" id="r-adh" placeholder="90"></div>
+  </div>
+  <label>Datos CSV Intervals.icu (pega aquí o describe)</label>
+  <textarea id="r-intervals" rows="3" placeholder="Distancia total, TSS, ritmo medio, sesiones completadas..."></textarea>
+  <label>Observaciones libres</label>
+  <textarea id="r-notes" rows="3" placeholder="Cómo fue la semana, dolores, fatiga, logros, bloqueos..."></textarea>
+  <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+    <button class="btn" onclick="genReport(${w})">📋 Generar reporte</button>
+  </div>
+  <div id="report-out" style="display:none;margin-top:18px">
+    <div class="stitle">Reporte generado</div>
+    <textarea class="report-area" id="report-text" readonly></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="btn" id="copy-report-btn" onclick="copyReport()">📋 Copiar reporte</button>
+    </div>
+  </div>`;
+}
+
+function genReport(w){
+  const weight=document.getElementById('r-weight').value;
+  const waist=document.getElementById('r-waist').value;
+  const energy=document.getElementById('r-energy').value;
+  const hunger=document.getElementById('r-hunger').value;
+  const sleep=document.getElementById('r-sleep').value;
+  const adh=document.getElementById('r-adh').value;
+  const intervals=document.getElementById('r-intervals').value;
+  const notes=document.getElementById('r-notes').value;
+
+  const plan=profile?.current_plan||profile?.week1_plan||'(no disponible)';
+
+  const text=
+`═══════════════════════════════════════════════════════
+C.L.O.E COACH · REPORTE SEMANA ${w}
+Usuario: ${profile?.full_name||'—'}
+Fecha: ${new Date().toLocaleDateString('es-ES')}
+═══════════════════════════════════════════════════════
+
+── PERFIL ─────────────────────────────────────────────
+Nombre:   ${profile?.full_name||'—'}
+Edad:     ${profile?.age||'—'} · Sexo: ${profile?.sex||'—'}
+Peso ini: ${profile?.weight_kg||'—'} kg · Altura: ${profile?.height_cm||'—'} cm
+Objetivo: ${profile?.goal||'—'}
+Semana:   ${w}/16 · Fase: ${phase(w)}
+
+── MÉTRICAS SEMANA ${w} ──────────────────────────────────
+Peso:              ${weight||'n/d'} kg
+Cintura:           ${waist||'n/d'} cm
+Energía (1-10):    ${energy||'n/d'}
+Hambre (1-10):     ${hunger||'n/d'}
+Sueño medio:       ${sleep||'n/d'} h
+Adherencia entreno:${adh||'n/d'} %
+Observaciones:     ${notes||'ninguna'}
+
+── CSV INTERVALS.ICU ──────────────────────────────────
+${intervals||'(no proporcionado)'}
+
+── FOTOS PROGRESO ─────────────────────────────────────
+[ADJUNTAR FOTOS FRENTE / LATERAL / ESPALDA]
+
+── PLAN QUE SE ESTABA SIGUIENDO ──────────────────────
+${plan.substring(0,500)}${plan.length>500?'\n... (plan completo en el historial)':''}
+
+═══════════════════════════════════════════════════════
+INSTRUCCIÓN PARA C.L.O.E COACH
+═══════════════════════════════════════════════════════
+
+Con todos los datos anteriores (incluyendo fotos y CSV),
+analiza como coach + nutricionista + médico deportivo:
+
+1. ANÁLISIS RENDIMIENTO
+   Fuerza y running: progresión, ritmos, carga
+
+2. ANÁLISIS COMPOSICIÓN CORPORAL
+   Tendencia peso · cintura · fotos
+
+3. ANÁLISIS RECUPERACIÓN
+   Sueño · energía · señales fatiga
+
+4. ALERTAS O RIESGOS
+   Lesión potencial · déficit extremo · sobreentrenamiento
+
+5. AJUSTES SEMANA SIGUIENTE
+   Cambios concretos justificados
+
+6. SEMANA ${w+1} COMPLETA:
+   A. Fuerza (día A + día B con pesos objetivo)
+   B. Running (3 sesiones formato Intervals.icu)
+   C. Nutrición (ajustes si procede)
+   D. Objetivos de la semana
+
+Sé directo. Sin teoría. Como coach real.
+═══════════════════════════════════════════════════════`;
+
+  document.getElementById('report-text').value=text;
+  document.getElementById('report-out').style.display='block';
+}
+
+function copyReport(){
+  const a=document.getElementById('report-text');
+  a.select(); document.execCommand('copy');
+  const b=document.getElementById('copy-report-btn');
+  b.textContent='✅ Copiado';setTimeout(()=>b.textContent='📋 Copiar reporte',2500);
+}
+
+function renderCheckin(w){
+  const items=[
+    {k:'steps',t:'Pasos 8.000+',s:'Objetivo NEAT diario'},
+    {k:'sleep',t:'Sueño 7h+',s:'Recuperación y composición'},
+    {k:'nutr',t:'Nutrición 80/20',s:'Al menos 4/5 comidas según plan DOCE'},
+    {k:'workout',t:'Entreno completado',s:'Fuerza o running según plan'},
+    {k:'protein',t:'Proteína >150g',s:'Comprueba el total diario'},
+    {k:'hydro',t:'Hidratación 2.5L',s:'Fundamental en días de entreno'},
+    {k:'mob',t:'Movilidad / foam',s:'5-10min tras entreno'},
+  ];
+  const today=new Date().toISOString().slice(0,10);
+  return `
+  <div class="ph"><h1>Checklist diario</h1><p>${today} · Semana ${w}</p></div>
+  ${items.map(item=>{
+    const key=`w${w}_${today}_${item.k}`;
+    const done=!!checklist[key];
+    return `<div class="chk ${done?'done':''}" onclick="toggleChk('${key}')">
+      <div class="chkbox">${done?'✓':''}</div>
+      <div><div class="chkt">${item.t}</div><div class="chks">${item.s}</div></div>
+    </div>`;
+  }).join('')}
+  <div style="margin-top:18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">
+    ${Object.keys(checklist).filter(k=>k.startsWith(`w${w}_${today}_`)&&checklist[k]).length}/7 completados hoy
+  </div>`;
+}
+
+function toggleChk(key){
+  checklist[key]=!checklist[key];
+  localStorage.setItem('cloe_chk_'+profile.id, JSON.stringify(checklist));
+  render();
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  window.location.href='login.html';
+}
+</script>
+</body>
+</html>
