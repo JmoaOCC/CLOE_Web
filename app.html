@@ -642,11 +642,7 @@ function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${
     window.location.href='login.html';
     return;
   }
-  const needsOnboarding = (
-    (Object.prototype.hasOwnProperty.call(data,'onboarding_completed') && data.onboarding_completed!==true) ||
-    !data.age || !data.sex || !data.weight_kg || !data.height_cm || !data.goal
-  );
-  if(needsOnboarding){
+  if(data.onboarding_completed !== true){
     window.location.href='onboarding.html';
     return;
   }

@@ -808,7 +808,6 @@ async function saveUserOnboarding(payload){
   let result=await sb.from('profiles').update(update).eq('id',STATE.session.user.id);
   if(result.error){
     const fallback={...update};
-    delete fallback.onboarding_completed;
     delete fallback.onboarding_data;
     result=await sb.from('profiles').update(fallback).eq('id',STATE.session.user.id);
   }
