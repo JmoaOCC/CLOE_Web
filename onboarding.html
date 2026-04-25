@@ -39,6 +39,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 .cpill{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;background:var(--surface2)}
 .cpill:hover{border-color:var(--muted)}
 .cpill.sel{border-color:var(--accent);background:rgba(200,241,53,.08)}
+.cpill.msel{border-color:var(--accent2);background:rgba(91,156,246,.08)}
 .cpill-t{font-size:13px;font-weight:700;margin-bottom:4px}
 .cpill-s{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.5}
 .sl-wrap{display:flex;align-items:center;gap:12px;margin-top:6px}
@@ -71,7 +72,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 <body>
 <div class="hdr">
   <div class="brand">C.L.O.E. <span>COACH</span></div>
-  <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">Cuestionario inicial · Semana 1</span>
+  <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">Cuestionario inicial · Quincena 1</span>
 </div>
 <div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
 <div class="steps-row">
@@ -98,6 +99,11 @@ input[type=range]{flex:1;accent-color:var(--accent)}
       <label class="fl">Edad</label>
       <input id="age" type="number" min="12" max="99" placeholder="Ej: 34">
     </div>
+  </div>
+
+  <div class="field">
+    <label class="fl">Fecha de inicio del plan</label>
+    <input id="plan-start-date" type="date">
   </div>
 
   <div class="g2">
@@ -153,21 +159,21 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <div class="psub">Definimos meta principal, contexto competitivo y ritmos de referencia si aplican.</div>
 
   <div class="field">
-    <label class="fl">Objetivo principal</label>
+    <label class="fl">Objetivos principales (puedes marcar varios)</label>
     <div class="cpills">
-      <div class="cpill" data-key="goal" data-value="Recomposición corporal" onclick="cpick(this,'goal','Recomposición corporal')">
+      <div class="cpill" data-key="goals" data-value="Recomposición corporal" onclick="cmulti(this,'goals','Recomposición corporal')">
         <div class="cpill-t">Recomposición</div>
         <div class="cpill-s">Perder grasa y ganar o mantener masa muscular.</div>
       </div>
-      <div class="cpill" data-key="goal" data-value="Perder grasa" onclick="cpick(this,'goal','Perder grasa')">
+      <div class="cpill" data-key="goals" data-value="Perder grasa" onclick="cmulti(this,'goals','Perder grasa')">
         <div class="cpill-t">Perder grasa</div>
         <div class="cpill-s">Déficit más claro con control de rendimiento.</div>
       </div>
-      <div class="cpill" data-key="goal" data-value="Ganar masa muscular" onclick="cpick(this,'goal','Ganar masa muscular')">
+      <div class="cpill" data-key="goals" data-value="Ganar masa muscular" onclick="cmulti(this,'goals','Ganar masa muscular')">
         <div class="cpill-t">Ganar masa</div>
         <div class="cpill-s">Subir músculo con superávit moderado.</div>
       </div>
-      <div class="cpill" data-key="goal" data-value="Rendimiento" onclick="cpick(this,'goal','Rendimiento')">
+      <div class="cpill" data-key="goals" data-value="Rendimiento" onclick="cmulti(this,'goals','Rendimiento')">
         <div class="cpill-t">Rendimiento</div>
         <div class="cpill-s">Prioridad al rendimiento deportivo.</div>
       </div>
@@ -264,13 +270,41 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 
   <div class="field">
     <label class="fl">Distribución preferida</label>
-    <div class="pills">
-      <div class="pill" data-key="split" data-value="2 fuerza + 2 deportes" onclick="pick(this,'split','2 fuerza + 2 deportes')">2F + 2D</div>
-      <div class="pill" data-key="split" data-value="2 fuerza + 3 deportes" onclick="pick(this,'split','2 fuerza + 3 deportes')">2F + 3D</div>
-      <div class="pill" data-key="split" data-value="3 fuerza + 2 deportes" onclick="pick(this,'split','3 fuerza + 2 deportes')">3F + 2D</div>
-      <div class="pill" data-key="split" data-value="Solo fuerza" onclick="pick(this,'split','Solo fuerza')">Solo fuerza</div>
-      <div class="pill" data-key="split" data-value="Solo deportes" onclick="pick(this,'split','Solo deportes')">Solo deportes</div>
+    <div class="g2">
+      <div><input id="strength-days" type="number" min="0" max="7" placeholder="Días de fuerza/semana"></div>
+      <div><input id="sport-days" type="number" min="0" max="7" placeholder="Días de deportes/semana"></div>
     </div>
+  </div>
+
+  <div class="field">
+    <label class="fl">Días preferidos para fuerza</label>
+    <div class="pills">
+      <div class="pill" data-key="strength-pref" data-value="Lunes" onclick="multi(this,'strength-pref','Lunes')">Lun</div>
+      <div class="pill" data-key="strength-pref" data-value="Martes" onclick="multi(this,'strength-pref','Martes')">Mar</div>
+      <div class="pill" data-key="strength-pref" data-value="Miércoles" onclick="multi(this,'strength-pref','Miércoles')">Mié</div>
+      <div class="pill" data-key="strength-pref" data-value="Jueves" onclick="multi(this,'strength-pref','Jueves')">Jue</div>
+      <div class="pill" data-key="strength-pref" data-value="Viernes" onclick="multi(this,'strength-pref','Viernes')">Vie</div>
+      <div class="pill" data-key="strength-pref" data-value="Sábado" onclick="multi(this,'strength-pref','Sábado')">Sáb</div>
+      <div class="pill" data-key="strength-pref" data-value="Domingo" onclick="multi(this,'strength-pref','Domingo')">Dom</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="fl">Días preferidos para deportes</label>
+    <div class="pills">
+      <div class="pill" data-key="sport-pref" data-value="Lunes" onclick="multi(this,'sport-pref','Lunes')">Lun</div>
+      <div class="pill" data-key="sport-pref" data-value="Martes" onclick="multi(this,'sport-pref','Martes')">Mar</div>
+      <div class="pill" data-key="sport-pref" data-value="Miércoles" onclick="multi(this,'sport-pref','Miércoles')">Mié</div>
+      <div class="pill" data-key="sport-pref" data-value="Jueves" onclick="multi(this,'sport-pref','Jueves')">Jue</div>
+      <div class="pill" data-key="sport-pref" data-value="Viernes" onclick="multi(this,'sport-pref','Viernes')">Vie</div>
+      <div class="pill" data-key="sport-pref" data-value="Sábado" onclick="multi(this,'sport-pref','Sábado')">Sáb</div>
+      <div class="pill" data-key="sport-pref" data-value="Domingo" onclick="multi(this,'sport-pref','Domingo')">Dom</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="fl">Días no disponibles o notas de agenda</label>
+    <textarea id="schedule-notes" rows="2" placeholder="Ej: no puedo entrenar martes tarde, prefiero tirada larga sábado, natación lunes o jueves..."></textarea>
   </div>
 
   <div class="field">
@@ -303,7 +337,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 
 <div class="panel" id="p4">
   <div class="ptitle">Nutrición y contexto</div>
-  <div class="psub">Con esto calculamos macros iniciales y la carga de semana 1.</div>
+  <div class="psub">Con esto calculamos macros iniciales y la carga de la quincena 1.</div>
 
   <div class="field">
     <label class="fl">Actividad laboral fuera del entreno</label>
@@ -343,12 +377,12 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 
   <div class="nav">
     <button class="btn sec" onclick="go(3)">Atrás</button>
-    <button class="btn" onclick="generate()">Generar plan Semana 1</button>
+    <button class="btn" onclick="generate()">Generar plan Quincena 1</button>
   </div>
 </div>
 
 <div class="panel" id="p5">
-  <div class="ptitle">Plan Semana 1 generado</div>
+  <div class="ptitle">Plan Quincena 1 generado</div>
   <div class="psub" id="result-sub">Copia este texto, pégalo en el chat del proyecto y C.L.O.E. generará el plan completo.</div>
 
   <div class="notice" id="res-summary"></div>
@@ -356,7 +390,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <div class="err" id="save-error" style="display:none"></div>
 
   <div class="mcard">
-    <div class="mlbl">Macros calculados · método DOCE</div>
+    <div class="mlbl">Macros calculados · método C.L.O.E.</div>
     <div class="mgrid" id="mgrid"></div>
   </div>
 
@@ -373,7 +407,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
     Pasos siguientes:<br>
     1. Copia el prompt de arriba<br>
     2. Pégalo en el chat del Proyecto C.L.O.E.<br>
-    3. C.L.O.E. genera el plan completo de la Semana 1<br>
+    3. C.L.O.E. genera el plan completo de la Quincena 1<br>
     4. En admin puedes pegar el plan al usuario<br>
     5. El usuario entra con su email y contraseña y ve su plan
   </div>
@@ -388,7 +422,7 @@ const {createClient}=supabase;
 const sb=createClient(SB_URL,SB_KEY);
 
 const F={injury:'Ninguna'};
-const M={sports:new Set(['Running']),diet:new Set(['Ninguna'])};
+const M={sports:new Set(['Running']),diet:new Set(['Ninguna']),goals:new Set()};
 const STATE={session:null,profile:null,userMode:false};
 
 function go(n){
@@ -432,6 +466,17 @@ function multi(el,key,value){
   if(M[key].size===0 && (key==='sports' || key==='diet')){
     M[key].add(value);
     el.classList.add('msel');
+  }
+}
+
+function cmulti(el,key,value){
+  if(!M[key]) M[key]=new Set();
+  if(el.classList.contains('msel')){
+    el.classList.remove('msel');
+    M[key].delete(value);
+  }else{
+    el.classList.add('msel');
+    M[key].add(value);
   }
 }
 
@@ -491,13 +536,24 @@ function restoreMulti(key,values){
   });
 }
 
+function restoreCardMulti(key,values){
+  if(!Array.isArray(values)) return;
+  M[key]=new Set(values);
+  document.querySelectorAll(`.cpill[data-key="${cssEscape(key)}"]`).forEach(el=>el.classList.remove('msel'));
+  values.forEach(value=>{
+    const el=findCard(key,value);
+    if(el) el.classList.add('msel');
+  });
+}
+
 function calcMacros(){
   const age=parseFloat(document.getElementById('age').value)||35;
   const weight=parseFloat(document.getElementById('weight').value)||72;
   const height=parseFloat(document.getElementById('height').value)||170;
   const sex=F.sex||'Hombre';
   const activity=F.activity||'Sedentario (oficina, poco movimiento)';
-  const goal=F.goal||'Recomposición corporal';
+  const goalList=M.goals&&M.goals.size?[...M.goals]:['Recomposición corporal'];
+  const goal=goalList[0]||'Recomposición corporal';
 
   const tmb=sex==='Hombre' ? 10*weight+6.25*height-5*age+5 : 10*weight+6.25*height-5*age-161;
   const factors={'Sedentario':1.375,'Ligero':1.55,'Moderado':1.65,'Activo':1.725};
@@ -516,6 +572,7 @@ function calcMacros(){
 function collectPayload(){
   return {
     name:document.getElementById('name').value.trim()||'Usuario',
+    planStartDate:document.getElementById('plan-start-date').value||'',
     age:document.getElementById('age').value||'?',
     weight:document.getElementById('weight').value||'?',
     height:document.getElementById('height').value||'?',
@@ -523,7 +580,8 @@ function collectPayload(){
     injury:F.injury||'Ninguna',
     injuryDetail:document.getElementById('injury-detail').value.trim(),
     steps:F.steps||'no indicado',
-    goal:F.goal||'?',
+    goals:M.goals&&M.goals.size?[...M.goals]:[],
+    goal:(M.goals&&M.goals.size?[...M.goals].join(', '):'?'),
     event:F.event||'Sin evento',
     eventDate:document.getElementById('event-date').value||'',
     easyPace:document.getElementById('easy-pace').value.trim()||'no indicado',
@@ -531,7 +589,12 @@ function collectPayload(){
     runLevel:F['run-lvl']||'no indicado',
     gymLevel:F['gym-lvl']||'no indicado',
     days:document.getElementById('days').value,
-    split:F.split||'no indicado',
+    strengthDays:document.getElementById('strength-days').value||'no indicado',
+    sportDays:document.getElementById('sport-days').value||'no indicado',
+    strengthPref:M['strength-pref']&&M['strength-pref'].size?[...M['strength-pref']]:[],
+    sportPref:M['sport-pref']&&M['sport-pref'].size?[...M['sport-pref']]:[],
+    scheduleNotes:document.getElementById('schedule-notes').value.trim()||'ninguna',
+    split:`Fuerza ${document.getElementById('strength-days').value||'?'} días; deportes ${document.getElementById('sport-days').value||'?'} días`,
     sessionTime:F['session-t']||'no indicado',
     equipList:M.equip&&M.equip.size?[...M.equip]:[],
     sports:M.sports&&M.sports.size?[...M.sports]:['Running'],
@@ -586,9 +649,10 @@ function buildPrompt(payload,mac){
   const diet=payload.dietList.length?payload.dietList.join(', '):'Ninguna';
   const sportsPrompt=buildSportsPrompt(payload);
   return `═══════════════════════════════════════════════════════
-C.L.O.E. COACH · ONBOARDING SEMANA 1
+C.L.O.E. COACH · ONBOARDING QUINCENA 1
 Usuario: ${payload.name}
 Fecha: ${new Date().toLocaleDateString('es-ES')}
+Inicio del plan: ${payload.planStartDate||'no indicado'}
 ═══════════════════════════════════════════════════════
 
 ── PERFIL FÍSICO ─────────────────────────────────────
@@ -603,20 +667,29 @@ Contexto: ${payload.context}
 Objetivo principal: ${payload.goal}
 Evento / prueba: ${payload.event}${payload.eventDate ? ' ('+payload.eventDate+')' : ''}
 Deportes: ${payload.sports.join(', ')}
+Disponibilidad: ${payload.strengthDays} días fuerza · ${payload.sportDays} días deportes
+Días preferidos fuerza: ${payload.strengthPref.length?payload.strengthPref.join(', '):'sin preferencia'}
+Días preferidos deportes: ${payload.sportPref.length?payload.sportPref.join(', '):'sin preferencia'}
+Notas agenda: ${payload.scheduleNotes}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 INSTRUCCIONES PARA C.L.O.E.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Actúa como entrenador experto en recomposición corporal, fuerza, nutrición
-y deportes seleccionados. Quiero que diseñes la SEMANA 1 completa para este usuario.
+y deportes seleccionados. Quiero que diseñes la QUINCENA 1 completa para este usuario.
+
+La quincena debe cubrir 14 días completos: dos semanas seguidas de lunes a domingo.
+Empieza el plan en la fecha indicada: ${payload.planStartDate||'no indicada'}.
 
 El plan debe entregarse con esta estructura exacta:
 
-A. FUERZA (si procede)
-B. DEPORTES SELECCIONADOS (si procede)
-C. NUTRICIÓN DOCE
-D. OBJETIVOS SEMANA 1
+A. PRIMERA SEMANA COMPLETA (lunes a domingo)
+B. SEGUNDA SEMANA COMPLETA (lunes a domingo)
+C. NUTRICIÓN C.L.O.E. PARA LA QUINCENA
+D. OBJETIVOS QUINCENA 1
+
+Dentro de cada semana incluye todos los días, de lunes a domingo, indicando descanso o entreno cuando corresponda.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 A. FUERZA
@@ -625,6 +698,11 @@ A. FUERZA
 Si la distribución incluye fuerza, diseña los días necesarios según:
 ${payload.split}
 
+Respeta la disponibilidad semanal:
+- Fuerza: ${payload.strengthDays} días/semana. Preferencia: ${payload.strengthPref.length?payload.strengthPref.join(', '):'sin preferencia'}
+- Deportes: ${payload.sportDays} días/semana. Preferencia: ${payload.sportPref.length?payload.sportPref.join(', '):'sin preferencia'}
+- Notas de agenda: ${payload.scheduleNotes}
+
 Equipamiento disponible: ${equip}
 Nivel fuerza: ${payload.gymLevel}
 
@@ -632,7 +710,7 @@ Usa estructura full body o torso-pierna según corresponda.
 Para cada ejercicio especifica:
   series × reps · RIR · peso inicial sugerido (kg)
 
-Regla progresión DOCE:
+Regla progresión C.L.O.E.:
   Si completa reps + RIR correcto -> +2.5kg tren superior / +5kg inferior
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -640,26 +718,26 @@ ${sportsPrompt}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-C. NUTRICIÓN DOCE
+C. NUTRICIÓN C.L.O.E.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Macros: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G
 Restricciones: ${diet}
 
-Genera menús con cantidades exactas para:
-- Día con entreno (5 comidas)
-- Día descanso (5 comidas, con menos hidratos)
+Genera menús con cantidades exactas para cada día tipo.
+Para cada comida ofrece 3 opciones completas e intercambiables.
+En la quincena siguiente, cambia o adapta las opciones según adherencia, hambre, preferencias y evolución.
 
-Usa sistema de intercambios DOCE.
+Usa sistema de intercambios C.L.O.E.
 Regla 80/20: 80% alimentos densos, 20% flexible.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-D. OBJETIVOS SEMANA 1
+D. OBJETIVOS QUINCENA 1
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Pasos diarios objetivo
 - Sueño mínimo
 - Adherencia entreno / nutrición
-- Foco y mensaje motivador para semana 1
+- Foco y mensaje motivador para la quincena 1
 
 Sé directo. Sin teoría innecesaria.
 Justifica brevemente cada decisión de carga o volumen adaptada al nivel de ${payload.name}.
@@ -700,6 +778,7 @@ async function saveUserOnboarding(payload){
     onboarding_completed:true,
     onboarding_data:{
       injury:payload.injury,
+      plan_start_date:payload.planStartDate,
       injury_detail:payload.injuryDetail,
       steps:payload.steps,
       event:payload.event,
@@ -709,6 +788,12 @@ async function saveUserOnboarding(payload){
       run_level:payload.runLevel,
       gym_level:payload.gymLevel,
       days:payload.days,
+      goals:payload.goals,
+      strength_days:payload.strengthDays,
+      sport_days:payload.sportDays,
+      strength_pref:payload.strengthPref,
+      sport_pref:payload.sportPref,
+      schedule_notes:payload.scheduleNotes,
       split:payload.split,
       session_t:payload.sessionTime,
       equip:payload.equipList,
@@ -779,12 +864,13 @@ function resetQuestionnaire(){
 function applyProfileToForm(profile){
   setInput('name',profile.full_name||profile.email?.split('@')[0]||'');
   setInput('age',profile.age);
+  setInput('plan-start-date',profile.onboarding_data?.plan_start_date);
   setInput('weight',profile.weight_kg);
   setInput('height',profile.height_cm);
   restoreSingle('sex',profile.sex);
-  restoreSingle('goal',profile.goal,'cpill');
 
   const extra=profile.onboarding_data||{};
+  restoreCardMulti('goals',extra.goals||String(profile.goal||'').split(',').map(v=>v.trim()).filter(Boolean));
   restoreSingle('injury',extra.injury||'Ninguna');
   setInput('injury-detail',extra.injury_detail);
   restoreSingle('steps',extra.steps);
@@ -795,7 +881,11 @@ function applyProfileToForm(profile){
   restoreSingle('run-lvl',extra.run_level);
   restoreSingle('gym-lvl',extra.gym_level);
   setSlider('days',extra.days||4,' días');
-  restoreSingle('split',extra.split);
+  setInput('strength-days',extra.strength_days);
+  setInput('sport-days',extra.sport_days);
+  restoreMulti('strength-pref',extra.strength_pref);
+  restoreMulti('sport-pref',extra.sport_pref);
+  setInput('schedule-notes',extra.schedule_notes);
   restoreSingle('session-t',extra.session_t);
   restoreMulti('equip',extra.equip);
   restoreMulti('sports',extra.sports);

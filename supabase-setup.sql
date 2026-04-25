@@ -14,13 +14,21 @@ create table if not exists profiles (
   height_cm    integer,
   goal         text,
   notes        text,
-  week1_plan   text,
+  quincena1_plan text,
   current_plan text,
+  latest_report text,
+  latest_report_at timestamptz,
   created_at   timestamptz default now()
 );
 
 alter table profiles add column if not exists onboarding_completed boolean default false;
 alter table profiles add column if not exists onboarding_data jsonb;
+alter table profiles add column if not exists quincena1_plan text;
+update profiles
+set quincena1_plan = coalesce(quincena1_plan, current_plan)
+where quincena1_plan is null and current_plan is not null;
+alter table profiles add column if not exists latest_report text;
+alter table profiles add column if not exists latest_report_at timestamptz;
 
 alter table profiles enable row level security;
 

@@ -5,8 +5,8 @@
 | Archivo | Quién lo usa | Para qué |
 |---------|-------------|----------|
 | `login.html` | Todos | Acceso con email + contraseña |
-| `onboarding.html` | Tú (admin) | Cuestionario → genera prompt para la IA |
-| `admin.html` | Solo tú | Gestionar usuarios, ver y pegar planes |
+| `onboarding.html` | Usuario nuevo | Cuestionario inicial → guarda datos y genera prompt para la IA |
+| `admin.html` | Solo tú | Gestionar usuarios, ver cuestionarios/reportes y pegar planes |
 | `app.html` | Cada usuario | Ver su plan, checklist, generar reporte |
 
 ---
@@ -15,25 +15,23 @@
 
 ### Para persona nueva (ej: María):
 
-1. **Tú abres** `onboarding.html`
-2. Rellenas el cuestionario con los datos de María (5 pasos)
-3. El formulario **genera automáticamente el prompt** con sus macros calculados
-4. **Copias el prompt** → lo pegas en el chat del Proyecto CLOE
-5. CLOE analiza el perfil y **genera el plan completo de Semana 1**
-6. Copias el plan que devuelve CLOE
-7. **Abres** `admin.html` → "+ Crear usuario"
-8. Rellenas: nombre, email, contraseña, datos físicos
-9. **Pegas el plan** de CLOE en el campo "Plan Semana 1"
-10. Pulsas "Crear usuario"
-11. Le mandas a María: URL de `login.html` + su email + contraseña
-12. María entra y ve **su plan personalizado**
+1. **Tú abres** `admin.html` → "+ Crear usuario"
+2. Das de alta a María con nombre, email y contraseña inicial
+3. María entra por primera vez en `login.html`
+4. El sistema la lleva automáticamente a `onboarding.html`
+5. María completa el cuestionario y lo guarda
+6. Tú abres su perfil en `admin.html` y ves todos los datos introducidos
+7. Copias el prompt/reporte del perfil y lo pegas en el chat del Proyecto C.L.O.E.
+8. C.L.O.E. genera el plan completo de Quincena 1: 14 días, dos semanas de lunes a domingo
+9. Pegas el plan en "Plan Quincena 1" dentro del perfil de María
+10. María vuelve a hacer login y accede directamente a su plan personalizado
 
-### Para actualizar el plan de María cada semana:
+### Para actualizar el plan de María cada quincena:
 
-1. María genera su reporte desde `app.html` → sección "Reporte semanal"
-2. Lo copia y te lo manda con sus fotos + CSV Intervals
-3. **Tú lo pegas** en el chat del Proyecto CLOE
-4. CLOE genera la Semana siguiente completa
+1. María genera su reporte desde `app.html` → sección "Reporte quincenal"
+2. El reporte queda guardado en su perfil y también puede copiarlo
+3. Tú abres su perfil en `admin.html`, copias el último reporte y lo pegas en el chat del Proyecto C.L.O.E.
+4. C.L.O.E. genera la quincena siguiente completa
 5. Tú vas a `admin.html` → editas a María → pegas el nuevo plan
 6. María abre la app y ve el plan actualizado
 
@@ -48,9 +46,9 @@ Settings → API:
 - `Project URL` → sustituye `https://TU_PROYECTO.supabase.co`
 - `anon public` → sustituye `TU_ANON_KEY`
 
-Sustituir en los archivos que usan autenticación: `login.html`, `admin.html`, `app.html`
+Sustituir en los archivos que usan autenticación: `login.html`, `onboarding.html`, `admin.html`, `app.html`
 
-> `onboarding.html` no se conecta a Supabase: genera el prompt localmente.
+> `onboarding.html` también se conecta a Supabase: guarda el cuestionario inicial del usuario y marca el onboarding como completado.
 
 ### 3. Crear tabla `profiles`
 
@@ -70,7 +68,7 @@ create table profiles (
   height_cm integer,
   goal text,
   notes text,
-  week1_plan text,
+  quincena1_plan text,
   current_plan text,
   created_at timestamptz default now()
 );

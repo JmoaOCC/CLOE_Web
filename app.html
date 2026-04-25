@@ -181,7 +181,7 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 <div class="app" id="app-shell" style="display:none">
 <aside class="sidebar">
   <div class="brand">C.L.O.E. <span>COACH</span></div>
-  <div class="tagline">DOCE ENGINE · v3</div>
+  <div class="tagline">Crush Limits Or Explode · v3</div>
   <div class="user-info">
     <div class="user-name" id="sb-name">—</div>
     <div class="user-meta" id="sb-goal">—</div>
@@ -192,7 +192,7 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
     <button onclick="view('training')"><span class="ic">🏋️</span>Fuerza</button>
     <button onclick="view('running')"><span class="ic">🏃</span>Running</button>
     <button onclick="view('supplements')"><span class="ic">💊</span>Suplementos</button>
-    <button onclick="view('nutrition')"><span class="ic">🥗</span>Nutrición DOCE</button>
+    <button onclick="view('nutrition')"><span class="ic">🥗</span>Nutrición C.L.O.E.</button>
   </div>
   <div class="ns">Gestión</div>
   <div class="nav">
@@ -241,7 +241,7 @@ let profile=null, checklist={}, currentView='dashboard';
 let trainingTab=0, runningTab=0, nutritionDayTab=0, mobDayIdx=0;
 
 // ── QUINCENAS (14 días = 1 quincena) ─────────────────────
-// 8 quincenas = 16 semanas DOCE
+// 8 quincenas = 16 semanas C.L.O.E.
 const TOTAL_QUINCENAS=8;
 function getQuincena(w){ return Math.ceil((w||1)/2); } // semana → quincena
 function getPhase(q){
@@ -256,7 +256,42 @@ function quincenaLabel(q){ return `Q${q}`; }
 const DAYS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const DAYLABELS=['FUERZA A','INTERVALOS','DESCANSO','FUERZA B','TEMPO','TIRADA LARGA','DESCANSO'];
 const DAYTYPES=['strength','running','rest','strength','running','running','rest'];
-function todayPlanIdx(){ const d=new Date().getDay(); return d===0?6:d-1; }
+function baseDayIdx(idx){return idx%7;}
+function dayName(idx){return DAYS[baseDayIdx(idx)];}
+function dayType(idx){return DAYTYPES[baseDayIdx(idx)];}
+function dayTrainingLabel(idx){return DAYLABELS[baseDayIdx(idx)];}
+function todayPlanIdx(){
+  if(profile){
+    const q=getQuincena(profile.week||1);
+    const diff=Math.floor((new Date()-quincenaStartDate(q))/(1000*60*60*24));
+    if(diff>=0&&diff<14) return diff;
+  }
+  const d=new Date().getDay();
+  return d===0?6:d-1;
+}
+
+function formatDM(date){
+  return `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
+}
+function startOfWeek(date){
+  const d=new Date(date);
+  const day=d.getDay()||7;
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-day+1);
+  return d;
+}
+function quincenaStartDate(q){
+  const planStart=profile?.onboarding_data?.plan_start_date;
+  const base=planStart?new Date(planStart):startOfWeek(profile?.created_at?new Date(profile.created_at):new Date());
+  base.setHours(0,0,0,0);
+  base.setDate(base.getDate()+(q-1)*14);
+  return base;
+}
+function dayLabelWithDate(q,idx){
+  const d=quincenaStartDate(q);
+  d.setDate(d.getDate()+idx);
+  return `${dayName(idx)} ${formatDM(d)}`;
+}
 
 // ── RITMOS POR QUINCENA ───────────────────────────────────
 function getPaces(q){
@@ -266,7 +301,7 @@ function getPaces(q){
   return         {easy:'6:00',tempo:'5:20',interval:'4:55'};
 }
 
-// ── SUPLEMENTOS (protocolo DOCE / Sandra Lomas) ──────────
+// ── SUPLEMENTOS (protocolo C.L.O.E.) ──────────
 const SUPPLEMENTS={
   ayuno:[
     {icon:'🍋',name:'Agua + limón',dose:'1 vaso agua mineral + limón estrujado',timing:'Nada más levantarte, antes de nada'},
@@ -365,13 +400,14 @@ function runLong(q){
   };
 }
 function getRunSession(dayIdx,q){
-  if(dayIdx===1) return runIntervals(q);
-  if(dayIdx===4) return runTempo(q);
-  if(dayIdx===5) return runLong(q);
+  const base=baseDayIdx(dayIdx);
+  if(base===1) return runIntervals(q);
+  if(base===4) return runTempo(q);
+  if(base===5) return runLong(q);
   return null;
 }
 
-// ── NUTRICIÓN CON OPCIONES (sistema intercambio DOCE) ────
+// ── NUTRICIÓN CON OPCIONES (sistema intercambio C.L.O.E.) ────
 function getNutrition(){
   const kcal=profile?.kcal||2475;
   const prot=profile?.protein||154;
@@ -660,7 +696,7 @@ function renderDashboard(q,w){
   const p=getPaces(q);
   const today=new Date().toISOString().slice(0,10);
   const checks=Object.keys(checklist).filter(k=>k.startsWith(`q${q}_${today}_`)&&checklist[k]).length;
-  const hasPlan=!!(profile?.current_plan||profile?.week1_plan);
+  const hasPlan=!!(profile?.current_plan||profile?.quincena1_plan);
   return `
   <div class="ph"><h1>Hola, ${(profile?.full_name||'').split(' ')[0]||'coach'} 👋</h1>
   <p>Quincena ${q}/8 · ${getPhase(q)} · ${profile?.goal||'—'}</p></div>
@@ -694,8 +730,8 @@ function renderSupplements(q){
     {key:'acostarse',title:'😴 Antes de acostarte',badge:'NOCHE'},
   ];
   return `
-  <div class="ph"><h1>Suplementos DOCE</h1><p>Protocolo basado en Programa DOCE · Quincena ${q}</p></div>
-  <div class="alert">Protocolo extraído del Programa DOCE. Los suplementos son de soporte — no sustituyen una dieta correcta. Consulta con tu médico si tienes condiciones específicas.</div>
+  <div class="ph"><h1>Suplementos C.L.O.E.</h1><p>Protocolo basado en plan C.L.O.E. · Quincena ${q}</p></div>
+  <div class="alert">Protocolo del plan C.L.O.E. Los suplementos son de soporte — no sustituyen una dieta correcta. Consulta con tu médico si tienes condiciones específicas.</div>
   ${sections.map(sec=>{
     const supps=SUPPLEMENTS[sec.key]||[];
     return `<div class="supp-block">
@@ -719,13 +755,13 @@ function renderTraining(q){
   const sel=trainingTab;
   const {exList,fmt}=getStrengthIntervals(sel===0?'A':'B',q);
   return `
-  <div class="ph"><h1>Fuerza · Q${q}</h1><p>Formato Intervals.icu · DOCE: RIR · Tempo · Sobrecarga progresiva</p></div>
+  <div class="ph"><h1>Fuerza · Q${q}</h1><p>Formato Intervals.icu · C.L.O.E.: RIR · Tempo · Sobrecarga progresiva</p></div>
   <div class="day-tabs">
     <div class="day-tab ${sel===0?'active':''}" onclick="trainingTab=0;view('training')">Día A · Lunes</div>
     <div class="day-tab ${sel===1?'active':''}" onclick="trainingTab=1;view('training')">Día B · Jueves</div>
   </div>
   <div style="background:rgba(241,161,53,.07);border:1px solid rgba(241,161,53,.25);border-radius:9px;padding:9px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);margin-bottom:11px">
-    ⚡ DOCE: Si completas reps + RIR correcto → +2.5kg tren superior / +5kg inferior en la siguiente quincena
+    ⚡ C.L.O.E.: Si completas reps + RIR correcto → +2.5kg tren superior / +5kg inferior en la siguiente quincena
   </div>
   <div class="intervals-block">
     <button class="copy-btn" onclick="copyText(this,${JSON.stringify(fmt).replace(/"/g,'&quot;')})">📋 Copiar</button>
@@ -792,7 +828,7 @@ function renderNutrition(q){
   const isRest=TYPES[idx]==='rest';
   const nutr=isRest?N.rest:N.training;
   return `
-  <div class="ph"><h1>Nutrición DOCE</h1><p>Sistema intercambios · Elige tu opción cada comida · Regla 80/20</p></div>
+  <div class="ph"><h1>Nutrición C.L.O.E.</h1><p>Sistema intercambios · Elige tu opción cada comida · Regla 80/20</p></div>
   <div class="meal-day-tabs">${LABELS.map((l,i)=>`<div class="meal-day-tab ${i===idx?'active':''}" onclick="nutritionDayTab=${i};view('nutrition')">${l}</div>`).join('')}</div>
   <div class="macro-bar">
     <div class="macro-item"><div class="macro-val">${nutr.kcal}</div><div class="macro-label">Kcal</div></div>
@@ -827,7 +863,7 @@ function renderNutrition(q){
         </div>`).join('')}
     </div>`).join('')}
   <div class="meal-block" style="border-color:rgba(167,139,250,.3)">
-    <div class="meal-name" style="color:var(--accent4)">📋 REGLAS GENERALES DOCE</div>
+    <div class="meal-name" style="color:var(--accent4)">📋 REGLAS GENERALES C.L.O.E.</div>
     <br>
     ${[
       'Pesar filetes en CRUDO · hidratos como indica la dieta',
@@ -854,7 +890,7 @@ function selectMealOpt(btn,mealKey,idx){
 // ── PLAN QUINCENAL ────────────────────────────────────────
 function renderPlan(q){
   return `
-  <div class="ph"><h1>Plan quincenal · 8 quincenas</h1><p>Ciclo DOCE: revisión cada 14 días · 4 fases · 16 semanas</p></div>
+  <div class="ph"><h1>Plan quincenal · 8 quincenas</h1><p>Ciclo C.L.O.E.: revisión cada 14 días · 4 fases · 16 semanas</p></div>
   ${[
     {c:'var(--accent2)',t:'FASE BASE · Q1–Q2 (días 1–28)',d:'Easy 6:45/km · 6×400 @ 5:20 · Tirada 50min · Fuerza 3 series RIR 3 · Adaptación técnica'},
     {c:'var(--accent3)',t:'FASE VOLUMEN · Q3–Q4 (días 29–56)',d:'Easy 6:30/km · 8×400 @ 5:10 · Tirada 65min · +1 serie compuestos · Sobrecarga activa'},
@@ -873,11 +909,11 @@ function renderPlan(q){
       <span style="color:var(--muted)">${qi===8?'🏁 TAPER + CARRERA':p.easy+' · '+p.interval+'/km'}</span>
     </div>`;
   }).join('')}
-  <div class="alert" style="margin-top:14px">📊 REVISIÓN QUINCENAL: Al final de cada quincena genera el Reporte y envíaselo a tu coach con fotos + CSV Intervals. CLOE ajusta la quincena siguiente según el algoritmo DOCE (delta peso, adherencia, progresión cargas).</div>`;
+  <div class="alert" style="margin-top:14px">📊 REVISIÓN QUINCENAL: Al final de cada quincena genera el Reporte y envíaselo a tu coach con fotos + CSV Intervals. C.L.O.E. ajusta la quincena siguiente según el algoritmo C.L.O.E. (delta peso, adherencia, progresión cargas).</div>`;
 }
 
 function renderMyPlan(q){
-  const plan=profile?.current_plan||profile?.week1_plan;
+  const plan=profile?.current_plan||profile?.quincena1_plan;
   return `
   <div class="ph"><h1>Mi plan · Q${q}</h1><p>Plan personalizado por tu coach</p></div>
   <div class="plan-viewer">
@@ -892,7 +928,7 @@ function renderMyPlan(q){
 // ── REPORT ────────────────────────────────────────────────
 function renderReport(q){
   return `
-  <div class="ph"><h1>Reporte quincenal · Q${q}</h1><p>Envía a tu coach cada 14 días · Algoritmo ajuste DOCE</p></div>
+  <div class="ph"><h1>Reporte quincenal · Q${q}</h1><p>Envía a tu coach cada 14 días · Algoritmo ajuste C.L.O.E.</p></div>
   <div class="alert">Los logs diarios del móvil se incluyen automáticamente. Rellena los datos adicionales y genera el reporte.</div>
   <div class="g2">
     <div><label>Peso media esta quincena (kg)</label><input type="number" id="r-w" placeholder="72.5" step="0.1"></div>
@@ -924,7 +960,7 @@ function renderCheckin(q){
   const items=[
     {k:'steps',t:'Pasos 8.000+',s:'Objetivo NEAT diario'},
     {k:'sleep',t:'Sueño 7h+',s:'Recuperación y composición'},
-    {k:'nutr',t:'Nutrición 80/20',s:'Al menos 5/6 tomas según plan DOCE'},
+    {k:'nutr',t:'Nutrición 80/20',s:'Al menos 5/6 tomas según plan C.L.O.E.'},
     {k:'workout',t:'Entreno completado',s:'Fuerza o running según plan'},
     {k:'supps',t:'Suplementos protocolo',s:'Ayuno + pre-desayuno + pre-cena + acostarse'},
     {k:'hydro',t:'Hidratación 3L',s:'Agua mineral · 3 litros al día'},
@@ -942,7 +978,7 @@ function renderCheckin(q){
 }
 
 // ── REPORT GENERATION ─────────────────────────────────────
-function genReport(q){
+async function genReport(q){
   const wv=document.getElementById('r-w')?.value;
   const wpv=document.getElementById('r-wp')?.value;
   const cv=document.getElementById('r-c')?.value;
@@ -956,10 +992,10 @@ function genReport(q){
 
   // Day logs
   let daysSummary='';
-  for(let d=0;d<7;d++){
-    const log=loadDayLog(q,d);const type=DAYTYPES[d];const parts=[];
+  for(let d=0;d<14;d++){
+    const log=loadDayLog(q,d);const type=dayType(d);const base=baseDayIdx(d);const parts=[];
     if(type==='strength'&&log.sets){
-      const {exList}=getStrengthIntervals(d===0?'A':'B',q);
+      const {exList}=getStrengthIntervals(base===0?'A':'B',q);
       exList.forEach(ex=>{
         const sets=(log.sets[ex.key]||[]).filter(s=>s&&s.kg);
         if(sets.length){
@@ -971,7 +1007,7 @@ function genReport(q){
     if(type==='running'&&log.running?.pace) parts.push(`Running: ${log.running.pace}/km · ${log.running.dist||'?'}km · ${log.running.time||'?'}min · RPE ${log.running.feel||'?'}/10`);
     if(log.meals){const mc=Object.values(log.meals).filter(Boolean).length;if(mc>0) parts.push(`Nutrición: ${mc}/6 tomas`);}
     if(log.obs) parts.push(`Obs: ${log.obs}`);
-    if(parts.length) daysSummary+=`\n${DAYS[d]} (${DAYLABELS[d]})\n${parts.map(p=>'  · '+p).join('\n')}\n`;
+    if(parts.length) daysSummary+=`\n${dayLabelWithDate(q,d)} (${dayTrainingLabel(d)})\n${parts.map(p=>'  · '+p).join('\n')}\n`;
   }
 
   const deltaP=wv&&wpv?(parseFloat(wv)-parseFloat(wpv)).toFixed(1):'n/d';
@@ -986,7 +1022,7 @@ PERFIL
 Objetivo: ${profile?.goal||'—'} · Q${q}/8 · ${getPhase(q)}
 Edad: ${profile?.age||'—'} · Peso inicial: ${profile?.weight_kg||'—'}kg
 
-MÉTRICAS Q${q} (algoritmo ajuste DOCE)
+MÉTRICAS Q${q} (algoritmo ajuste C.L.O.E.)
 Peso medio Q${q}:       ${wv||'n/d'} kg
 Peso medio Q${q-1}:     ${wpv||'n/d'} kg
 Delta peso:            ${deltaP} kg (obj. recomposición: ±0.2kg)
@@ -1007,11 +1043,11 @@ ${csv||'(no proporcionado)'}
 FOTOS: [ADJUNTAR FRENTE · LATERAL · ESPALDA]
 
 ═══════════════════════════════════════════════════════
-INSTRUCCIÓN C.L.O.E. COACH · ALGORITMO DOCE Q${q+1}
+INSTRUCCIÓN C.L.O.E. COACH · ALGORITMO C.L.O.E. Q${q+1}
 ═══════════════════════════════════════════════════════
 
 Actúa como C.L.O.E. COACH basándote en el Informe
-Maestro Programa DOCE. Aplica el algoritmo quincenal:
+Maestro del plan C.L.O.E. Aplica el algoritmo quincenal:
 
 ANÁLISIS OBLIGATORIO:
 1. RENDIMIENTO FUERZA: progresión pesos, RIR real vs objetivo, tempo, volumen
@@ -1020,14 +1056,14 @@ ANÁLISIS OBLIGATORIO:
 4. RECUPERACIÓN: sueño ${sv||'?'}h · energía ${ev||'?'}/10 · señales fatiga
 5. ALERTAS MÉDICAS: lesión potencial, sobreentrenamiento, déficit extremo
 
-AJUSTE NUTRICIONAL (algoritmo DOCE):
+AJUSTE NUTRICIONAL (algoritmo C.L.O.E.):
 - Si adherencia < 80%: mantener calorías, trabajar adherencia
 - Si delta peso > objetivo: reducir 200-300 kcal
 - Si delta peso ≤ objetivo: mantener
 - Rebalancear macros si procede: P=1.8-2.0g/kg · G=0.7-1.2g/kg · HC=resto
 - Ajustar HC pre-entreno si energía baja
 
-AJUSTE ENTRENAMIENTO (DOCE):
+AJUSTE ENTRENAMIENTO (C.L.O.E.):
 - Si progresión cargas consistente: +2.5kg superior / +5kg inferior
 - Si estancamiento ≥ 2 quincenas: cambiar patrón/rango
 - Si fatiga alta: semana descarga en Q${q+1}
@@ -1042,7 +1078,7 @@ B. RUNNING — 3 sesiones formato Intervals.icu:
 
 C. SUPLEMENTOS — ajuste si procede según análisis
 
-D. NUTRICIÓN — menús 6 tomas con opciones intercambiables
+D. NUTRICIÓN — 3 opciones completas por comida, adaptadas respecto a la quincena anterior
    Kcal ajustadas · macros recalculados · regla 80/20
 
 E. OBJETIVOS Q${q+1}:
@@ -1053,6 +1089,11 @@ Sin teoría. Directo. Justifica cada ajuste en 1 línea.
 
   document.getElementById('rep-text').value=text;
   document.getElementById('rep-out').style.display='block';
+  const {error}=await sb.from('profiles').update({
+    latest_report:text,
+    latest_report_at:new Date().toISOString()
+  }).eq('id',profile.id);
+  if(error) alert('Reporte generado, pero no se pudo guardar en Supabase: '+error.message);
 }
 
 // ── MOBILE VIEW ───────────────────────────────────────────
@@ -1065,8 +1106,8 @@ function openMobile(){
 function closeMobile(){ document.getElementById('mob-overlay').classList.remove('open'); }
 
 function renderMobileDayBar(){
-  document.getElementById('mob-day-bar').innerHTML=DAYS.map((d,i)=>`
-    <button class="mob-day-btn ${i===mobDayIdx?'on':''}" onclick="setMobDay(${i})">${d}<br><span style="font-size:8px">${DAYLABELS[i]}</span></button>`).join('');
+  document.getElementById('mob-day-bar').innerHTML=Array.from({length:14},(_,i)=>`
+    <button class="mob-day-btn ${i===mobDayIdx?'on':''}" onclick="setMobDay(${i})">${dayLabelWithDate(getQuincena(profile?.week||1),i)}<br><span style="font-size:8px">${dayTrainingLabel(i)}</span></button>`).join('');
 }
 function setMobDay(i){ mobDayIdx=i; renderMobileDayBar(); renderMobileDay(); }
 
@@ -1074,12 +1115,12 @@ function renderMobileDay(){
   const w=profile?.week||1;
   const q=getQuincena(w);
   const d=mobDayIdx;
-  const type=DAYTYPES[d];
+  const type=dayType(d);
   const log=loadDayLog(q,d);
   const N=getNutrition();
   const isRest=type==='rest';
   const nutr=isRest?N.rest:N.training;
-  document.getElementById('mob-date-label').textContent=`${DAYS[d]} · ${DAYLABELS[d]} · Q${q}`;
+  document.getElementById('mob-date-label').textContent=`${dayLabelWithDate(q,d)} · ${dayTrainingLabel(d)} · Q${q}`;
 
   let html='';
 
@@ -1114,9 +1155,9 @@ function renderMobileDay(){
 
   // ── FUERZA ──
   if(type==='strength'){
-    const {exList,fmt}=getStrengthIntervals(d===0?'A':'B',q);
+    const {exList,fmt}=getStrengthIntervals(baseDayIdx(d)===0?'A':'B',q);
     html+=`<div class="mob-section">
-      <div class="mob-section-title">🏋️ Fuerza Día ${d===0?'A':'B'}</div>
+      <div class="mob-section-title">🏋️ Fuerza Día ${baseDayIdx(d)===0?'A':'B'}</div>
       <div class="mob-intervals">
         <button class="mob-copy" onclick="copyText(this,${JSON.stringify(fmt).replace(/"/g,'&quot;')})">📋</button>
         <pre>${fmt}</pre>
@@ -1335,9 +1376,9 @@ function saveDayData(){
 }
 
 function updateMobStatus(q,d){
-  const log=loadDayLog(q,d);const type=DAYTYPES[d];const parts=[];
+  const log=loadDayLog(q,d);const type=dayType(d);const base=baseDayIdx(d);const parts=[];
   if(type==='strength'&&log.sets){
-    const {exList}=getStrengthIntervals(d===0?'A':'B',q);
+    const {exList}=getStrengthIntervals(base===0?'A':'B',q);
     const done=exList.reduce((acc,ex)=>acc+(log.sets[ex.key]||[]).filter(s=>s&&s.done).length,0);
     const total=exList.reduce((acc,ex)=>acc+ex.sets,0);
     if(done>0) parts.push(`${done}/${total} series`);

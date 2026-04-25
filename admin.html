@@ -73,7 +73,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <div class="kcard"><div class="klbl">Usuarios activos</div><div class="kval a" id="st-active">—</div></div>
     <div class="kcard"><div class="klbl">Pendientes</div><div class="kval o" id="st-pending">—</div></div>
     <div class="kcard"><div class="klbl">Total</div><div class="kval b" id="st-total">—</div></div>
-    <div class="kcard"><div class="klbl">Semana media</div><div class="kval" id="st-week">—</div></div>
+    <div class="kcard"><div class="klbl">Quincena media</div><div class="kval" id="st-week">—</div></div>
   </div>
 
   <div class="stitle">Usuarios</div>
@@ -86,7 +86,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <table class="tbl">
       <thead>
         <tr>
-          <th>Nombre</th><th>Email</th><th>Semana</th><th>Fase</th>
+          <th>Nombre</th><th>Email</th><th>Quincena</th><th>Fase</th>
           <th>Estado</th><th>Objetivo</th><th>Plan S1</th><th>Acciones</th>
         </tr>
       </thead>
@@ -121,8 +121,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <option>Ganar músculo</option>
       <option>Rendimiento deportivo</option>
     </select>
-    <label>Plan Semana 1 (pega aquí el output de CLOE IA)</label>
-    <textarea id="c-plan" class="plan-area" rows="8" placeholder="Pega aquí el plan completo que ha generado CLOE después de analizar el cuestionario...&#10;&#10;Incluye fuerza, running, nutrición y objetivos de semana 1."></textarea>
+    <label>Plan Quincena 1 (pega aquí el output de CLOE IA)</label>
+    <textarea id="c-plan" class="plan-area" rows="8" placeholder="Pega aquí el plan completo que ha generado CLOE después de analizar el cuestionario...&#10;&#10;Incluye las dos semanas completas de la quincena 1, con fuerza, deportes, nutrición y objetivos."></textarea>
     <div class="plan-hint">💡 Flujo: rellena el cuestionario en onboarding.html → copia el prompt → pégalo en el chat de CLOE → CLOE genera el plan → cópialo aquí</div>
     <div class="pass-box" id="pass-box"></div>
     <div class="mact">
@@ -144,7 +144,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <div><label>Peso (kg)</label><input type="number" step="0.1" id="e-weight"></div>
       <div><label>Altura (cm)</label><input type="number" id="e-height"></div>
       <div><label>Objetivo</label><input id="e-goal"></div>
-      <div><label>Semana activa</label><input type="number" id="e-week" min="1" max="16"></div>
+      <div><label>Semana interna</label><input type="number" id="e-week" min="1" max="16"></div>
       <div><label>Estado</label>
         <select id="e-status">
           <option value="active">Activo</option>
@@ -158,6 +158,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <div><label>Easy pace</label><input id="e-easy-pace"></div>
       <div><label>Target pace</label><input id="e-target-pace"></div>
       <div><label>Fecha evento</label><input type="date" id="e-event-date"></div>
+      <div><label>Inicio del plan</label><input type="date" id="e-plan-start-date"></div>
     </div>
     <label>Datos del cuestionario</label>
     <div class="g2">
@@ -174,23 +175,37 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <div><label>Equipamiento (coma separada)</label><input id="e-equip"></div>
       <div><label>Dieta (coma separada)</label><input id="e-diet"></div>
     </div>
+    <label>Disponibilidad y agenda</label>
+    <div class="g2">
+      <div><label>Días fuerza/semana</label><input type="number" id="e-strength-days" min="0" max="7"></div>
+      <div><label>Días deportes/semana</label><input type="number" id="e-sport-days" min="0" max="7"></div>
+      <div><label>Preferencia fuerza</label><input id="e-strength-pref" placeholder="Lunes, Jueves"></div>
+      <div><label>Preferencia deportes</label><input id="e-sport-pref" placeholder="Martes, Sábado"></div>
+    </div>
+    <label>Notas de agenda</label>
+    <textarea id="e-schedule-notes" rows="2"></textarea>
     <label>Contexto adicional</label>
     <textarea id="e-context" rows="3" placeholder="Trabajo, estrés, horarios, viajes, hijos..."></textarea>
     <label>Notas del coach</label>
     <textarea id="e-notes" rows="2" placeholder="Observaciones, ajustes, alertas..."></textarea>
 
+    <label>Último reporte guardado por el usuario</label>
+    <textarea id="e-latest-report" class="plan-area" rows="8" readonly></textarea>
+    <div class="plan-hint">Este reporte lo genera el usuario al terminar la quincena. Cópialo a la IA para preparar la quincena siguiente.</div>
+    <div class="mact"><button class="btn sec" onclick="copyLatestReport()">Copiar último reporte</button></div>
+
     <label>Prompt IA del perfil</label>
     <textarea id="e-profile-prompt" class="plan-area" rows="10" readonly></textarea>
     <div class="plan-hint">Resumen automático del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
 
-    <label>Plan Semana activa (editar o pegar plan nuevo de CLOE)</label>
+    <label>Plan Quincena activa (editar o pegar plan nuevo de CLOE)</label>
     <textarea id="e-plan" class="plan-area" rows="10"></textarea>
-    <div class="plan-hint">💡 Para actualizar el plan: genera el reporte semanal desde la app del usuario → pégalo en el chat → CLOE genera semana siguiente → pega aquí el resultado</div>
+    <div class="plan-hint">💡 Para actualizar el plan: genera el reporte quincenal desde la app del usuario → pégalo en el chat → C.L.O.E. genera la quincena siguiente → pega aquí el resultado</div>
 
     <div class="mact">
       <button class="btn sec" onclick="copyProfilePrompt()">Copiar prompt IA</button>
       <button class="btn" onclick="saveEdit()">💾 Guardar</button>
-      <button class="btn sec" onclick="advWeek()">Avanzar semana →</button>
+      <button class="btn sec" onclick="advFortnight()">Avanzar quincena</button>
       <button class="btn dan" onclick="delUser()">Desactivar</button>
       <button class="btn sec" onclick="close('m-edit')">Cerrar</button>
     </div>
@@ -243,7 +258,7 @@ async function load(){
   document.getElementById('st-pending').textContent=pending;
   document.getElementById('st-total').textContent=users.length;
   document.getElementById('st-week').textContent=users.length?
-    'S'+(users.reduce((s,u)=>s+(u.week||1),0)/users.length).toFixed(1):'—';
+    'Q'+(users.reduce((s,u)=>s+quincenaFromWeek(u.week||1),0)/users.length).toFixed(1):'—';
   renderTable();
 }
 
@@ -275,7 +290,7 @@ function buildProfilePrompt(user){
   return `C.L.O.E. COACH · PERFIL USUARIO
 Usuario: ${user.full_name||'Sin nombre'}
 Email: ${user.email||'Sin email'}
-Semana actual: ${user.week||1}
+Semana interna actual: ${user.week||1}
 Quincena actual: ${q}
 Estado: ${user.status||'pending'}
 Objetivo: ${user.goal||'Sin definir'}
@@ -288,6 +303,7 @@ DATOS FÍSICOS
 
 DATOS DEL CUESTIONARIO
 - Onboarding completado: ${user.onboarding_completed===true?'Sí':'No'}
+- Inicio del plan: ${extra.plan_start_date||'n/d'}
 - Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` (${extra.injury_detail})`:''}
 - Pasos: ${extra.steps||'n/d'}
 - Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
@@ -297,6 +313,11 @@ DATOS DEL CUESTIONARIO
 - Nivel fuerza: ${extra.gym_level||'n/d'}
 - Días por semana: ${extra.days||'n/d'}
 - Distribución: ${extra.split||'n/d'}
+- Días fuerza/semana: ${extra.strength_days||'n/d'}
+- Días deportes/semana: ${extra.sport_days||'n/d'}
+- Preferencia fuerza: ${Array.isArray(extra.strength_pref)?extra.strength_pref.join(', '):'n/d'}
+- Preferencia deportes: ${Array.isArray(extra.sport_pref)?extra.sport_pref.join(', '):'n/d'}
+- Notas agenda: ${extra.schedule_notes||'n/d'}
 - Tiempo por sesión: ${extra.session_t||'n/d'}
 - Deportes: ${sports.join(', ')}
 - Equipamiento: ${equip}
@@ -307,10 +328,18 @@ DATOS DEL CUESTIONARIO
 
 INSTRUCCIÓN PARA LA IA
 Analiza este perfil y genera el plan completo de la quincena ${q} para este usuario.
+La quincena debe cubrir 14 días completos: dos semanas seguidas, de lunes a domingo.
+Entrega el resultado separado en:
+1. Primera semana completa (lunes a domingo)
+2. Segunda semana completa (lunes a domingo)
+3. Nutrición y objetivos de la quincena
 Devuelve entrenamiento, ajustes de fuerza, nutrición y objetivos listos para pegar en su perfil.
 
 PLAN ACTUAL DEL USUARIO
-${user.current_plan||user.week1_plan||'Aún sin plan cargado.'}`;
+${user.current_plan||user.quincena1_plan||'Aún sin plan cargado.'}
+
+ÚLTIMO REPORTE DEL USUARIO
+${user.latest_report||'Aún sin reporte guardado.'}`;
 }
 
 function collectEditUserForPrompt(){
@@ -326,8 +355,10 @@ function collectEditUserForPrompt(){
     status:document.getElementById('e-status').value,
     onboarding_completed:document.getElementById('e-onboarding-completed').value==='true',
     current_plan:document.getElementById('e-plan').value.trim()||null,
+    latest_report:document.getElementById('e-latest-report').value.trim()||null,
     onboarding_data:{
       injury:document.getElementById('e-injury').value.trim()||null,
+      plan_start_date:document.getElementById('e-plan-start-date').value||null,
       injury_detail:document.getElementById('e-injury-detail').value.trim()||null,
       steps:document.getElementById('e-steps').value.trim()||null,
       event:document.getElementById('e-event').value.trim()||null,
@@ -337,6 +368,11 @@ function collectEditUserForPrompt(){
       run_level:document.getElementById('e-run-level').value.trim()||null,
       gym_level:document.getElementById('e-gym-level').value.trim()||null,
       days:parseInt(document.getElementById('e-days').value)||null,
+      strength_days:parseInt(document.getElementById('e-strength-days').value)||null,
+      sport_days:parseInt(document.getElementById('e-sport-days').value)||null,
+      strength_pref:textToList(document.getElementById('e-strength-pref').value),
+      sport_pref:textToList(document.getElementById('e-sport-pref').value),
+      schedule_notes:document.getElementById('e-schedule-notes').value.trim()||null,
       split:document.getElementById('e-split').value.trim()||null,
       session_t:document.getElementById('e-session-time').value.trim()||null,
       activity:document.getElementById('e-activity').value.trim()||null,
@@ -359,18 +395,18 @@ function renderTable(){
     const w=u.week||1;
     const sc=u.status==='active'?'sa':u.status==='pending'?'sp':'si';
     const sl=u.status==='active'?'Activo':u.status==='pending'?'Pendiente':'Inactivo';
-    const hasPlan=u.week1_plan&&u.week1_plan.length>10;
+    const hasPlan=(u.current_plan&&u.current_plan.length>10)||(u.quincena1_plan&&u.quincena1_plan.length>10);
     return `<tr>
       <td style="font-weight:700">${u.full_name||'—'}</td>
       <td style="color:var(--muted)">${u.email||'—'}</td>
-      <td><span style="color:var(--accent)">S${w}</span><span style="color:var(--muted)">/16</span></td>
+      <td><span style="color:var(--accent)">Q${quincenaFromWeek(w)}</span><span style="color:var(--muted)">/8</span></td>
       <td style="color:var(--accent2)">${phase(w)}</td>
       <td><span class="sbadge ${sc}">${sl}</span></td>
       <td style="color:var(--muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.goal||'—'}</td>
       <td><span style="font-family:'DM Mono',monospace;font-size:10px;color:${hasPlan?'var(--accent)':'var(--muted)'}">${hasPlan?'✓ Sí':'— No'}</span></td>
       <td>
         <button class="abtn p" onclick="openEdit('${u.id}')">Editar</button>
-        <button class="abtn" onclick="advWeekDirect('${u.id}',${w})">S→</button>
+        <button class="abtn" onclick="advFortnightDirect('${u.id}',${w})">Q→</button>
         <button class="abtn d" onclick="delDirect('${u.id}')">Desactivar</button>
       </td>
     </tr>`;
@@ -447,7 +483,7 @@ async function createUser(){
   const profilePayload={
     full_name:name, email, role:'user', status:'pending',
     week:1, age, sex, weight_kg:weight, height_cm:height, goal,
-    week1_plan:plan||null,
+    quincena1_plan:plan||null,
     current_plan:plan||null,
     created_at:new Date().toISOString()
   };
@@ -489,6 +525,7 @@ function openEdit(id){
   document.getElementById('e-easy-pace').value=extra.easy_pace||'';
   document.getElementById('e-target-pace').value=extra.target_pace||'';
   document.getElementById('e-event-date').value=formatDateForInput(extra.event_date);
+  document.getElementById('e-plan-start-date').value=formatDateForInput(extra.plan_start_date);
   document.getElementById('e-injury').value=extra.injury||'';
   document.getElementById('e-injury-detail').value=extra.injury_detail||'';
   document.getElementById('e-steps').value=extra.steps||'';
@@ -501,9 +538,15 @@ function openEdit(id){
   document.getElementById('e-sports').value=listToText(extra.sports);
   document.getElementById('e-equip').value=listToText(extra.equip);
   document.getElementById('e-diet').value=listToText(extra.diet);
+  document.getElementById('e-strength-days').value=extra.strength_days||'';
+  document.getElementById('e-sport-days').value=extra.sport_days||'';
+  document.getElementById('e-strength-pref').value=listToText(extra.strength_pref);
+  document.getElementById('e-sport-pref').value=listToText(extra.sport_pref);
+  document.getElementById('e-schedule-notes').value=extra.schedule_notes||'';
   document.getElementById('e-context').value=extra.context||'';
   document.getElementById('e-notes').value=u.notes||'';
-  document.getElementById('e-plan').value=u.current_plan||u.week1_plan||'';
+  document.getElementById('e-latest-report').value=u.latest_report||'Sin reporte guardado todavía.';
+  document.getElementById('e-plan').value=u.current_plan||u.quincena1_plan||'';
   document.getElementById('e-profile-prompt').value=buildProfilePrompt(u);
   document.getElementById('m-edit').classList.add('on');
 }
@@ -523,6 +566,7 @@ async function saveEdit(){
   const plan=document.getElementById('e-plan').value.trim();
   const onboarding_data={
     injury:document.getElementById('e-injury').value.trim()||null,
+    plan_start_date:document.getElementById('e-plan-start-date').value||null,
     injury_detail:document.getElementById('e-injury-detail').value.trim()||null,
     steps:document.getElementById('e-steps').value.trim()||null,
     event:document.getElementById('e-event').value.trim()||null,
@@ -532,6 +576,11 @@ async function saveEdit(){
     run_level:document.getElementById('e-run-level').value.trim()||null,
     gym_level:document.getElementById('e-gym-level').value.trim()||null,
     days:parseInt(document.getElementById('e-days').value)||null,
+    strength_days:parseInt(document.getElementById('e-strength-days').value)||null,
+    sport_days:parseInt(document.getElementById('e-sport-days').value)||null,
+    strength_pref:textToList(document.getElementById('e-strength-pref').value),
+    sport_pref:textToList(document.getElementById('e-sport-pref').value),
+    schedule_notes:document.getElementById('e-schedule-notes').value.trim()||null,
     split:document.getElementById('e-split').value.trim()||null,
     session_t:document.getElementById('e-session-time').value.trim()||null,
     activity:document.getElementById('e-activity').value.trim()||null,
@@ -542,35 +591,39 @@ async function saveEdit(){
     context:document.getElementById('e-context').value.trim()||null
   };
 
-  const {error}=await sb.from('profiles').update({
+  const updatePayload={
     full_name, age, sex, weight_kg, height_cm, goal,
     week, status, notes, onboarding_completed, onboarding_data,
-    week1_plan:week===1 && plan ? plan : undefined,
     current_plan:plan||null
-  }).eq('id',editId);
+  };
+  if(week===1 && plan){
+    updatePayload.quincena1_plan=plan;
+  }
+
+  const {error}=await sb.from('profiles').update(updatePayload).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
   toast('✅ Guardado.');
   load();
 }
 
-async function advWeek(){
+async function advFortnight(){
   if(!editId) return;
   const u=users.find(x=>x.id===editId);
   if(!u) return;
-  const next=Math.min((u.week||1)+1,16);
+  const next=Math.min((u.week||1)+2,16);
   const {error}=await sb.from('profiles').update({week:next}).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('✅ Avanzado a semana '+next);
+  toast('✅ Avanzado a quincena Q'+quincenaFromWeek(next));
   load();
 }
 
-async function advWeekDirect(id,w){
-  const next=Math.min(w+1,16);
+async function advFortnightDirect(id,w){
+  const next=Math.min(w+2,16);
   const {error}=await sb.from('profiles').update({week:next}).eq('id',id);
   if(error){toast('Error: '+error.message);return;}
-  toast('✅ Semana '+next);
+  toast('✅ Quincena Q'+quincenaFromWeek(next));
   load();
 }
 
@@ -598,6 +651,14 @@ function copyProfilePrompt(){
   area.setSelectionRange(0,99999);
   document.execCommand('copy');
   toast('Prompt IA copiado.');
+}
+
+function copyLatestReport(){
+  const area=document.getElementById('e-latest-report');
+  area.select();
+  area.setSelectionRange(0,99999);
+  document.execCommand('copy');
+  toast('Último reporte copiado.');
 }
 
 function close(id){document.getElementById(id).classList.remove('on');}
