@@ -289,17 +289,9 @@ input[type=range]{flex:1;accent-color:var(--accent)}
     </div>
   </div>
 
-  <div class="field">
-    <label class="fl">Días preferidos para deportes</label>
-    <div class="pills">
-      <div class="pill" data-key="sport-pref" data-value="Lunes" onclick="multi(this,'sport-pref','Lunes')">Lun</div>
-      <div class="pill" data-key="sport-pref" data-value="Martes" onclick="multi(this,'sport-pref','Martes')">Mar</div>
-      <div class="pill" data-key="sport-pref" data-value="Miércoles" onclick="multi(this,'sport-pref','Miércoles')">Mié</div>
-      <div class="pill" data-key="sport-pref" data-value="Jueves" onclick="multi(this,'sport-pref','Jueves')">Jue</div>
-      <div class="pill" data-key="sport-pref" data-value="Viernes" onclick="multi(this,'sport-pref','Viernes')">Vie</div>
-      <div class="pill" data-key="sport-pref" data-value="Sábado" onclick="multi(this,'sport-pref','Sábado')">Sáb</div>
-      <div class="pill" data-key="sport-pref" data-value="Domingo" onclick="multi(this,'sport-pref','Domingo')">Dom</div>
-    </div>
+  <div class="field" id="sport-day-prefs-wrap" style="display:none">
+    <label class="fl">Días preferidos por deporte</label>
+    <div id="sport-day-prefs"></div>
   </div>
 
   <div class="field">
@@ -467,6 +459,7 @@ function multi(el,key,value){
     M[key].add(value);
     el.classList.add('msel');
   }
+  if(key==='sports') updateSportDayPrefs();
 }
 
 function cmulti(el,key,value){
@@ -569,6 +562,62 @@ function calcMacros(){
   return {kcal,protein,carbs,fat,tdee};
 }
 
+const SPORT_DAYS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const SPORT_DAY_LABELS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+function sportPrefKey(sport){
+  return 'spd-'+sport.toLowerCase().replace(/[^a-z]/g,'');
+}
+
+function updateSportDayPrefs(){
+  const wrap=document.getElementById('sport-day-prefs-wrap');
+  const container=document.getElementById('sport-day-prefs');
+  const selected=[...(M.sports||[])];
+  wrap.style.display=selected.length?'block':'none';
+  container.innerHTML='';
+  selected.forEach(sport=>{
+    const key=sportPrefKey(sport);
+    if(!M[key]) M[key]=new Set();
+    const div=document.createElement('div');
+    div.style.marginBottom='12px';
+    const lbl=document.createElement('label');
+    lbl.className='fl';
+    lbl.style.color='var(--text)';
+    lbl.style.marginBottom='5px';
+    lbl.textContent=sport;
+    div.appendChild(lbl);
+    const pills=document.createElement('div');
+    pills.className='pills';
+    SPORT_DAYS.forEach((day,i)=>{
+      const p=document.createElement('div');
+      p.className='pill'+(M[key].has(day)?' msel':'');
+      p.dataset.key=key;
+      p.dataset.value=day;
+      p.textContent=SPORT_DAY_LABELS[i];
+      p.onclick=function(){multi(this,key,day);};
+      pills.appendChild(p);
+    });
+    div.appendChild(pills);
+    container.appendChild(div);
+  });
+}
+
+function getSportsDayPrefs(){
+  const result={};
+  [...(M.sports||[])].forEach(sport=>{
+    const key=sportPrefKey(sport);
+    result[sport]=M[key]&&M[key].size?[...M[key]]:[];
+  });
+  return result;
+}
+
+function formatSportsDayPrefs(prefs){
+  if(!prefs||!Object.keys(prefs).length) return 'sin preferencia';
+  return Object.entries(prefs).map(([sport,days])=>
+    `${sport}: ${days.length?days.join(', '):'sin preferencia'}`
+  ).join(' · ');
+}
+
 function collectPayload(){
   return {
     name:document.getElementById('name').value.trim()||'Usuario',
@@ -592,7 +641,7 @@ function collectPayload(){
     strengthDays:document.getElementById('strength-days').value||'no indicado',
     sportDays:document.getElementById('sport-days').value||'no indicado',
     strengthPref:M['strength-pref']&&M['strength-pref'].size?[...M['strength-pref']]:[],
-    sportPref:M['sport-pref']&&M['sport-pref'].size?[...M['sport-pref']]:[],
+    sportsDayPrefs:getSportsDayPrefs(),
     scheduleNotes:document.getElementById('schedule-notes').value.trim()||'ninguna',
     split:`Fuerza ${document.getElementById('strength-days').value||'?'} días; deportes ${document.getElementById('sport-days').value||'?'} días`,
     sessionTime:F['session-t']||'no indicado',
@@ -608,26 +657,34 @@ function collectPayload(){
 function buildSportsPrompt(payload){
   const selected=payload.sports.length?payload.sports:['Running'];
   const blocks=selected.map(sport=>{
+    const days=payload.sportsDayPrefs&&payload.sportsDayPrefs[sport]&&payload.sportsDayPrefs[sport].length
+      ?payload.sportsDayPrefs[sport].join(', '):'sin preferencia';
     if(sport==='Running') return `RUNNING
+- Días preferidos: ${days}
 - Genera 2-3 sesiones semanales según disponibilidad: intervalos, tempo/easy y tirada larga si procede.
 - Si hay sesión de calidad, usa formato EXACTO Intervals.icu.
 - Adapta ritmos a nivel ${payload.runLevel}, easy actual ${payload.easyPace}/km y objetivo ${payload.targetPace}/km.
 - No usar zonas de FC si no están dadas. Prioriza min:seg/km, duración y distancia aproximada.`;
     if(sport==='Ciclismo') return `CICLISMO
+- Días preferidos: ${days}
 - Genera sesiones outdoor con duración, objetivo, terreno sugerido, cadencia y RPE.
 - Incluye una sesión aeróbica Z2/RPE 4-5 y una sesión de calidad si la carga total lo permite.
 - Si no hay FTP/potencia, usa RPE y cadencia. Coordina la carga con running y fuerza.`;
     if(sport==='Rodillo') return `RODILLO
+- Días preferidos: ${days}
 - Genera sesiones indoor estructuradas por bloques de tiempo.
 - Formato: calentamiento, bloque principal, recuperación y vuelta a la calma.
 - Indica cadencia objetivo y RPE. Si no hay vatios, no inventes potencia.`;
     if(sport==='Natación') return `NATACIÓN
+- Días preferidos: ${days}
 - Genera sesiones en piscina con metros totales, calentamiento, técnica, serie principal y vuelta a la calma.
 - Incluye descansos entre series y ejercicios técnicos simples.`;
     if(sport==='Andar') return `ANDAR
+- Días preferidos: ${days}
 - Programa caminatas como trabajo aeróbico suave y recuperación activa.
 - Indica duración, terreno, ritmo percibido y objetivo de pasos.`;
     return `${sport}
+- Días preferidos: ${days}
 - Genera sesiones específicas de este deporte con duración, intensidad y objetivo.`;
   }).join('\n\n');
 
@@ -669,7 +726,7 @@ Evento / prueba: ${payload.event}${payload.eventDate ? ' ('+payload.eventDate+')
 Deportes: ${payload.sports.join(', ')}
 Disponibilidad: ${payload.strengthDays} días fuerza · ${payload.sportDays} días deportes
 Días preferidos fuerza: ${payload.strengthPref.length?payload.strengthPref.join(', '):'sin preferencia'}
-Días preferidos deportes: ${payload.sportPref.length?payload.sportPref.join(', '):'sin preferencia'}
+Días preferidos deportes: ${formatSportsDayPrefs(payload.sportsDayPrefs)}
 Notas agenda: ${payload.scheduleNotes}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -700,7 +757,7 @@ ${payload.split}
 
 Respeta la disponibilidad semanal:
 - Fuerza: ${payload.strengthDays} días/semana. Preferencia: ${payload.strengthPref.length?payload.strengthPref.join(', '):'sin preferencia'}
-- Deportes: ${payload.sportDays} días/semana. Preferencia: ${payload.sportPref.length?payload.sportPref.join(', '):'sin preferencia'}
+- Deportes: ${payload.sportDays} días/semana. Preferencia por deporte: ${formatSportsDayPrefs(payload.sportsDayPrefs)}
 - Notas de agenda: ${payload.scheduleNotes}
 
 Equipamiento disponible: ${equip}
@@ -792,7 +849,7 @@ async function saveUserOnboarding(payload){
       strength_days:payload.strengthDays,
       sport_days:payload.sportDays,
       strength_pref:payload.strengthPref,
-      sport_pref:payload.sportPref,
+      sports_day_prefs:payload.sportsDayPrefs,
       schedule_notes:payload.scheduleNotes,
       split:payload.split,
       session_t:payload.sessionTime,
@@ -883,11 +940,16 @@ function applyProfileToForm(profile){
   setInput('strength-days',extra.strength_days);
   setInput('sport-days',extra.sport_days);
   restoreMulti('strength-pref',extra.strength_pref);
-  restoreMulti('sport-pref',extra.sport_pref);
+  restoreMulti('sports',extra.sports);
+  if(extra.sports_day_prefs&&typeof extra.sports_day_prefs==='object'){
+    Object.entries(extra.sports_day_prefs).forEach(([sport,days])=>{
+      M[sportPrefKey(sport)]=new Set(Array.isArray(days)?days:[]);
+    });
+  }
+  updateSportDayPrefs();
   setInput('schedule-notes',extra.schedule_notes);
   restoreSingle('session-t',extra.session_t);
   restoreMulti('equip',extra.equip);
-  restoreMulti('sports',extra.sports);
   restoreSingle('activity',extra.activity);
   restoreMulti('diet',extra.diet);
   setSlider('sleep',extra.sleep||7,'h');
@@ -915,6 +977,7 @@ async function initUserMode(){
 }
 
 initUserMode();
+updateSportDayPrefs();
 </script>
 </body>
 </html>
