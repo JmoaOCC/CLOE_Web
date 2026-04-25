@@ -48,9 +48,13 @@ Settings → API:
 - `Project URL` → sustituye `https://TU_PROYECTO.supabase.co`
 - `anon public` → sustituye `TU_ANON_KEY`
 
-Sustituir en los 4 archivos: `login.html`, `onboarding.html`, `admin.html`, `app.html`
+Sustituir en los archivos que usan autenticación: `login.html`, `admin.html`, `app.html`
+
+> `onboarding.html` no se conecta a Supabase: genera el prompt localmente.
 
 ### 3. Crear tabla `profiles`
+
+También tienes el mismo bloque preparado en [supabase-setup.sql](./supabase-setup.sql).
 
 ```sql
 create table profiles (

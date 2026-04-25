@@ -168,10 +168,12 @@ const sb=createClient(SB_URL,SB_KEY);
 
 let users=[];
 let editId=null;
+let adminSession=null;
 
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='login.html';return;}
+  adminSession=session;
   const {data}=await sb.from('profiles').select('role').eq('id',session.user.id).single();
   if(data?.role!=='admin'){window.location.href='login.html';return;}
   load();
@@ -255,7 +257,16 @@ async function createUser(){
   if(!name||!email||!pass){toast('Nombre, email y contraseña son obligatorios.');return;}
   if(pass.length<8){toast('La contraseña debe tener al menos 8 caracteres.');return;}
 
+  const {data:{session:currentSession}}=await sb.auth.getSession();
+  const previousSession=currentSession||adminSession;
   const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+  if(previousSession?.access_token&&previousSession?.refresh_token){
+    await sb.auth.setSession({
+      access_token:previousSession.access_token,
+      refresh_token:previousSession.refresh_token
+    });
+    adminSession=previousSession;
+  }
   if(error){toast('Error auth: '+error.message);return;}
   const uid=data.user?.id;
   if(!uid){toast('No se pudo obtener el ID. Intenta de nuevo.');return;}
