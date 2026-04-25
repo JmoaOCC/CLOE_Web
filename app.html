@@ -410,6 +410,9 @@ function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${
     return;
   }
   if(data.role==='admin'){window.location.href='admin.html';return;}
+  const needsOnboarding = (Object.prototype.hasOwnProperty.call(data,'onboarding_completed') && data.onboarding_completed!==true)
+    || !data.age || !data.sex || !data.weight_kg || !data.height_cm || !data.goal;
+  if(needsOnboarding){window.location.href='onboarding.html';return;}
   if(data.status==='inactive'){
     await sb.auth.signOut();
     document.getElementById('loading-screen').textContent='Tu usuario está inactivo. Contacta con tu coach para reactivar el acceso.';

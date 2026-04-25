@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>C.L.O.E. · Cuestionario inicial</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;}
+:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;--danger:#ff8d8d}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
 .hdr{background:#101622;border-bottom:1px solid var(--border);padding:16px 28px;display:flex;justify-content:space-between;align-items:center}
@@ -19,13 +20,13 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .s-dot.ok{background:var(--accent);border-color:var(--accent);color:#111}
 .s-line{flex:1;max-width:60px;height:1px;background:var(--border)}
 .s-line.ok{background:var(--accent)}
-.main{max-width:660px;margin:0 auto;padding:32px 20px}
+.main{max-width:760px;margin:0 auto;padding:32px 20px}
 .panel{display:none}.panel.on{display:block}
-.ptitle{font-size:20px;font-weight:800;margin-bottom:5px}
-.psub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:28px}
+.ptitle{font-size:22px;font-weight:800;margin-bottom:6px}
+.psub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:28px;line-height:1.7}
 .field{margin-bottom:20px}
 .fl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;display:block;margin-bottom:7px}
-input[type=text],input[type=number],input[type=email],select,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:11px 14px;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border .2s}
+input[type=text],input[type=number],input[type=email],input[type=date],select,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:11px 14px;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border .2s}
 input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -34,7 +35,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 .pill:hover{color:var(--text);border-color:var(--muted)}
 .pill.sel{background:rgba(200,241,53,.1);border-color:var(--accent);color:var(--accent)}
 .pill.msel{background:rgba(91,156,246,.1);border-color:var(--accent2);color:var(--accent2)}
-.cpills{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:4px}
+.cpills{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:4px}
 .cpill{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;background:var(--surface2)}
 .cpill:hover{border-color:var(--muted)}
 .cpill.sel{border-color:var(--accent);background:rgba(200,241,53,.08)}
@@ -48,8 +49,9 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 .btn{background:var(--accent);color:#111;border:none;padding:11px 22px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:13px;cursor:pointer;transition:opacity .2s}
 .btn:hover{opacity:.85}
 .btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-/* resultado */
-.alert{background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:14px;line-height:1.6}
+.notice{background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:14px;line-height:1.7}
+.info{background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.2);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-bottom:14px;line-height:1.7}
+.err{background:rgba(255,141,141,.08);border:1px solid rgba(255,141,141,.25);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--danger);margin-bottom:14px;line-height:1.7}
 .mcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 .mlbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
 .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
@@ -57,6 +59,13 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 .mv{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent)}
 .ml{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;text-transform:uppercase}
 .prompt-area{width:100%;background:#070e1c;color:var(--accent);border:1px solid var(--border);border-radius:12px;padding:18px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.9;min-height:460px;resize:vertical;outline:none}
+@media (max-width:720px){
+  .hdr{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}
+  .steps-row{padding:12px 16px}
+  .g2,.g3,.mgrid{grid-template-columns:1fr}
+  .nav{flex-direction:column}
+  .btn{width:100%}
+}
 </style>
 </head>
 <body>
@@ -70,138 +79,179 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <div class="s-dot" id="d2">2</div><div class="s-line" id="l2"></div>
   <div class="s-dot" id="d3">3</div><div class="s-line" id="l3"></div>
   <div class="s-dot" id="d4">4</div><div class="s-line" id="l4"></div>
-  <div class="s-dot" id="d5">✓</div>
+  <div class="s-dot" id="d5">5</div>
 </div>
 
 <div class="main">
 
-<!-- PASO 1 -->
 <div class="panel on" id="p1">
-  <div class="ptitle">Datos físicos</div>
-  <div class="psub">La base para calcular tus macros y ritmos de entrenamiento</div>
+  <div class="ptitle" id="p1-title">Datos personales</div>
+  <div class="psub" id="p1-sub">Rellena tu base física para que C.L.O.E. pueda construir el plan correctamente.</div>
+  <div class="info" id="user-mode-banner" style="display:none">Es tu primera entrada. Guarda aquí tus datos iniciales y después podrás pasar a la app.</div>
+
+  <div class="g2">
+    <div class="field">
+      <label class="fl">Nombre</label>
+      <input id="name" type="text" placeholder="Tu nombre completo">
+    </div>
+    <div class="field">
+      <label class="fl">Edad</label>
+      <input id="age" type="number" min="12" max="99" placeholder="Ej: 34">
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="field">
+      <label class="fl">Peso actual (kg)</label>
+      <input id="weight" type="number" step="0.1" placeholder="Ej: 72.5">
+    </div>
+    <div class="field">
+      <label class="fl">Altura (cm)</label>
+      <input id="height" type="number" placeholder="Ej: 175">
+    </div>
+  </div>
 
   <div class="field">
-    <label class="fl">Nombre completo</label>
-    <input type="text" id="name" placeholder="María García">
-  </div>
-  <div class="g3">
-    <div class="field"><label class="fl">Edad</label><input type="number" id="age" placeholder="35" min="16" max="80"></div>
-    <div class="field"><label class="fl">Peso (kg)</label><input type="number" id="weight" placeholder="72" step="0.1"></div>
-    <div class="field"><label class="fl">Altura (cm)</label><input type="number" id="height" placeholder="170"></div>
-  </div>
-  <div class="field">
-    <label class="fl">Sexo biológico</label>
+    <label class="fl">Sexo</label>
     <div class="pills">
-      <div class="pill" onclick="pick(this,'sex','Hombre')">Hombre</div>
-      <div class="pill" onclick="pick(this,'sex','Mujer')">Mujer</div>
+      <div class="pill" data-key="sex" data-value="Hombre" onclick="pick(this,'sex','Hombre')">Hombre</div>
+      <div class="pill" data-key="sex" data-value="Mujer" onclick="pick(this,'sex','Mujer')">Mujer</div>
     </div>
   </div>
+
   <div class="field">
-    <label class="fl">Lesiones o limitaciones físicas</label>
+    <label class="fl">Lesiones o molestias</label>
     <div class="pills">
-      <div class="pill sel" onclick="pick(this,'injury','Ninguna')">Ninguna</div>
-      <div class="pill" onclick="pick(this,'injury','Rodilla')">Rodilla</div>
-      <div class="pill" onclick="pick(this,'injury','Espalda')">Espalda</div>
-      <div class="pill" onclick="pick(this,'injury','Hombro')">Hombro</div>
-      <div class="pill" onclick="pick(this,'injury','Otra')">Otra</div>
-    </div>
-    <input type="text" id="injury-detail" placeholder="Describe la lesión..." style="margin-top:10px;display:none">
-  </div>
-  <div class="field">
-    <label class="fl">Pasos diarios actuales (aprox.)</label>
-    <div class="pills">
-      <div class="pill" onclick="pick(this,'steps','menos de 5.000')">Menos de 5.000</div>
-      <div class="pill" onclick="pick(this,'steps','5.000–8.000')">5.000–8.000</div>
-      <div class="pill" onclick="pick(this,'steps','8.000–12.000')">8.000–12.000</div>
-      <div class="pill" onclick="pick(this,'steps','más de 12.000')">Más de 12.000</div>
+      <div class="pill sel" data-key="injury" data-value="Ninguna" onclick="pick(this,'injury','Ninguna')">Ninguna</div>
+      <div class="pill" data-key="injury" data-value="Sí, leves" onclick="pick(this,'injury','Sí, leves')">Sí, leves</div>
+      <div class="pill" data-key="injury" data-value="Sí, limitantes" onclick="pick(this,'injury','Sí, limitantes')">Sí, limitantes</div>
     </div>
   </div>
-  <div class="nav"><button class="btn" onclick="go(2)">Siguiente →</button></div>
+
+  <div class="field" id="injury-detail-wrap" style="display:none">
+    <label class="fl">Detalle lesión / molestia</label>
+    <textarea id="injury-detail" rows="3" placeholder="Ej: molestia lumbar al correr, hombro derecho sensible en press..."></textarea>
+  </div>
+
+  <div class="field">
+    <label class="fl">Pasos actuales al día</label>
+    <div class="pills">
+      <div class="pill" data-key="steps" data-value="Menos de 5000" onclick="pick(this,'steps','Menos de 5000')">Menos de 5000</div>
+      <div class="pill" data-key="steps" data-value="5000-8000" onclick="pick(this,'steps','5000-8000')">5000-8000</div>
+      <div class="pill" data-key="steps" data-value="8000-12000" onclick="pick(this,'steps','8000-12000')">8000-12000</div>
+      <div class="pill" data-key="steps" data-value="Más de 12000" onclick="pick(this,'steps','Más de 12000')">Más de 12000</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn" onclick="go(2)">Siguiente</button>
+  </div>
 </div>
 
-<!-- PASO 2 -->
 <div class="panel" id="p2">
   <div class="ptitle">Objetivo</div>
-  <div class="psub">Define qué quieres conseguir en estas 16 semanas</div>
+  <div class="psub">Definimos meta principal, contexto competitivo y ritmos de referencia si aplican.</div>
 
   <div class="field">
     <label class="fl">Objetivo principal</label>
     <div class="cpills">
-      <div class="cpill" onclick="cpick(this,'goal','Recomposición corporal')">
+      <div class="cpill" data-key="goal" data-value="Recomposición corporal" onclick="cpick(this,'goal','Recomposición corporal')">
         <div class="cpill-t">Recomposición</div>
-        <div class="cpill-s">Bajar grasa sin perder músculo</div>
+        <div class="cpill-s">Perder grasa y ganar o mantener masa muscular.</div>
       </div>
-      <div class="cpill" onclick="cpick(this,'goal','Perder grasa')">
+      <div class="cpill" data-key="goal" data-value="Perder grasa" onclick="cpick(this,'goal','Perder grasa')">
         <div class="cpill-t">Perder grasa</div>
-        <div class="cpill-s">Déficit calórico · reducir peso</div>
+        <div class="cpill-s">Déficit más claro con control de rendimiento.</div>
       </div>
-      <div class="cpill" onclick="cpick(this,'goal','Ganar músculo')">
-        <div class="cpill-t">Ganar músculo</div>
-        <div class="cpill-s">Superávit controlado · masa</div>
+      <div class="cpill" data-key="goal" data-value="Ganar masa muscular" onclick="cpick(this,'goal','Ganar masa muscular')">
+        <div class="cpill-t">Ganar masa</div>
+        <div class="cpill-s">Subir músculo con superávit moderado.</div>
       </div>
-      <div class="cpill" onclick="cpick(this,'goal','Rendimiento deportivo')">
+      <div class="cpill" data-key="goal" data-value="Rendimiento" onclick="cpick(this,'goal','Rendimiento')">
         <div class="cpill-t">Rendimiento</div>
-        <div class="cpill-s">Mejorar marca deportiva</div>
+        <div class="cpill-s">Prioridad al rendimiento deportivo.</div>
       </div>
     </div>
   </div>
+
   <div class="field">
-    <label class="fl">Evento o fecha clave (opcional)</label>
-    <div class="pills">
-      <div class="pill" onclick="pick(this,'event','Media maratón')">Media maratón</div>
-      <div class="pill" onclick="pick(this,'event','Maratón')">Maratón</div>
-      <div class="pill" onclick="pick(this,'event','10K')">Carrera 10K</div>
-      <div class="pill" onclick="pick(this,'event','Competición fuerza')">Fuerza</div>
-      <div class="pill sel" onclick="pick(this,'event','Sin evento concreto')">Sin evento</div>
+    <label class="fl">Evento o prueba objetivo</label>
+    <div class="cpills">
+      <div class="cpill" data-key="event" data-value="Sin evento" onclick="cpick(this,'event','Sin evento')">
+        <div class="cpill-t">Sin evento</div>
+        <div class="cpill-s">Objetivo general sin fecha cerrada.</div>
+      </div>
+      <div class="cpill" data-key="event" data-value="Carrera" onclick="cpick(this,'event','Carrera')">
+        <div class="cpill-t">Carrera</div>
+        <div class="cpill-s">5K, 10K, media o maratón.</div>
+      </div>
+      <div class="cpill" data-key="event" data-value="Triatlón" onclick="cpick(this,'event','Triatlón')">
+        <div class="cpill-t">Triatlón</div>
+        <div class="cpill-s">Sprint, olímpico o media distancia.</div>
+      </div>
+      <div class="cpill" data-key="event" data-value="Otra prueba" onclick="cpick(this,'event','Otra prueba')">
+        <div class="cpill-t">Otra prueba</div>
+        <div class="cpill-s">Ciclismo, trail, reto personal o similar.</div>
+      </div>
     </div>
-    <input type="text" id="event-date" placeholder="¿Fecha aproximada? ej: octubre 2025" style="margin-top:10px">
   </div>
+
+  <div class="g2">
+    <div class="field">
+      <label class="fl">Fecha del evento</label>
+      <input id="event-date" type="date">
+    </div>
+    <div class="field">
+      <label class="fl">Ritmo cómodo actual (si aplica)</label>
+      <input id="easy-pace" type="text" placeholder="Ej: 5:45">
+    </div>
+  </div>
+
   <div class="field">
-    <label class="fl">Ritmo de referencia en running (si lo tienes)</label>
-    <div class="g2">
-      <div><label class="fl" style="margin-top:0">Ritmo easy actual (min:seg/km)</label><input type="text" id="easy-pace" placeholder="ej. 6:30"></div>
-      <div><label class="fl" style="margin-top:0">Ritmo objetivo (min:seg/km)</label><input type="text" id="target-pace" placeholder="ej. 5:30"></div>
-    </div>
+    <label class="fl">Ritmo objetivo (si aplica)</label>
+    <input id="target-pace" type="text" placeholder="Ej: 4:50">
   </div>
+
   <div class="nav">
-    <button class="btn sec" onclick="go(1)">← Atrás</button>
-    <button class="btn" onclick="go(3)">Siguiente →</button>
+    <button class="btn sec" onclick="go(1)">Atrás</button>
+    <button class="btn" onclick="go(3)">Siguiente</button>
   </div>
 </div>
 
-<!-- PASO 3 -->
 <div class="panel" id="p3">
   <div class="ptitle">Entrenamiento</div>
-  <div class="psub">Tu experiencia y disponibilidad</div>
+  <div class="psub">Selecciona los deportes que quieres trabajar y el contexto de carga semanal.</div>
 
   <div class="field">
-    <label class="fl">Deportes a planificar (múltiple)</label>
+    <label class="fl">Deportes a incluir</label>
     <div class="pills">
-      <div class="pill msel" onclick="multi(this,'sports','Running')">Running</div>
-      <div class="pill" onclick="multi(this,'sports','Ciclismo')">Ciclismo</div>
-      <div class="pill" onclick="multi(this,'sports','Rodillo')">Rodillo</div>
-      <div class="pill" onclick="multi(this,'sports','Natación')">Natación</div>
-      <div class="pill" onclick="multi(this,'sports','Andar')">Andar</div>
+      <div class="pill msel" data-key="sports" data-value="Running" onclick="multi(this,'sports','Running')">Running</div>
+      <div class="pill" data-key="sports" data-value="Ciclismo" onclick="multi(this,'sports','Ciclismo')">Ciclismo</div>
+      <div class="pill" data-key="sports" data-value="Rodillo" onclick="multi(this,'sports','Rodillo')">Rodillo</div>
+      <div class="pill" data-key="sports" data-value="Natación" onclick="multi(this,'sports','Natación')">Natación</div>
+      <div class="pill" data-key="sports" data-value="Andar" onclick="multi(this,'sports','Andar')">Andar</div>
     </div>
   </div>
 
   <div class="field">
     <label class="fl">Nivel en running</label>
     <div class="pills">
-      <div class="pill" onclick="pick(this,'run-lvl','Principiante (menos de 6 meses)')">Principiante</div>
-      <div class="pill" onclick="pick(this,'run-lvl','Intermedio (corre regularmente)')">Intermedio</div>
-      <div class="pill" onclick="pick(this,'run-lvl','Avanzado (compite o tiene marcas)')">Avanzado</div>
+      <div class="pill" data-key="run-lvl" data-value="Principiante (menos de 6 meses)" onclick="pick(this,'run-lvl','Principiante (menos de 6 meses)')">Principiante</div>
+      <div class="pill" data-key="run-lvl" data-value="Intermedio (corre regularmente)" onclick="pick(this,'run-lvl','Intermedio (corre regularmente)')">Intermedio</div>
+      <div class="pill" data-key="run-lvl" data-value="Avanzado (compite o tiene marcas)" onclick="pick(this,'run-lvl','Avanzado (compite o tiene marcas)')">Avanzado</div>
     </div>
   </div>
+
   <div class="field">
     <label class="fl">Nivel en fuerza / gimnasio</label>
     <div class="pills">
-      <div class="pill" onclick="pick(this,'gym-lvl','Sin experiencia')">Sin experiencia</div>
-      <div class="pill" onclick="pick(this,'gym-lvl','Menos de 1 año')">Menos de 1 año</div>
-      <div class="pill" onclick="pick(this,'gym-lvl','1-3 años')">1-3 años</div>
-      <div class="pill" onclick="pick(this,'gym-lvl','Más de 3 años')">Más de 3 años</div>
+      <div class="pill" data-key="gym-lvl" data-value="Sin experiencia" onclick="pick(this,'gym-lvl','Sin experiencia')">Sin experiencia</div>
+      <div class="pill" data-key="gym-lvl" data-value="Menos de 1 año" onclick="pick(this,'gym-lvl','Menos de 1 año')">Menos de 1 año</div>
+      <div class="pill" data-key="gym-lvl" data-value="1-3 años" onclick="pick(this,'gym-lvl','1-3 años')">1-3 años</div>
+      <div class="pill" data-key="gym-lvl" data-value="Más de 3 años" onclick="pick(this,'gym-lvl','Más de 3 años')">Más de 3 años</div>
     </div>
   </div>
+
   <div class="field">
     <label class="fl">Días disponibles por semana</label>
     <div class="sl-wrap">
@@ -211,66 +261,71 @@ input[type=range]{flex:1;accent-color:var(--accent)}
       <span class="sl-val" id="days-v">4 días</span>
     </div>
   </div>
+
   <div class="field">
     <label class="fl">Distribución preferida</label>
     <div class="pills">
-      <div class="pill" onclick="pick(this,'split','2 fuerza + 2 deportes')">2F + 2D</div>
-      <div class="pill" onclick="pick(this,'split','2 fuerza + 3 deportes')">2F + 3D</div>
-      <div class="pill" onclick="pick(this,'split','3 fuerza + 2 deportes')">3F + 2D</div>
-      <div class="pill" onclick="pick(this,'split','Solo fuerza')">Solo fuerza</div>
-      <div class="pill" onclick="pick(this,'split','Solo deportes')">Solo deportes</div>
+      <div class="pill" data-key="split" data-value="2 fuerza + 2 deportes" onclick="pick(this,'split','2 fuerza + 2 deportes')">2F + 2D</div>
+      <div class="pill" data-key="split" data-value="2 fuerza + 3 deportes" onclick="pick(this,'split','2 fuerza + 3 deportes')">2F + 3D</div>
+      <div class="pill" data-key="split" data-value="3 fuerza + 2 deportes" onclick="pick(this,'split','3 fuerza + 2 deportes')">3F + 2D</div>
+      <div class="pill" data-key="split" data-value="Solo fuerza" onclick="pick(this,'split','Solo fuerza')">Solo fuerza</div>
+      <div class="pill" data-key="split" data-value="Solo deportes" onclick="pick(this,'split','Solo deportes')">Solo deportes</div>
     </div>
   </div>
+
   <div class="field">
     <label class="fl">Tiempo disponible por sesión</label>
     <div class="pills">
-      <div class="pill" onclick="pick(this,'session-t','30-45 min')">30-45 min</div>
-      <div class="pill" onclick="pick(this,'session-t','45-60 min')">45-60 min</div>
-      <div class="pill" onclick="pick(this,'session-t','60-75 min')">60-75 min</div>
-      <div class="pill" onclick="pick(this,'session-t','75-90 min')">75-90 min</div>
-      <div class="pill" onclick="pick(this,'session-t','+90 min')">+90 min</div>
+      <div class="pill" data-key="session-t" data-value="30-45 min" onclick="pick(this,'session-t','30-45 min')">30-45 min</div>
+      <div class="pill" data-key="session-t" data-value="45-60 min" onclick="pick(this,'session-t','45-60 min')">45-60 min</div>
+      <div class="pill" data-key="session-t" data-value="60-75 min" onclick="pick(this,'session-t','60-75 min')">60-75 min</div>
+      <div class="pill" data-key="session-t" data-value="75-90 min" onclick="pick(this,'session-t','75-90 min')">75-90 min</div>
+      <div class="pill" data-key="session-t" data-value="+90 min" onclick="pick(this,'session-t','+90 min')">+90 min</div>
     </div>
   </div>
+
   <div class="field">
-    <label class="fl">Equipamiento disponible (múltiple)</label>
+    <label class="fl">Equipamiento disponible</label>
     <div class="pills">
-      <div class="pill" onclick="multi(this,'equip','Gimnasio completo')">Gimnasio completo</div>
-      <div class="pill" onclick="multi(this,'equip','Mancuernas')">Mancuernas</div>
-      <div class="pill" onclick="multi(this,'equip','Barra y discos')">Barra y discos</div>
-      <div class="pill" onclick="multi(this,'equip','Máquinas (prensa, hack...)')">Máquinas</div>
-      <div class="pill" onclick="multi(this,'equip','Solo peso corporal')">Peso corporal</div>
+      <div class="pill" data-key="equip" data-value="Gimnasio completo" onclick="multi(this,'equip','Gimnasio completo')">Gimnasio completo</div>
+      <div class="pill" data-key="equip" data-value="Mancuernas" onclick="multi(this,'equip','Mancuernas')">Mancuernas</div>
+      <div class="pill" data-key="equip" data-value="Barra y discos" onclick="multi(this,'equip','Barra y discos')">Barra y discos</div>
+      <div class="pill" data-key="equip" data-value="Máquinas" onclick="multi(this,'equip','Máquinas')">Máquinas</div>
+      <div class="pill" data-key="equip" data-value="Solo peso corporal" onclick="multi(this,'equip','Solo peso corporal')">Peso corporal</div>
     </div>
   </div>
+
   <div class="nav">
-    <button class="btn sec" onclick="go(2)">← Atrás</button>
-    <button class="btn" onclick="go(4)">Siguiente →</button>
+    <button class="btn sec" onclick="go(2)">Atrás</button>
+    <button class="btn" onclick="go(4)">Siguiente</button>
   </div>
 </div>
 
-<!-- PASO 4 -->
 <div class="panel" id="p4">
-  <div class="ptitle">Nutrición</div>
-  <div class="psub">Calculamos tus macros con el método DOCE</div>
+  <div class="ptitle">Nutrición y contexto</div>
+  <div class="psub">Con esto calculamos macros iniciales y la carga de semana 1.</div>
 
   <div class="field">
-    <label class="fl">Actividad laboral (fuera del entreno)</label>
+    <label class="fl">Actividad laboral fuera del entreno</label>
     <div class="pills">
-      <div class="pill" onclick="pick(this,'activity','Sedentario (oficina, poco movimiento)')">Sedentario</div>
-      <div class="pill" onclick="pick(this,'activity','Ligero (de pie parte del día)')">Ligero</div>
-      <div class="pill" onclick="pick(this,'activity','Moderado (movimiento habitual)')">Moderado</div>
-      <div class="pill" onclick="pick(this,'activity','Activo (trabajo físico)')">Activo</div>
+      <div class="pill" data-key="activity" data-value="Sedentario (oficina, poco movimiento)" onclick="pick(this,'activity','Sedentario (oficina, poco movimiento)')">Sedentario</div>
+      <div class="pill" data-key="activity" data-value="Ligero (de pie parte del día)" onclick="pick(this,'activity','Ligero (de pie parte del día)')">Ligero</div>
+      <div class="pill" data-key="activity" data-value="Moderado (movimiento habitual)" onclick="pick(this,'activity','Moderado (movimiento habitual)')">Moderado</div>
+      <div class="pill" data-key="activity" data-value="Activo (trabajo físico)" onclick="pick(this,'activity','Activo (trabajo físico)')">Activo</div>
     </div>
   </div>
+
   <div class="field">
-    <label class="fl">Restricciones alimentarias (múltiple)</label>
+    <label class="fl">Restricciones alimentarias</label>
     <div class="pills">
-      <div class="pill msel" onclick="multi(this,'diet','Ninguna')">Ninguna</div>
-      <div class="pill" onclick="multi(this,'diet','Sin lactosa')">Sin lactosa</div>
-      <div class="pill" onclick="multi(this,'diet','Sin gluten')">Sin gluten</div>
-      <div class="pill" onclick="multi(this,'diet','Vegetariano')">Vegetariano</div>
-      <div class="pill" onclick="multi(this,'diet','Vegano')">Vegano</div>
+      <div class="pill msel" data-key="diet" data-value="Ninguna" onclick="multi(this,'diet','Ninguna')">Ninguna</div>
+      <div class="pill" data-key="diet" data-value="Sin lactosa" onclick="multi(this,'diet','Sin lactosa')">Sin lactosa</div>
+      <div class="pill" data-key="diet" data-value="Sin gluten" onclick="multi(this,'diet','Sin gluten')">Sin gluten</div>
+      <div class="pill" data-key="diet" data-value="Vegetariano" onclick="multi(this,'diet','Vegetariano')">Vegetariano</div>
+      <div class="pill" data-key="diet" data-value="Vegano" onclick="multi(this,'diet','Vegano')">Vegano</div>
     </div>
   </div>
+
   <div class="field">
     <label class="fl">Horas de sueño habituales</label>
     <div class="sl-wrap">
@@ -280,24 +335,28 @@ input[type=range]{flex:1;accent-color:var(--accent)}
       <span class="sl-val" id="sleep-v">7h</span>
     </div>
   </div>
+
   <div class="field">
-    <label class="fl">Contexto adicional (trabajo, estrés, vida...)</label>
-    <textarea id="context" placeholder="Ej: trabajo en oficina, mucho estrés, viajo frecuentemente, tengo hijos..." rows="3"></textarea>
+    <label class="fl">Contexto adicional</label>
+    <textarea id="context" rows="4" placeholder="Ej: trabajo en oficina, estrés alto, hijos pequeños, viajes, turnos, etc."></textarea>
   </div>
+
   <div class="nav">
-    <button class="btn sec" onclick="go(3)">← Atrás</button>
-    <button class="btn" onclick="generate()">Generar plan Semana 1 →</button>
+    <button class="btn sec" onclick="go(3)">Atrás</button>
+    <button class="btn" onclick="generate()">Generar plan Semana 1</button>
   </div>
 </div>
 
-<!-- PASO 5: RESULTADO -->
 <div class="panel" id="p5">
   <div class="ptitle">Plan Semana 1 generado</div>
-  <div class="psub">Copia este texto · pégalo en el chat · CLOE genera el plan completo</div>
+  <div class="psub" id="result-sub">Copia este texto, pégalo en el chat del proyecto y C.L.O.E. generará el plan completo.</div>
 
-  <div class="alert" id="res-summary"></div>
+  <div class="notice" id="res-summary"></div>
+  <div class="info" id="save-status" style="display:none"></div>
+  <div class="err" id="save-error" style="display:none"></div>
+
   <div class="mcard">
-    <div class="mlbl">Macros calculados — método DOCE</div>
+    <div class="mlbl">Macros calculados · método DOCE</div>
     <div class="mgrid" id="mgrid"></div>
   </div>
 
@@ -305,24 +364,32 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <textarea class="prompt-area" id="prompt-out" readonly></textarea>
 
   <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
-    <button class="btn" id="copy-btn" onclick="copyPrompt()">📋 Copiar prompt</button>
-    <button class="btn sec" onclick="go(1)">↩ Nuevo cuestionario</button>
+    <button class="btn" id="copy-btn" onclick="copyPrompt()">Copiar prompt</button>
+    <button class="btn" id="continue-btn" onclick="continueToApp()" style="display:none">Continuar a mi app</button>
+    <button class="btn sec" onclick="resetQuestionnaire()">Nuevo cuestionario</button>
   </div>
+
   <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:18px;padding:12px;background:var(--surface2);border-radius:10px;line-height:1.7">
-    📌 Pasos siguientes:<br>
+    Pasos siguientes:<br>
     1. Copia el prompt de arriba<br>
-    2. Pégalo en el chat del Proyecto CLOE<br>
-    3. CLOE genera el plan completo de la Semana 1<br>
-    4. Ve al panel Admin → crea el usuario → pega el plan en sus notas<br>
+    2. Pégalo en el chat del Proyecto C.L.O.E.<br>
+    3. C.L.O.E. genera el plan completo de la Semana 1<br>
+    4. En admin puedes pegar el plan al usuario<br>
     5. El usuario entra con su email y contraseña y ve su plan
   </div>
 </div>
 
-</div><!-- /main -->
+</div>
 
 <script>
-const F={};
-const M={sports:new Set(['Running'])};
+const SB_URL='https://wxvgxcogrlcflxldaemw.supabase.co';
+const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
+const {createClient}=supabase;
+const sb=createClient(SB_URL,SB_KEY);
+
+const F={injury:'Ninguna'};
+const M={sports:new Set(['Running']),diet:new Set(['Ninguna'])};
+const STATE={session:null,profile:null,userMode:false};
 
 function go(n){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
@@ -338,205 +405,235 @@ function go(n){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function pick(el,k,v){
+function pick(el,key,value){
   el.closest('.pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('sel'));
   el.classList.add('sel');
-  F[k]=v;
-  if(k==='injury'){
-    document.getElementById('injury-detail').style.display=(v==='Ninguna'?'none':'block');
+  F[key]=value;
+  if(key==='injury'){
+    document.getElementById('injury-detail-wrap').style.display=value==='Ninguna'?'none':'block';
   }
 }
 
-function cpick(el,k,v){
+function cpick(el,key,value){
   el.closest('.cpills').querySelectorAll('.cpill').forEach(p=>p.classList.remove('sel'));
   el.classList.add('sel');
-  F[k]=v;
+  F[key]=value;
 }
 
-function multi(el,k,v){
-  if(!M[k]) M[k]=new Set();
-  if(el.classList.contains('msel')){el.classList.remove('msel');M[k].delete(v);}
-  else{el.classList.add('msel');M[k].add(v);}
+function multi(el,key,value){
+  if(!M[key]) M[key]=new Set();
+  if(el.classList.contains('msel')){
+    el.classList.remove('msel');
+    M[key].delete(value);
+  }else{
+    el.classList.add('msel');
+    M[key].add(value);
+  }
+  if(M[key].size===0 && (key==='sports' || key==='diet')){
+    M[key].add(value);
+    el.classList.add('msel');
+  }
+}
+
+function findPill(key,value){
+  return document.querySelector(`.pill[data-key="${cssEscape(key)}"][data-value="${cssEscape(value)}"]`);
+}
+
+function findCard(key,value){
+  return document.querySelector(`.cpill[data-key="${cssEscape(key)}"][data-value="${cssEscape(value)}"]`);
+}
+
+function cssEscape(value){
+  return String(value).replace(/\\/g,'\\\\').replace(/"/g,'\\"');
+}
+
+function setInput(id,value){
+  if(value===undefined || value===null || value==='') return;
+  const el=document.getElementById(id);
+  if(el) el.value=value;
+}
+
+function setSlider(id,value,suffix){
+  if(value===undefined || value===null || value==='') return;
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.value=value;
+  const out=document.getElementById(id+'-v');
+  if(out) out.textContent=`${value}${suffix}`;
+}
+
+function restoreSingle(key,value,type='pill'){
+  if(!value) return;
+  F[key]=value;
+  if(type==='cpill'){
+    const el=findCard(key,value);
+    if(!el) return;
+    el.closest('.cpills').querySelectorAll('.cpill').forEach(p=>p.classList.remove('sel'));
+    el.classList.add('sel');
+    return;
+  }
+  const el=findPill(key,value);
+  if(!el) return;
+  el.closest('.pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+  if(key==='injury'){
+    document.getElementById('injury-detail-wrap').style.display=value==='Ninguna'?'none':'block';
+  }
+}
+
+function restoreMulti(key,values){
+  if(!Array.isArray(values)) return;
+  M[key]=new Set(values);
+  document.querySelectorAll(`.pill[data-key="${cssEscape(key)}"]`).forEach(el=>el.classList.remove('msel'));
+  values.forEach(value=>{
+    const el=findPill(key,value);
+    if(el) el.classList.add('msel');
+  });
 }
 
 function calcMacros(){
   const age=parseFloat(document.getElementById('age').value)||35;
-  const w=parseFloat(document.getElementById('weight').value)||72;
-  const h=parseFloat(document.getElementById('height').value)||170;
-  const sex=F['sex']||'Hombre';
-  const act=F['activity']||'Sedentario';
-  const goal=F['goal']||'Recomposición corporal';
+  const weight=parseFloat(document.getElementById('weight').value)||72;
+  const height=parseFloat(document.getElementById('height').value)||170;
+  const sex=F.sex||'Hombre';
+  const activity=F.activity||'Sedentario (oficina, poco movimiento)';
+  const goal=F.goal||'Recomposición corporal';
 
-  let tmb = sex==='Hombre' ? 10*w+6.25*h-5*age+5 : 10*w+6.25*h-5*age-161;
-  const amap={'Sedentario':1.375,'Ligero':1.55,'Moderado':1.65,'Activo':1.725};
-  const afactor = Object.entries(amap).find(([k])=>act.startsWith(k))?.[1]||1.375;
-  const tdee=Math.round(tmb*afactor);
+  const tmb=sex==='Hombre' ? 10*weight+6.25*height-5*age+5 : 10*weight+6.25*height-5*age-161;
+  const factors={'Sedentario':1.375,'Ligero':1.55,'Moderado':1.65,'Activo':1.725};
+  const factor=Object.entries(factors).find(([label])=>activity.startsWith(label))?.[1]||1.375;
+  const tdee=Math.round(tmb*factor);
 
-  const dmap={'Recomposición':-150,'Perder':-400,'Ganar':+300,'Rendimiento':0};
-  const def = Object.entries(dmap).find(([k])=>goal.startsWith(k))?.[1]||0;
-  const kcal=tdee+def;
-  const protein=Math.round(w*2.0);
-  const fat=Math.round(w*0.9);
+  const deltas={'Recomposición':-150,'Perder':-400,'Ganar':300,'Rendimiento':0};
+  const delta=Object.entries(deltas).find(([label])=>goal.startsWith(label))?.[1]||0;
+  const kcal=tdee+delta;
+  const protein=Math.round(weight*2);
+  const fat=Math.round(weight*0.9);
   const carbs=Math.max(0,Math.round((kcal-protein*4-fat*9)/4));
   return {kcal,protein,carbs,fat,tdee};
 }
 
-function buildSportsPrompt(sports, runLvl, easyPace, targetPace, days, sessionT){
-  const selected = sports.length ? sports : ['Running'];
-  const blocks = selected.map(sport=>{
+function collectPayload(){
+  return {
+    name:document.getElementById('name').value.trim()||'Usuario',
+    age:document.getElementById('age').value||'?',
+    weight:document.getElementById('weight').value||'?',
+    height:document.getElementById('height').value||'?',
+    sex:F.sex||'?',
+    injury:F.injury||'Ninguna',
+    injuryDetail:document.getElementById('injury-detail').value.trim(),
+    steps:F.steps||'no indicado',
+    goal:F.goal||'?',
+    event:F.event||'Sin evento',
+    eventDate:document.getElementById('event-date').value||'',
+    easyPace:document.getElementById('easy-pace').value.trim()||'no indicado',
+    targetPace:document.getElementById('target-pace').value.trim()||'no indicado',
+    runLevel:F['run-lvl']||'no indicado',
+    gymLevel:F['gym-lvl']||'no indicado',
+    days:document.getElementById('days').value,
+    split:F.split||'no indicado',
+    sessionTime:F['session-t']||'no indicado',
+    equipList:M.equip&&M.equip.size?[...M.equip]:[],
+    sports:M.sports&&M.sports.size?[...M.sports]:['Running'],
+    activity:F.activity||'Sedentario (oficina, poco movimiento)',
+    dietList:M.diet&&M.diet.size?[...M.diet]:['Ninguna'],
+    sleep:document.getElementById('sleep').value,
+    context:document.getElementById('context').value.trim()||'ninguno'
+  };
+}
+
+function buildSportsPrompt(payload){
+  const selected=payload.sports.length?payload.sports:['Running'];
+  const blocks=selected.map(sport=>{
     if(sport==='Running') return `RUNNING
 - Genera 2-3 sesiones semanales según disponibilidad: intervalos, tempo/easy y tirada larga si procede.
 - Si hay sesión de calidad, usa formato EXACTO Intervals.icu.
-- Adapta ritmos a nivel ${runLvl}, easy actual ${easyPace}/km y objetivo ${targetPace}/km.
+- Adapta ritmos a nivel ${payload.runLevel}, easy actual ${payload.easyPace}/km y objetivo ${payload.targetPace}/km.
 - No usar zonas de FC si no están dadas. Prioriza min:seg/km, duración y distancia aproximada.`;
     if(sport==='Ciclismo') return `CICLISMO
 - Genera sesiones outdoor con duración, objetivo, terreno sugerido, cadencia y RPE.
 - Incluye una sesión aeróbica Z2/RPE 4-5 y una sesión de calidad si la carga total lo permite.
-- Si no hay FTP/potencia, usa RPE y cadencia. Coordina la carga con running/fuerza.`;
+- Si no hay FTP/potencia, usa RPE y cadencia. Coordina la carga con running y fuerza.`;
     if(sport==='Rodillo') return `RODILLO
 - Genera sesiones indoor estructuradas por bloques de tiempo.
 - Formato: calentamiento, bloque principal, recuperación y vuelta a la calma.
-- Indica cadencia objetivo, RPE y vatios solo si se pueden estimar; si no, usa RPE.
-- Úsalo como alternativa a ciclismo outdoor o como sesión controlada de baja logística.`;
+- Indica cadencia objetivo y RPE. Si no hay vatios, no inventes potencia.`;
     if(sport==='Natación') return `NATACIÓN
 - Genera sesiones en piscina con metros totales, calentamiento, técnica, serie principal y vuelta a la calma.
-- Incluye drills sencillos y descansos entre series.
-- Ajusta volumen a nivel general y evita fatiga excesiva de hombro si hay molestias.`;
+- Incluye descansos entre series y ejercicios técnicos simples.`;
     if(sport==='Andar') return `ANDAR
-- Programa caminatas como trabajo aeróbico suave/NEAT.
-- Indica duración, ritmo percibido, terreno y objetivo de pasos.
-- Úsalo para recuperación activa o aumento de gasto sin interferir con fuerza.`;
+- Programa caminatas como trabajo aeróbico suave y recuperación activa.
+- Indica duración, terreno, ritmo percibido y objetivo de pasos.`;
     return `${sport}
-- Genera sesiones específicas para este deporte con duración, intensidad, objetivo y progresión.`;
+- Genera sesiones específicas de este deporte con duración, intensidad y objetivo.`;
   }).join('\n\n');
 
   return `B. DEPORTES SELECCIONADOS (${selected.join(', ')})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Disponibilidad total: ${days} días/semana · Tiempo por sesión: ${sessionT}
+Disponibilidad total: ${payload.days} días/semana · Tiempo por sesión: ${payload.sessionTime}
 
 Genera el plan SOLO para estos deportes seleccionados:
-${selected.map(s=>`- ${s}`).join('\n')}
+${selected.map(item=>`- ${item}`).join('\n')}
 
 No incluyas deportes no seleccionados. Coordina la carga semanal con fuerza, recuperación y nutrición.
 
 ${blocks}`;
 }
 
-function generate(){
-  const name=document.getElementById('name').value||'Usuario';
-  const age=document.getElementById('age').value||'?';
-  const weight=document.getElementById('weight').value||'?';
-  const height=document.getElementById('height').value||'?';
-  const sex=F['sex']||'?';
-  const injury=F['injury']||'Ninguna';
-  const injuryD=document.getElementById('injury-detail').value||'';
-  const steps=F['steps']||'no indicado';
-  const goal=F['goal']||'?';
-  const event=F['event']||'Sin evento';
-  const eventDate=document.getElementById('event-date').value||'';
-  const easyPace=document.getElementById('easy-pace').value||'no indicado';
-  const targetPace=document.getElementById('target-pace').value||'no indicado';
-  const runLvl=F['run-lvl']||'no indicado';
-  const gymLvl=F['gym-lvl']||'no indicado';
-  const days=document.getElementById('days').value;
-  const split=F['split']||'no indicado';
-  const sessionT=F['session-t']||'no indicado';
-  const equip=M['equip']?[...M['equip']].join(', '):'no indicado';
-  const sports=M['sports']&&M['sports'].size?[...M['sports']]:['Running'];
-  const activity=F['activity']||'Sedentario';
-  const diet=M['diet']?[...M['diet']].join(', '):'Ninguna';
-  const sleep=document.getElementById('sleep').value;
-  const context=document.getElementById('context').value||'ninguno';
-
-  const mac=calcMacros();
-  const sportsPrompt=buildSportsPrompt(sports,runLvl,easyPace,targetPace,days,sessionT);
-
-  document.getElementById('res-summary').textContent=
-    `${name} · TDEE: ${mac.tdee} kcal · Objetivo: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G`;
-
-  document.getElementById('mgrid').innerHTML=`
-    <div class="mc"><div class="mv">${mac.kcal}</div><div class="ml">Kcal</div></div>
-    <div class="mc"><div class="mv" style="color:var(--accent3)">${mac.protein}g</div><div class="ml">Proteína</div></div>
-    <div class="mc"><div class="mv" style="color:var(--accent2)">${mac.carbs}g</div><div class="ml">HC</div></div>
-    <div class="mc"><div class="mv" style="color:var(--muted)">${mac.fat}g</div><div class="ml">Grasa</div></div>`;
-
-  const p=
-`═══════════════════════════════════════════════════════
+function buildPrompt(payload,mac){
+  const equip=payload.equipList.length?payload.equipList.join(', '):'no indicado';
+  const diet=payload.dietList.length?payload.dietList.join(', '):'Ninguna';
+  const sportsPrompt=buildSportsPrompt(payload);
+  return `═══════════════════════════════════════════════════════
 C.L.O.E. COACH · ONBOARDING SEMANA 1
-Usuario: ${name}
+Usuario: ${payload.name}
 Fecha: ${new Date().toLocaleDateString('es-ES')}
 ═══════════════════════════════════════════════════════
 
-── PERFIL FÍSICO ──────────────────────────────────────
-Nombre:  ${name}
-Edad:    ${age} años · Sexo: ${sex}
-Peso:    ${weight} kg · Altura: ${height} cm
-Pasos actuales: ${steps}
-Lesiones: ${injury}${injuryD?' — '+injuryD:''}
-Sueño habitual: ${sleep}h/noche
-Contexto: ${context}
+── PERFIL FÍSICO ─────────────────────────────────────
+Nombre:  ${payload.name}
+Edad:    ${payload.age} años · Sexo: ${payload.sex}
+Peso:    ${payload.weight} kg · Altura: ${payload.height} cm
+Pasos actuales: ${payload.steps}
+Lesiones: ${payload.injury}${payload.injuryDetail ? ' - '+payload.injuryDetail : ''}
+Sueño habitual: ${payload.sleep}h/noche
+Contexto: ${payload.context}
 
-── OBJETIVO ───────────────────────────────────────────
-Objetivo principal:  ${goal}
-Evento / fecha:      ${event}${eventDate?' ('+eventDate+')':''}
-Ritmo easy actual:   ${easyPace}/km
-Ritmo objetivo:      ${targetPace}/km
+Objetivo principal: ${payload.goal}
+Evento / prueba: ${payload.event}${payload.eventDate ? ' ('+payload.eventDate+')' : ''}
+Deportes: ${payload.sports.join(', ')}
 
-── ENTRENAMIENTO ──────────────────────────────────────
-Nivel running:  ${runLvl}
-Nivel fuerza:   ${gymLvl}
-Deportes:       ${sports.join(', ')}
-Días/semana:    ${days}
-Distribución:   ${split}
-Tiempo/sesión:  ${sessionT}
-Equipamiento:   ${equip}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INSTRUCCIONES PARA C.L.O.E.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-── NUTRICIÓN ──────────────────────────────────────────
-Actividad laboral: ${activity}
-Restricciones:     ${diet}
+Actúa como entrenador experto en recomposición corporal, fuerza, nutrición
+y deportes seleccionados. Quiero que diseñes la SEMANA 1 completa para este usuario.
 
-Cálculo DOCE (Mifflin-St Jeor):
-  TDEE estimado:  ${mac.tdee} kcal
-  Objetivo:       ${mac.kcal} kcal (${goal})
-  Proteína:       ${mac.protein}g  (2.0 g/kg)
-  Grasa:          ${mac.fat}g  (0.9 g/kg)
-  Hidratos:       ${mac.carbs}g  (resto)
+El plan debe entregarse con esta estructura exacta:
 
-═══════════════════════════════════════════════════════
-INSTRUCCIÓN PARA C.L.O.E. COACH · GENERA SEMANA 1
-═══════════════════════════════════════════════════════
-
-Actúa como C.L.O.E. COACH (entrenador fuerza + deportes seleccionados
-+ nutricionista DOCE + médico deportivo preventivo).
-
-Con el perfil anterior, genera la SEMANA 1 completa
-en el siguiente formato EXACTO:
+A. FUERZA (si procede)
+B. DEPORTES SELECCIONADOS (si procede)
+C. NUTRICIÓN DOCE
+D. OBJETIVOS SEMANA 1
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 A. FUERZA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-DÍA A (Lunes):
-• Prensa de piernas / sentadilla
-• Press banca plano
-• Remo con barra
-• Peso muerto rumano
-• Elevaciones laterales
+Si la distribución incluye fuerza, diseña los días necesarios según:
+${payload.split}
 
-DÍA B (Jueves):
-• Hack squat
-• Press inclinado mancuernas
-• Jalón al pecho
-• Hip thrust
-• Face pull
+Equipamiento disponible: ${equip}
+Nivel fuerza: ${payload.gymLevel}
 
-Para CADA ejercicio especifica:
+Usa estructura full body o torso-pierna según corresponda.
+Para cada ejercicio especifica:
   series × reps · RIR · peso inicial sugerido (kg)
-  Justifica el peso inicial para nivel ${gymLvl}
 
 Regla progresión DOCE:
-  Si completa reps + RIR correcto → +2.5kg tren superior / +5kg inferior
+  Si completa reps + RIR correcto -> +2.5kg tren superior / +5kg inferior
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${sportsPrompt}
@@ -550,20 +647,8 @@ Macros: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G
 Restricciones: ${diet}
 
 Genera menús con cantidades exactas para:
-
-DÍA CON ENTRENO (5 comidas):
-• Desayuno:
-• Comida principal:
-• Merienda / Pre-entreno (60-90min antes):
-• Cena / Post-entreno:
-• Post-cena:
-
-DÍA DESCANSO (5 comidas, -~55g HC):
-• Desayuno:
-• Comida:
-• Merienda:
-• Cena:
-• Post-cena:
+- Día con entreno (5 comidas)
+- Día descanso (5 comidas, con menos hidratos)
 
 Usa sistema de intercambios DOCE.
 Regla 80/20: 80% alimentos densos, 20% flexible.
@@ -571,29 +656,176 @@ Regla 80/20: 80% alimentos densos, 20% flexible.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 D. OBJETIVOS SEMANA 1
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-• Pasos diarios objetivo
-• Sueño mínimo
-• Adherencia entreno / nutrición
-• Foco y mensaje motivador para semana 1
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Pasos diarios objetivo
+- Sueño mínimo
+- Adherencia entreno / nutrición
+- Foco y mensaje motivador para semana 1
 
 Sé directo. Sin teoría innecesaria.
-Justifica brevemente cada decisión de carga/volumen
-adaptada al nivel de ${name}.
+Justifica brevemente cada decisión de carga o volumen adaptada al nivel de ${payload.name}.
 ═══════════════════════════════════════════════════════`;
+}
 
-  document.getElementById('prompt-out').value=p;
+function renderMacros(mac){
+  document.getElementById('mgrid').innerHTML=`
+    <div class="mc"><div class="mv">${mac.kcal}</div><div class="ml">Kcal</div></div>
+    <div class="mc"><div class="mv" style="color:var(--accent3)">${mac.protein}g</div><div class="ml">Proteína</div></div>
+    <div class="mc"><div class="mv" style="color:var(--accent2)">${mac.carbs}g</div><div class="ml">HC</div></div>
+    <div class="mc"><div class="mv" style="color:var(--muted)">${mac.fat}g</div><div class="ml">Grasa</div></div>`;
+}
+
+function showSaveStatus(message){
+  const box=document.getElementById('save-status');
+  box.style.display='block';
+  box.textContent=message;
+  document.getElementById('save-error').style.display='none';
+}
+
+function showSaveError(message){
+  const box=document.getElementById('save-error');
+  box.style.display='block';
+  box.textContent=message;
+  document.getElementById('save-status').style.display='none';
+}
+
+async function saveUserOnboarding(payload){
+  if(!STATE.userMode || !STATE.session?.user?.id) return;
+  const update={
+    full_name:payload.name,
+    age:Number.parseInt(payload.age,10)||null,
+    sex:payload.sex==='?'?null:payload.sex,
+    weight_kg:Number.parseFloat(payload.weight)||null,
+    height_cm:Number.parseInt(payload.height,10)||null,
+    goal:payload.goal==='?'?null:payload.goal,
+    onboarding_completed:true,
+    onboarding_data:{
+      injury:payload.injury,
+      injury_detail:payload.injuryDetail,
+      steps:payload.steps,
+      event:payload.event,
+      event_date:payload.eventDate,
+      easy_pace:payload.easyPace,
+      target_pace:payload.targetPace,
+      run_level:payload.runLevel,
+      gym_level:payload.gymLevel,
+      days:payload.days,
+      split:payload.split,
+      session_t:payload.sessionTime,
+      equip:payload.equipList,
+      sports:payload.sports,
+      activity:payload.activity,
+      diet:payload.dietList,
+      sleep:payload.sleep,
+      context:payload.context
+    }
+  };
+
+  let result=await sb.from('profiles').update(update).eq('id',STATE.session.user.id);
+  if(result.error){
+    const fallback={...update};
+    delete fallback.onboarding_completed;
+    delete fallback.onboarding_data;
+    result=await sb.from('profiles').update(fallback).eq('id',STATE.session.user.id);
+  }
+  if(result.error) throw result.error;
+}
+
+async function generate(){
+  const payload=collectPayload();
+  const mac=calcMacros();
+  const prompt=buildPrompt(payload,mac);
+
+  document.getElementById('res-summary').textContent=`${payload.name} · TDEE: ${mac.tdee} kcal · Objetivo: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G`;
+  renderMacros(mac);
+  document.getElementById('prompt-out').value=prompt;
+  document.getElementById('save-status').style.display='none';
+  document.getElementById('save-error').style.display='none';
+  document.getElementById('continue-btn').style.display='none';
+
+  if(STATE.userMode){
+    try{
+      await saveUserOnboarding(payload);
+      document.getElementById('continue-btn').style.display='inline-flex';
+      document.getElementById('result-sub').textContent='Tus datos se han guardado. Puedes copiar el prompt o continuar directamente a tu app.';
+      showSaveStatus('Tus datos iniciales se han guardado correctamente en Supabase.');
+    }catch(err){
+      showSaveError(`No se pudieron guardar tus datos en Supabase: ${err.message||err}`);
+    }
+  }else{
+    document.getElementById('result-sub').textContent='Copia este texto, pégalo en el chat del proyecto y C.L.O.E. generará el plan completo.';
+  }
+
   go(5);
 }
 
 function copyPrompt(){
-  const a=document.getElementById('prompt-out');
-  a.select(); document.execCommand('copy');
-  const b=document.getElementById('copy-btn');
-  b.textContent='✅ Copiado';
-  setTimeout(()=>b.textContent='📋 Copiar prompt',2500);
+  const area=document.getElementById('prompt-out');
+  area.select();
+  area.setSelectionRange(0,99999);
+  document.execCommand('copy');
+  const button=document.getElementById('copy-btn');
+  button.textContent='Copiado';
+  setTimeout(()=>button.textContent='Copiar prompt',2500);
 }
+
+function continueToApp(){
+  window.location.href='app.html';
+}
+
+function resetQuestionnaire(){
+  window.location.href='onboarding.html';
+}
+
+function applyProfileToForm(profile){
+  setInput('name',profile.full_name||profile.email?.split('@')[0]||'');
+  setInput('age',profile.age);
+  setInput('weight',profile.weight_kg);
+  setInput('height',profile.height_cm);
+  restoreSingle('sex',profile.sex);
+  restoreSingle('goal',profile.goal,'cpill');
+
+  const extra=profile.onboarding_data||{};
+  restoreSingle('injury',extra.injury||'Ninguna');
+  setInput('injury-detail',extra.injury_detail);
+  restoreSingle('steps',extra.steps);
+  restoreSingle('event',extra.event,'cpill');
+  setInput('event-date',extra.event_date);
+  setInput('easy-pace',extra.easy_pace);
+  setInput('target-pace',extra.target_pace);
+  restoreSingle('run-lvl',extra.run_level);
+  restoreSingle('gym-lvl',extra.gym_level);
+  setSlider('days',extra.days||4,' días');
+  restoreSingle('split',extra.split);
+  restoreSingle('session-t',extra.session_t);
+  restoreMulti('equip',extra.equip);
+  restoreMulti('sports',extra.sports);
+  restoreSingle('activity',extra.activity);
+  restoreMulti('diet',extra.diet);
+  setSlider('sleep',extra.sleep||7,'h');
+  setInput('context',extra.context);
+}
+
+async function initUserMode(){
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session?.user) return;
+    STATE.session=session;
+
+    const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+    if(error || !data || data.role==='admin') return;
+
+    STATE.profile=data;
+    STATE.userMode=true;
+    applyProfileToForm(data);
+    document.getElementById('user-mode-banner').style.display='block';
+    document.getElementById('p1-title').textContent='Completa tu perfil inicial';
+    document.getElementById('p1-sub').textContent='Es tu primera entrada. Guarda aquí tus datos iniciales antes de acceder a la app.';
+  }catch(err){
+    console.warn('No se pudo inicializar onboarding de usuario',err);
+  }
+}
+
+initUserMode();
 </script>
 </body>
 </html>

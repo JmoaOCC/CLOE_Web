@@ -19,6 +19,9 @@ create table if not exists profiles (
   created_at   timestamptz default now()
 );
 
+alter table profiles add column if not exists onboarding_completed boolean default false;
+alter table profiles add column if not exists onboarding_data jsonb;
+
 alter table profiles enable row level security;
 
 create or replace function is_admin()

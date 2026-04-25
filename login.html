@@ -72,9 +72,14 @@ async function login(){
 }
 
 async function redirect(uid){
-  const {data,error}=await sb.from('profiles').select('role').eq('id',uid).single();
+  const {data,error}=await sb.from('profiles').select('*').eq('id',uid).single();
   if(error){showErr('La sesión está creada, pero no se pudo leer tu perfil en Supabase: '+error.message);return;}
+  const needsOnboarding = data?.role!=='admin' && (
+    (Object.prototype.hasOwnProperty.call(data,'onboarding_completed') && data.onboarding_completed!==true) ||
+    !data?.age || !data?.sex || !data?.weight_kg || !data?.height_cm || !data?.goal
+  );
   if(data?.role==='admin') window.location.href='admin.html';
+  else if(needsOnboarding) window.location.href='onboarding.html';
   else window.location.href='app.html';
 }
 
