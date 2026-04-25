@@ -175,6 +175,17 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <div class="psub">Tu experiencia y disponibilidad</div>
 
   <div class="field">
+    <label class="fl">Deportes a planificar (múltiple)</label>
+    <div class="pills">
+      <div class="pill msel" onclick="multi(this,'sports','Running')">Running</div>
+      <div class="pill" onclick="multi(this,'sports','Ciclismo')">Ciclismo</div>
+      <div class="pill" onclick="multi(this,'sports','Rodillo')">Rodillo</div>
+      <div class="pill" onclick="multi(this,'sports','Natación')">Natación</div>
+      <div class="pill" onclick="multi(this,'sports','Andar')">Andar</div>
+    </div>
+  </div>
+
+  <div class="field">
     <label class="fl">Nivel en running</label>
     <div class="pills">
       <div class="pill" onclick="pick(this,'run-lvl','Principiante (menos de 6 meses)')">Principiante</div>
@@ -203,11 +214,11 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <div class="field">
     <label class="fl">Distribución preferida</label>
     <div class="pills">
-      <div class="pill" onclick="pick(this,'split','2 fuerza + 2 running')">2F + 2R</div>
-      <div class="pill" onclick="pick(this,'split','2 fuerza + 3 running')">2F + 3R</div>
-      <div class="pill" onclick="pick(this,'split','3 fuerza + 2 running')">3F + 2R</div>
+      <div class="pill" onclick="pick(this,'split','2 fuerza + 2 deportes')">2F + 2D</div>
+      <div class="pill" onclick="pick(this,'split','2 fuerza + 3 deportes')">2F + 3D</div>
+      <div class="pill" onclick="pick(this,'split','3 fuerza + 2 deportes')">3F + 2D</div>
       <div class="pill" onclick="pick(this,'split','Solo fuerza')">Solo fuerza</div>
-      <div class="pill" onclick="pick(this,'split','Solo running')">Solo running</div>
+      <div class="pill" onclick="pick(this,'split','Solo deportes')">Solo deportes</div>
     </div>
   </div>
   <div class="field">
@@ -311,7 +322,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 
 <script>
 const F={};
-const M={};
+const M={sports:new Set(['Running'])};
 
 function go(n){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
@@ -370,6 +381,48 @@ function calcMacros(){
   return {kcal,protein,carbs,fat,tdee};
 }
 
+function buildSportsPrompt(sports, runLvl, easyPace, targetPace, days, sessionT){
+  const selected = sports.length ? sports : ['Running'];
+  const blocks = selected.map(sport=>{
+    if(sport==='Running') return `RUNNING
+- Genera 2-3 sesiones semanales según disponibilidad: intervalos, tempo/easy y tirada larga si procede.
+- Si hay sesión de calidad, usa formato EXACTO Intervals.icu.
+- Adapta ritmos a nivel ${runLvl}, easy actual ${easyPace}/km y objetivo ${targetPace}/km.
+- No usar zonas de FC si no están dadas. Prioriza min:seg/km, duración y distancia aproximada.`;
+    if(sport==='Ciclismo') return `CICLISMO
+- Genera sesiones outdoor con duración, objetivo, terreno sugerido, cadencia y RPE.
+- Incluye una sesión aeróbica Z2/RPE 4-5 y una sesión de calidad si la carga total lo permite.
+- Si no hay FTP/potencia, usa RPE y cadencia. Coordina la carga con running/fuerza.`;
+    if(sport==='Rodillo') return `RODILLO
+- Genera sesiones indoor estructuradas por bloques de tiempo.
+- Formato: calentamiento, bloque principal, recuperación y vuelta a la calma.
+- Indica cadencia objetivo, RPE y vatios solo si se pueden estimar; si no, usa RPE.
+- Úsalo como alternativa a ciclismo outdoor o como sesión controlada de baja logística.`;
+    if(sport==='Natación') return `NATACIÓN
+- Genera sesiones en piscina con metros totales, calentamiento, técnica, serie principal y vuelta a la calma.
+- Incluye drills sencillos y descansos entre series.
+- Ajusta volumen a nivel general y evita fatiga excesiva de hombro si hay molestias.`;
+    if(sport==='Andar') return `ANDAR
+- Programa caminatas como trabajo aeróbico suave/NEAT.
+- Indica duración, ritmo percibido, terreno y objetivo de pasos.
+- Úsalo para recuperación activa o aumento de gasto sin interferir con fuerza.`;
+    return `${sport}
+- Genera sesiones específicas para este deporte con duración, intensidad, objetivo y progresión.`;
+  }).join('\n\n');
+
+  return `B. DEPORTES SELECCIONADOS (${selected.join(', ')})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Disponibilidad total: ${days} días/semana · Tiempo por sesión: ${sessionT}
+
+Genera el plan SOLO para estos deportes seleccionados:
+${selected.map(s=>`- ${s}`).join('\n')}
+
+No incluyas deportes no seleccionados. Coordina la carga semanal con fuerza, recuperación y nutrición.
+
+${blocks}`;
+}
+
 function generate(){
   const name=document.getElementById('name').value||'Usuario';
   const age=document.getElementById('age').value||'?';
@@ -390,12 +443,14 @@ function generate(){
   const split=F['split']||'no indicado';
   const sessionT=F['session-t']||'no indicado';
   const equip=M['equip']?[...M['equip']].join(', '):'no indicado';
+  const sports=M['sports']&&M['sports'].size?[...M['sports']]:['Running'];
   const activity=F['activity']||'Sedentario';
   const diet=M['diet']?[...M['diet']].join(', '):'Ninguna';
   const sleep=document.getElementById('sleep').value;
   const context=document.getElementById('context').value||'ninguno';
 
   const mac=calcMacros();
+  const sportsPrompt=buildSportsPrompt(sports,runLvl,easyPace,targetPace,days,sessionT);
 
   document.getElementById('res-summary').textContent=
     `${name} · TDEE: ${mac.tdee} kcal · Objetivo: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G`;
@@ -431,6 +486,7 @@ Ritmo objetivo:      ${targetPace}/km
 ── ENTRENAMIENTO ──────────────────────────────────────
 Nivel running:  ${runLvl}
 Nivel fuerza:   ${gymLvl}
+Deportes:       ${sports.join(', ')}
 Días/semana:    ${days}
 Distribución:   ${split}
 Tiempo/sesión:  ${sessionT}
@@ -451,7 +507,7 @@ Cálculo DOCE (Mifflin-St Jeor):
 INSTRUCCIÓN PARA C.L.O.E. COACH · GENERA SEMANA 1
 ═══════════════════════════════════════════════════════
 
-Actúa como C.L.O.E. COACH (entrenador fuerza + running
+Actúa como C.L.O.E. COACH (entrenador fuerza + deportes seleccionados
 + nutricionista DOCE + médico deportivo preventivo).
 
 Con el perfil anterior, genera la SEMANA 1 completa
@@ -483,30 +539,8 @@ Regla progresión DOCE:
   Si completa reps + RIR correcto → +2.5kg tren superior / +5kg inferior
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-B. RUNNING  (3 sesiones en formato EXACTO Intervals.icu)
+${sportsPrompt}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Adapta los ritmos a: nivel ${runLvl}, ritmo easy actual ${easyPace}/km
-
-MARTES — Intervalos:
-Warmup
-[X]m [ritmo easy]/km ([distancia]km) Pace
-
-Main set [N]x
-[X]m [ritmo intervalo]/km ([distancia]km) Pace
-[X]m [ritmo easy]/km ([distancia]km) Pace
-
-Cooldown
-[X]m [ritmo easy]/km ([distancia]km) Pace
-
-VIERNES — Tempo:
-[mismo formato]
-
-SÁBADO — Tirada larga:
-Easy Run
-[X]m [ritmo easy]/km (~[distancia]km) Pace
-
-NO usar zonas de FC. Solo ritmos en min:seg/km.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 C. NUTRICIÓN DOCE
