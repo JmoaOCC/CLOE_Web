@@ -137,6 +137,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   <div class="modal" style="max-width:640px">
     <h2 id="edit-title">Editar usuario</h2>
     <div class="g2">
+      <div><label>Nombre completo</label><input id="e-name"></div>
+      <div><label>Email acceso (solo lectura)</label><input id="e-email" readonly></div>
+      <div><label>Edad</label><input type="number" id="e-age"></div>
+      <div><label>Sexo</label><select id="e-sex"><option value="">-</option><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option></select></div>
+      <div><label>Peso (kg)</label><input type="number" step="0.1" id="e-weight"></div>
+      <div><label>Altura (cm)</label><input type="number" id="e-height"></div>
+      <div><label>Objetivo</label><input id="e-goal"></div>
       <div><label>Semana activa</label><input type="number" id="e-week" min="1" max="16"></div>
       <div><label>Estado</label>
         <select id="e-status">
@@ -145,15 +152,43 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
           <option value="inactive">Inactivo</option>
         </select>
       </div>
+      <div><label>Onboarding completado</label><select id="e-onboarding-completed"><option value="true">Sí</option><option value="false">No</option></select></div>
+      <div><label>Días por semana</label><input type="number" id="e-days" min="1" max="7"></div>
+      <div><label>Horas de sueño</label><input type="number" step="0.5" id="e-sleep"></div>
+      <div><label>Easy pace</label><input id="e-easy-pace"></div>
+      <div><label>Target pace</label><input id="e-target-pace"></div>
+      <div><label>Fecha evento</label><input type="date" id="e-event-date"></div>
     </div>
+    <label>Datos del cuestionario</label>
+    <div class="g2">
+      <div><label>Lesiones</label><input id="e-injury"></div>
+      <div><label>Detalle lesión</label><input id="e-injury-detail"></div>
+      <div><label>Pasos</label><input id="e-steps"></div>
+      <div><label>Evento</label><input id="e-event"></div>
+      <div><label>Nivel running</label><input id="e-run-level"></div>
+      <div><label>Nivel fuerza</label><input id="e-gym-level"></div>
+      <div><label>Distribución</label><input id="e-split"></div>
+      <div><label>Tiempo por sesión</label><input id="e-session-time"></div>
+      <div><label>Actividad</label><input id="e-activity"></div>
+      <div><label>Deportes (coma separada)</label><input id="e-sports"></div>
+      <div><label>Equipamiento (coma separada)</label><input id="e-equip"></div>
+      <div><label>Dieta (coma separada)</label><input id="e-diet"></div>
+    </div>
+    <label>Contexto adicional</label>
+    <textarea id="e-context" rows="3" placeholder="Trabajo, estrés, horarios, viajes, hijos..."></textarea>
     <label>Notas del coach</label>
     <textarea id="e-notes" rows="2" placeholder="Observaciones, ajustes, alertas..."></textarea>
+
+    <label>Prompt IA del perfil</label>
+    <textarea id="e-profile-prompt" class="plan-area" rows="10" readonly></textarea>
+    <div class="plan-hint">Resumen automático del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
 
     <label>Plan Semana activa (editar o pegar plan nuevo de CLOE)</label>
     <textarea id="e-plan" class="plan-area" rows="10"></textarea>
     <div class="plan-hint">💡 Para actualizar el plan: genera el reporte semanal desde la app del usuario → pégalo en el chat → CLOE genera semana siguiente → pega aquí el resultado</div>
 
     <div class="mact">
+      <button class="btn sec" onclick="copyProfilePrompt()">Copiar prompt IA</button>
       <button class="btn" onclick="saveEdit()">💾 Guardar</button>
       <button class="btn sec" onclick="advWeek()">Avanzar semana →</button>
       <button class="btn dan" onclick="delUser()">Desactivar</button>
@@ -213,6 +248,106 @@ async function load(){
 }
 
 function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÍFICO';}
+
+function listToText(value){
+  return Array.isArray(value)?value.join(', '):(value||'');
+}
+
+function textToList(value){
+  return String(value||'').split(',').map(v=>v.trim()).filter(Boolean);
+}
+
+function formatDateForInput(value){
+  if(!value) return '';
+  return String(value).slice(0,10);
+}
+
+function quincenaFromWeek(week){
+  return Math.ceil((week||1)/2);
+}
+
+function buildProfilePrompt(user){
+  const extra=user.onboarding_data||{};
+  const sports=Array.isArray(extra.sports)&&extra.sports.length?extra.sports:['Running'];
+  const equip=Array.isArray(extra.equip)&&extra.equip.length?extra.equip.join(', '):'no indicado';
+  const diet=Array.isArray(extra.diet)&&extra.diet.length?extra.diet.join(', '):'Ninguna';
+  const q=quincenaFromWeek(user.week||1);
+  return `C.L.O.E. COACH · PERFIL USUARIO
+Usuario: ${user.full_name||'Sin nombre'}
+Email: ${user.email||'Sin email'}
+Semana actual: ${user.week||1}
+Quincena actual: ${q}
+Estado: ${user.status||'pending'}
+Objetivo: ${user.goal||'Sin definir'}
+
+DATOS FÍSICOS
+- Edad: ${user.age||'n/d'}
+- Sexo: ${user.sex||'n/d'}
+- Peso: ${user.weight_kg||'n/d'} kg
+- Altura: ${user.height_cm||'n/d'} cm
+
+DATOS DEL CUESTIONARIO
+- Onboarding completado: ${user.onboarding_completed===true?'Sí':'No'}
+- Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` (${extra.injury_detail})`:''}
+- Pasos: ${extra.steps||'n/d'}
+- Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
+- Easy pace: ${extra.easy_pace||'n/d'}
+- Target pace: ${extra.target_pace||'n/d'}
+- Nivel running: ${extra.run_level||'n/d'}
+- Nivel fuerza: ${extra.gym_level||'n/d'}
+- Días por semana: ${extra.days||'n/d'}
+- Distribución: ${extra.split||'n/d'}
+- Tiempo por sesión: ${extra.session_t||'n/d'}
+- Deportes: ${sports.join(', ')}
+- Equipamiento: ${equip}
+- Actividad: ${extra.activity||'n/d'}
+- Dieta: ${diet}
+- Sueño: ${extra.sleep||'n/d'} h
+- Contexto: ${extra.context||'n/d'}
+
+INSTRUCCIÓN PARA LA IA
+Analiza este perfil y genera el plan completo de la quincena ${q} para este usuario.
+Devuelve entrenamiento, ajustes de fuerza, nutrición y objetivos listos para pegar en su perfil.
+
+PLAN ACTUAL DEL USUARIO
+${user.current_plan||user.week1_plan||'Aún sin plan cargado.'}`;
+}
+
+function collectEditUserForPrompt(){
+  return {
+    full_name:document.getElementById('e-name').value.trim(),
+    email:document.getElementById('e-email').value.trim(),
+    age:parseInt(document.getElementById('e-age').value)||null,
+    sex:document.getElementById('e-sex').value||null,
+    weight_kg:parseFloat(document.getElementById('e-weight').value)||null,
+    height_cm:parseInt(document.getElementById('e-height').value)||null,
+    goal:document.getElementById('e-goal').value.trim()||null,
+    week:parseInt(document.getElementById('e-week').value)||1,
+    status:document.getElementById('e-status').value,
+    onboarding_completed:document.getElementById('e-onboarding-completed').value==='true',
+    current_plan:document.getElementById('e-plan').value.trim()||null,
+    onboarding_data:{
+      injury:document.getElementById('e-injury').value.trim()||null,
+      injury_detail:document.getElementById('e-injury-detail').value.trim()||null,
+      steps:document.getElementById('e-steps').value.trim()||null,
+      event:document.getElementById('e-event').value.trim()||null,
+      event_date:document.getElementById('e-event-date').value||null,
+      easy_pace:document.getElementById('e-easy-pace').value.trim()||null,
+      target_pace:document.getElementById('e-target-pace').value.trim()||null,
+      run_level:document.getElementById('e-run-level').value.trim()||null,
+      gym_level:document.getElementById('e-gym-level').value.trim()||null,
+      days:parseInt(document.getElementById('e-days').value)||null,
+      split:document.getElementById('e-split').value.trim()||null,
+      session_t:document.getElementById('e-session-time').value.trim()||null,
+      activity:document.getElementById('e-activity').value.trim()||null,
+      sports:textToList(document.getElementById('e-sports').value),
+      equip:textToList(document.getElementById('e-equip').value),
+      diet:textToList(document.getElementById('e-diet').value),
+      sleep:parseFloat(document.getElementById('e-sleep').value)||null,
+      context:document.getElementById('e-context').value.trim()||null
+    }
+  };
+}
 
 function renderTable(){
   const tb=document.getElementById('tbody');
@@ -337,23 +472,80 @@ function openEdit(id){
   const u=users.find(x=>x.id===id);
   if(!u) return;
   editId=id;
+  const extra=u.onboarding_data||{};
   document.getElementById('edit-title').textContent=u.full_name||'Editar usuario';
+  document.getElementById('e-name').value=u.full_name||'';
+  document.getElementById('e-email').value=u.email||'';
+  document.getElementById('e-age').value=u.age||'';
+  document.getElementById('e-sex').value=u.sex||'';
+  document.getElementById('e-weight').value=u.weight_kg||'';
+  document.getElementById('e-height').value=u.height_cm||'';
+  document.getElementById('e-goal').value=u.goal||'';
   document.getElementById('e-week').value=u.week||1;
   document.getElementById('e-status').value=u.status||'pending';
+  document.getElementById('e-onboarding-completed').value=u.onboarding_completed===true?'true':'false';
+  document.getElementById('e-days').value=extra.days||'';
+  document.getElementById('e-sleep').value=extra.sleep||'';
+  document.getElementById('e-easy-pace').value=extra.easy_pace||'';
+  document.getElementById('e-target-pace').value=extra.target_pace||'';
+  document.getElementById('e-event-date').value=formatDateForInput(extra.event_date);
+  document.getElementById('e-injury').value=extra.injury||'';
+  document.getElementById('e-injury-detail').value=extra.injury_detail||'';
+  document.getElementById('e-steps').value=extra.steps||'';
+  document.getElementById('e-event').value=extra.event||'';
+  document.getElementById('e-run-level').value=extra.run_level||'';
+  document.getElementById('e-gym-level').value=extra.gym_level||'';
+  document.getElementById('e-split').value=extra.split||'';
+  document.getElementById('e-session-time').value=extra.session_t||'';
+  document.getElementById('e-activity').value=extra.activity||'';
+  document.getElementById('e-sports').value=listToText(extra.sports);
+  document.getElementById('e-equip').value=listToText(extra.equip);
+  document.getElementById('e-diet').value=listToText(extra.diet);
+  document.getElementById('e-context').value=extra.context||'';
   document.getElementById('e-notes').value=u.notes||'';
   document.getElementById('e-plan').value=u.current_plan||u.week1_plan||'';
+  document.getElementById('e-profile-prompt').value=buildProfilePrompt(u);
   document.getElementById('m-edit').classList.add('on');
 }
 
 async function saveEdit(){
   if(!editId) return;
+  const full_name=document.getElementById('e-name').value.trim();
+  const age=parseInt(document.getElementById('e-age').value)||null;
+  const sex=document.getElementById('e-sex').value||null;
+  const weight_kg=parseFloat(document.getElementById('e-weight').value)||null;
+  const height_cm=parseInt(document.getElementById('e-height').value)||null;
+  const goal=document.getElementById('e-goal').value.trim()||null;
   const week=parseInt(document.getElementById('e-week').value)||1;
   const status=document.getElementById('e-status').value;
+  const onboarding_completed=document.getElementById('e-onboarding-completed').value==='true';
   const notes=document.getElementById('e-notes').value.trim();
   const plan=document.getElementById('e-plan').value.trim();
+  const onboarding_data={
+    injury:document.getElementById('e-injury').value.trim()||null,
+    injury_detail:document.getElementById('e-injury-detail').value.trim()||null,
+    steps:document.getElementById('e-steps').value.trim()||null,
+    event:document.getElementById('e-event').value.trim()||null,
+    event_date:document.getElementById('e-event-date').value||null,
+    easy_pace:document.getElementById('e-easy-pace').value.trim()||null,
+    target_pace:document.getElementById('e-target-pace').value.trim()||null,
+    run_level:document.getElementById('e-run-level').value.trim()||null,
+    gym_level:document.getElementById('e-gym-level').value.trim()||null,
+    days:parseInt(document.getElementById('e-days').value)||null,
+    split:document.getElementById('e-split').value.trim()||null,
+    session_t:document.getElementById('e-session-time').value.trim()||null,
+    activity:document.getElementById('e-activity').value.trim()||null,
+    sports:textToList(document.getElementById('e-sports').value),
+    equip:textToList(document.getElementById('e-equip').value),
+    diet:textToList(document.getElementById('e-diet').value),
+    sleep:parseFloat(document.getElementById('e-sleep').value)||null,
+    context:document.getElementById('e-context').value.trim()||null
+  };
 
   const {error}=await sb.from('profiles').update({
-    week, status, notes,
+    full_name, age, sex, weight_kg, height_cm, goal,
+    week, status, notes, onboarding_completed, onboarding_data,
+    week1_plan:week===1 && plan ? plan : undefined,
     current_plan:plan||null
   }).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
@@ -397,6 +589,15 @@ async function delDirect(id){
   if(error){toast('Error: '+error.message);return;}
   toast('✅ Usuario desactivado.');
   load();
+}
+
+function copyProfilePrompt(){
+  document.getElementById('e-profile-prompt').value=buildProfilePrompt(collectEditUserForPrompt());
+  const area=document.getElementById('e-profile-prompt');
+  area.select();
+  area.setSelectionRange(0,99999);
+  document.execCommand('copy');
+  toast('Prompt IA copiado.');
 }
 
 function close(id){document.getElementById(id).classList.remove('on');}
