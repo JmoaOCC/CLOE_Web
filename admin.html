@@ -52,6 +52,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 .toast.on{display:block}
 .pass-box{background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:12px;margin-top:12px;display:none}
 .pass-box.on{display:block}
+.state{max-width:1200px;margin:24px auto 0;padding:0 28px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
+.state.err{color:#f46}
 </style>
 </head>
 <body>
@@ -63,6 +65,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <button class="btn sec" style="padding:6px 14px;font-size:11px" onclick="logout()">Salir</button>
   </div>
 </div>
+
+<div class="state" id="auth-state">Verificando sesión de administrador...</div>
 
 <div class="main">
   <div class="cards">
@@ -169,17 +173,28 @@ const sb=createClient(SB_URL,SB_KEY);
 let users=[];
 let editId=null;
 let adminSession=null;
+let authReady=false;
 
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='login.html';return;}
   adminSession=session;
-  const {data}=await sb.from('profiles').select('role').eq('id',session.user.id).single();
-  if(data?.role!=='admin'){window.location.href='login.html';return;}
+  const {data,error}=await sb.from('profiles').select('role,email').eq('id',session.user.id).single();
+  if(error){
+    setAuthState('No se pudo cargar el perfil de administrador: '+error.message,true);
+    return;
+  }
+  if(data?.role!=='admin'){
+    setAuthState('La sesión existe, pero este usuario no tiene role = admin en profiles.',true);
+    return;
+  }
+  authReady=true;
+  setAuthState(`Sesión activa como admin: ${data.email||session.user.email||'usuario'}`);
   load();
 })();
 
 async function load(){
+  if(!authReady) return;
   const {data,error}=await sb.from('profiles').select('*').neq('role','admin').order('created_at',{ascending:false});
   if(error){toast('Error: '+error.message);return;}
   users=data||[];
@@ -349,6 +364,11 @@ async function delDirect(id){
 
 function close(id){document.getElementById(id).classList.remove('on');}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3500);}
+function setAuthState(message,isError=false){
+  const el=document.getElementById('auth-state');
+  el.textContent=message;
+  el.className='state'+(isError?' err':'');
+}
 async function logout(){await sb.auth.signOut();window.location.href='login.html';}
 </script>
 </body>

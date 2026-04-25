@@ -23,6 +23,7 @@ input:focus{border-color:var(--accent)}
 .err.show{display:block}
 .spin{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);text-align:center;margin-top:12px;display:none}
 .spin.show{display:block}
+.hint{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -37,6 +38,7 @@ input:focus{border-color:var(--accent)}
     <button class="btn" id="btn" onclick="login()">Entrar</button>
     <div class="err" id="err"></div>
     <div class="spin" id="spin">Verificando acceso...</div>
+    <div class="hint">Acceso privado para usuarios y administrador.</div>
   </div>
 </div>
 <script>
@@ -67,7 +69,8 @@ async function login(){
 }
 
 async function redirect(uid){
-  const {data}=await sb.from('profiles').select('role').eq('id',uid).single();
+  const {data,error}=await sb.from('profiles').select('role').eq('id',uid).single();
+  if(error){showErr('La sesión está creada, pero no se pudo leer tu perfil en Supabase: '+error.message);return;}
   if(data?.role==='admin') window.location.href='admin.html';
   else window.location.href='app.html';
 }

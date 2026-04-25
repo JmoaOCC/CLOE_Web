@@ -21,6 +21,19 @@ create table if not exists profiles (
 
 alter table profiles enable row level security;
 
+create or replace function is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$;
+
 drop policy if exists "own profile" on profiles;
 create policy "own profile"
   on profiles for all
@@ -29,12 +42,8 @@ create policy "own profile"
 drop policy if exists "admin all" on profiles;
 create policy "admin all"
   on profiles for all
-  using (
-    exists (
-      select 1 from profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  using (is_admin())
+  with check (is_admin());
 
 create or replace function handle_new_user()
 returns trigger as $$
