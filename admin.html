@@ -176,7 +176,11 @@ let adminSession=null;
 let authReady=false;
 
 (async()=>{
-  const {data:{session}}=await sb.auth.getSession();
+  let {data:{session}}=await sb.auth.getSession();
+  if(!session){
+    await new Promise(resolve=>setTimeout(resolve,300));
+    ({data:{session}}=await sb.auth.getSession());
+  }
   if(!session){window.location.href='login.html';return;}
   adminSession=session;
   const {data,error}=await sb.from('profiles').select('role,email').eq('id',session.user.id).single();

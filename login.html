@@ -24,6 +24,7 @@ input:focus{border-color:var(--accent)}
 .spin{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);text-align:center;margin-top:12px;display:none}
 .spin.show{display:block}
 .hint{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
+.hint button{background:none;border:none;color:var(--accent);font:inherit;cursor:pointer;padding:0}
 </style>
 </head>
 <body>
@@ -38,7 +39,7 @@ input:focus{border-color:var(--accent)}
     <button class="btn" id="btn" onclick="login()">Entrar</button>
     <div class="err" id="err"></div>
     <div class="spin" id="spin">Verificando acceso...</div>
-    <div class="hint">Acceso privado para usuarios y administrador.</div>
+    <div class="hint" id="hint">Acceso privado para usuarios y administrador.</div>
   </div>
 </div>
 <script>
@@ -47,11 +48,13 @@ const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
 const {createClient}=supabase;
 const sb=createClient(SB_URL,SB_KEY);
 
-// Si ya hay sesión, redirigir
-sb.auth.getSession().then(({data:{session}})=>{
+init();
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
   if(!session) return;
-  redirect(session.user.id);
-});
+  document.getElementById('hint').innerHTML='Ya hay una sesión abierta en este navegador. Si quieres limpiarla, <button type="button" onclick="forceLogout()">cerrar sesión</button>.';
+}
 
 async function login(){
   const email=document.getElementById('email').value.trim();
@@ -76,6 +79,11 @@ async function redirect(uid){
 }
 
 function showErr(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show');}
+async function forceLogout(){
+  await sb.auth.signOut();
+  document.getElementById('hint').textContent='Sesión local cerrada. Ya puedes volver a entrar.';
+  document.getElementById('err').classList.remove('show');
+}
 document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 </script>
 </body>
