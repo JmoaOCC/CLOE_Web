@@ -29,6 +29,10 @@ set quincena1_plan = coalesce(quincena1_plan, current_plan)
 where quincena1_plan is null and current_plan is not null;
 alter table profiles add column if not exists latest_report text;
 alter table profiles add column if not exists latest_report_at timestamptz;
+alter table profiles add column if not exists plan_strength jsonb;
+alter table profiles add column if not exists plan_running jsonb;
+alter table profiles add column if not exists plan_nutrition jsonb;
+alter table profiles add column if not exists plan_supplements jsonb;
 
 alter table profiles enable row level security;
 

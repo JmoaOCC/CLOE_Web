@@ -336,7 +336,28 @@ const SUPPLEMENTS={
 // ── EJERCICIOS EN FORMATO INTERVALS.ICU ──────────────────
 // Fuerza: formato estructurado igual que running
 function getStrengthIntervals(day, q){
-  const w=q*2-1; // quincena → semana base
+  // Intenta usar datos parseados si están disponibles
+  if(profile?.plan_strength){
+    try{
+      const strengthData=JSON.parse(profile.plan_strength);
+      const dayKey=day==='A'?'dayA':'dayB';
+      const exercises=strengthData[dayKey]||[];
+      
+      if(exercises.length>0){
+        let fmt=`Warmup\n5m Movilidad articular + activación\n\nMain set\n`;
+        exercises.forEach(ex=>{
+          const prev=getPrevWeight(ex.key);
+          const target=prev>0?(prev+(ex.name.toLowerCase().includes('inferior'||'pierna')?5:2.5)):ex.weight;
+          fmt+=`${ex.name}: ${ex.sets}×${ex.reps} @ ${target} tempo ${ex.tempo} RIR ${ex.rir} descanso ${ex.rest}s\n`;
+        });
+        fmt+=`\nCooldown\n5m Estiramientos específicos grupos trabajados`;
+        return {exList:exercises,fmt};
+      }
+    }catch(e){console.log('Parse error strength:',e);}
+  }
+  
+  // Fallback a datos ficticios
+  const w=q*2-1;
   const exA=[
     {name:'Sentadilla/Prensa',sets:3+(q>=3?1:0),reps:'8',rir:'RIR 3',tempo:'3-1-1-0',rest:'150s',key:'squat',prog:'inferior'},
     {name:'Press banca plano',sets:3+(q>=3?1:0),reps:'8',rir:'RIR 2',tempo:'3-0-1-0',rest:'120s',key:'bench',prog:'upper'},
@@ -352,7 +373,6 @@ function getStrengthIntervals(day, q){
     {name:'Face pull',sets:3,reps:'15',rir:'RIR 1',tempo:'2-0-2-0',rest:'60s',key:'facepull',prog:'upper'},
   ];
   const exList=day==='A'?exA:exB;
-  // Build intervals.icu format
   let fmt=`Warmup\n5m Movilidad articular + activación\n\nMain set\n`;
   exList.forEach(ex=>{
     const prev=getPrevWeight(ex.key);
@@ -364,6 +384,20 @@ function getStrengthIntervals(day, q){
 }
 
 function runIntervals(q){
+  // Intenta usar datos parseados
+  if(profile?.plan_running){
+    try{
+      const runData=JSON.parse(profile.plan_running);
+      if(runData.intervals){
+        return {
+          label:'INTERVALOS',day:'Martes',
+          fmt:runData.intervals.substring(0,600),
+          goal:'Trabajo de velocidad y economía'
+        };
+      }
+    }catch(e){console.log('Parse error running:',e);}
+  }
+  
   const p=getPaces(q);
   let sets,dist,wMin,rDur,rKm;
   if(q<=2){sets=6;dist='400m';wMin='2m30s';rDur='2m';rKm='0.22km';}
@@ -378,6 +412,20 @@ function runIntervals(q){
   };
 }
 function runTempo(q){
+  // Intenta usar datos parseados
+  if(profile?.plan_running){
+    try{
+      const runData=JSON.parse(profile.plan_running);
+      if(runData.tempo){
+        return {
+          label:'TEMPO',day:'Viernes',
+          fmt:runData.tempo.substring(0,400),
+          goal:'Umbral de lactato controlado'
+        };
+      }
+    }catch(e){console.log('Parse error tempo:',e);}
+  }
+  
   const p=getPaces(q);
   const dur=q<=2?20:q<=4?25:q<=6?30:35;
   const [mm,ss]=p.tempo.split(':').map(Number);
@@ -389,6 +437,20 @@ function runTempo(q){
   };
 }
 function runLong(q){
+  // Intenta usar datos parseados
+  if(profile?.plan_running){
+    try{
+      const runData=JSON.parse(profile.plan_running);
+      if(runData.long){
+        return {
+          label:'TIRADA LARGA',day:'Sábado',
+          fmt:runData.long.substring(0,300),
+          goal:'Construcción de base aeróbica'
+        };
+      }
+    }catch(e){console.log('Parse error long:',e);}
+  }
+  
   const p=getPaces(q);
   const dur=q<=2?50:q<=4?65:q<=6?75:90;
   const [mm,ss]=p.easy.split(':').map(Number);
@@ -409,10 +471,40 @@ function getRunSession(dayIdx,q){
 
 // ── NUTRICIÓN CON OPCIONES (sistema intercambio C.L.O.E.) ────
 function getNutrition(){
-  const kcal=profile?.kcal||2475;
-  const prot=profile?.protein||154;
-  const carbs=profile?.carbs||310;
-  const fat=profile?.fat||69;
+  // Intenta usar datos parseados si están disponibles
+  let kcal=profile?.kcal||2475;
+  let prot=profile?.protein||154;
+  let carbs=profile?.carbs||310;
+  let fat=profile?.fat||69;
+  
+  if(profile?.plan_nutrition){
+    try{
+      const nutData=JSON.parse(profile.plan_nutrition);
+      if(nutData.kcal){
+        kcal=nutData.kcal;
+        prot=nutData.protein;
+        carbs=nutData.carbs;
+        fat=nutData.fat;
+        
+        // Retorna con macros parseadas pero manteniendo estructura
+        const training={
+          kcal,protein:prot,carbs,fat,
+          timing:'⏰ Pre-entreno (1-2h antes): HC + P, bajo grasa. Post (≤2h): HC + P para recuperación.',
+          meals:[
+            {key:'desayuno',name:'Desayuno',timing:'Plan IA',options:[{label:'Ver plan completo',kcal,p:prot,hc:carbs,g:fat,items:[{f:'Sección C · Nutrición',a:'consultar plan personalizado',note:'Macros: '+kcal+'kcal · '+prot+'P / '+carbs+'HC / '+fat+'G'}]}]},
+          ]
+        };
+        const rest={
+          kcal:Math.round(kcal*0.85),protein:prot,carbs:Math.round(carbs*0.8),fat,
+          timing:'Día de descanso: reducir HC, mantener P.',
+          meals:[
+            {key:'desayuno',name:'Desayuno',timing:'Plan IA (Descanso)',options:[{label:'Ver plan completo',kcal:Math.round(kcal*0.85),p:prot,hc:Math.round(carbs*0.8),g:fat,items:[{f:'Sección C · Nutrición',a:'consultar plan personalizado'}]}]},
+          ]
+        };
+        return {training,rest};
+      }
+    }catch(e){console.log('Parse error nutrition:',e);}
+  }
 
   const training={
     kcal,protein:prot,carbs,fat,
@@ -630,6 +722,90 @@ function saveDayLog(q,dayIdx,data){ localStorage.setItem(storageKey(q,dayIdx),JS
 function getPrevWeight(key){ return parseFloat(localStorage.getItem(`cloe_pw_${profile?.id}_${key}`)||'0'); }
 function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${key}`,val); }
 
+// ── PLAN PARSER (MEJORADO) ───────────────────────────────
+function parsePlan(planText){
+  if(!planText) return {strength:null,running:null,nutrition:null,supplements:null};
+  
+  // Extrae secciones principales
+  const sectionA=planText.match(/^A\.\s*FUERZA[\s\S]*?(?=^B\.|^C\.|^D\.|$)/m)?.[0]||'';
+  const sectionB=planText.match(/^B\.\s*(?:RUNNING|DEPORTES|SEGUNDA?.*?SEMANA)[\s\S]*?(?=^C\.|^D\.|$)/m)?.[0]||'';
+  const sectionC=planText.match(/^C\.\s*NUTRICIÓN[\s\S]*?(?=^D\.|$)/m)?.[0]||'';
+  const sectionD=planText.match(/^D\.\s*(?:OBJETIVOS|SUPLEMENTOS)[\s\S]*?$|SUPLEMENTOS[\s\S]*?(?=^E\.|$)/m)?.[0]||'';
+  
+  // Parse FUERZA: extrae DÍA A y DÍA B
+  const strengthData={};
+  const dayAMatch=sectionA.match(/DÍA\s+A[\s\S]*?(?=DÍA\s+B|$)/i);
+  const dayBMatch=sectionA.match(/DÍA\s+B[\s\S]*?$/i);
+  
+  if(dayAMatch) strengthData.dayA=parseExercises(dayAMatch[0]);
+  if(dayBMatch) strengthData.dayB=parseExercises(dayBMatch[0]);
+  
+  // Parse RUNNING: extrae sesiones
+  const runningData={};
+  const intervalsMatch=sectionB.match(/INTERVALOS?[\s\S]*?(?=TEMPO|$)/i);
+  const tempoMatch=sectionB.match(/TEMPO[\s\S]*?(?=TIRADA|$)/i);
+  const longMatch=sectionB.match(/TIRADA\s+LARGA[\s\S]*?$/i);
+  
+  if(intervalsMatch) runningData.intervals=intervalsMatch[0];
+  if(tempoMatch) runningData.tempo=tempoMatch[0];
+  if(longMatch) runningData.long=longMatch[0];
+  
+  // Parse NUTRICIÓN: extrae macros y opciones
+  const nutritionData={};
+  const macroMatch=sectionC.match(/(\d+)\s*kcal\s*·\s*(\d+)\s*P\s*\/\s*(\d+)\s*HC\s*\/\s*(\d+)\s*G/i);
+  if(macroMatch){
+    nutritionData.kcal=parseInt(macroMatch[1]);
+    nutritionData.protein=parseInt(macroMatch[2]);
+    nutritionData.carbs=parseInt(macroMatch[3]);
+    nutritionData.fat=parseInt(macroMatch[4]);
+  }
+  nutritionData.fullText=sectionC;
+  
+  return {
+    strength:JSON.stringify(strengthData),
+    running:JSON.stringify(runningData),
+    nutrition:JSON.stringify(nutritionData),
+    supplements:sectionD.trim()
+  };
+}
+
+function parseExercises(dayText){
+  const exercises=[];
+  // Busca líneas tipo: "Nombre: SxR @ XYkg tempo X-X-X-X RIR Y descanso Zs"
+  const lines=dayText.split('\n').filter(l=>l.includes('×')&&l.includes('@'));
+  
+  lines.forEach((line,idx)=>{
+    const match=line.match(/^([^:]+?):\s*(\d+)×(\d+)\s*@\s*([^t]+?)\s*tempo\s*([\d\-]+?)\s*RIR\s*(\d+)\s*descanso\s*(\d+)s/i);
+    if(match){
+      exercises.push({
+        name:match[1].trim(),
+        sets:parseInt(match[2]),
+        reps:match[3],
+        weight:match[4].trim(),
+        tempo:match[5],
+        rir:parseInt(match[6]),
+        rest:parseInt(match[7]),
+        key:`ex_${idx}`,
+        original:line
+      });
+    }
+  });
+  
+  return exercises;
+}
+}
+
+async function saveParsedPlan(sections){
+  if(!profile) return;
+  const {error}=await sb.from('profiles').update({
+    plan_strength:sections.strength,
+    plan_running:sections.running,
+    plan_nutrition:sections.nutrition,
+    plan_supplements:sections.supplements
+  }).eq('id',profile.id);
+  if(!error) console.log('✓ Plan sections parsed and saved');
+}
+
 // ── INIT ─────────────────────────────────────────────────
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
@@ -649,6 +825,14 @@ function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${
   profile=data;
   const saved=localStorage.getItem('cloe_chk_'+profile.id);
   if(saved) checklist=JSON.parse(saved);
+  
+  // Parse plan sections if available
+  if(profile.current_plan||profile.quincena1_plan){
+    const planText=profile.current_plan||profile.quincena1_plan;
+    const sections=parsePlan(planText);
+    if(!profile.plan_strength) await saveParsedPlan(sections);
+  }
+  
   const w=profile.week||1;
   const q=getQuincena(w);
   document.getElementById('sb-name').textContent=profile.full_name||'—';
