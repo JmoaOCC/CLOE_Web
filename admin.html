@@ -472,7 +472,14 @@ async function createUser(){
     });
     adminSession=previousSession;
   }
-  if(error){toast('Error auth: '+error.message);return;}
+  if(error){
+    if(error.message?.toLowerCase().includes('database error')){
+      toast('Error de base de datos al crear el usuario. Vuelve a ejecutar supabase-setup.sql en el SQL Editor de Supabase y reintenta.');
+    } else {
+      toast('Error auth: '+error.message);
+    }
+    return;
+  }
   if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){
     toast('Ese email ya existe en Supabase Auth. Usa otro email o revisa Authentication > Users.');
     return;
@@ -594,11 +601,9 @@ async function saveEdit(){
   const updatePayload={
     full_name, age, sex, weight_kg, height_cm, goal,
     week, status, notes, onboarding_completed, onboarding_data,
-    current_plan:plan||null
+    current_plan:plan||null,
+    quincena1_plan:plan||null
   };
-  if(week===1 && plan){
-    updatePayload.quincena1_plan=plan;
-  }
 
   const {error}=await sb.from('profiles').update(updatePayload).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
