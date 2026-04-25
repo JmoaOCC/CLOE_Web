@@ -219,7 +219,7 @@ label{font-size:10px;color:var(--muted);display:block;margin-top:9px;margin-bott
 <div class="mob-overlay" id="mob-overlay">
   <div class="mob-topbar">
     <div>
-      <div class="mob-brand">C.L.O.E <span>COACH</span></div>
+      <div class="mob-brand">C.L.O.E. <span>COACH</span></div>
       <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)" id="mob-date-label">—</div>
     </div>
     <button class="mob-close" onclick="closeMobile()">✕</button>
@@ -410,6 +410,11 @@ function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${
     return;
   }
   if(data.role==='admin'){window.location.href='admin.html';return;}
+  if(data.status==='inactive'){
+    await sb.auth.signOut();
+    document.getElementById('loading-screen').textContent='Tu usuario está inactivo. Contacta con tu coach para reactivar el acceso.';
+    return;
+  }
   profile=data;
   const saved=localStorage.getItem('cloe_chk_'+profile.id);
   if(saved) checklist=JSON.parse(saved);
@@ -952,7 +957,7 @@ function genReport(w){
   const plan=(profile?.current_plan||profile?.week1_plan||'').substring(0,300);
   const text=
 `═══════════════════════════════════════════════════════
-C.L.O.E COACH · REPORTE SEMANA ${w}
+C.L.O.E. COACH · REPORTE SEMANA ${w}
 Usuario: ${profile?.full_name||'—'} · ${new Date().toLocaleDateString('es-ES')}
 ═══════════════════════════════════════════════════════
 
@@ -978,7 +983,7 @@ ${csv||'(no proporcionado)'}
 FOTOS: [ADJUNTAR FRENTE / LATERAL / ESPALDA]
 
 ═══════════════════════════════════════════════════════
-INSTRUCCIÓN PARA C.L.O.E COACH
+INSTRUCCIÓN PARA C.L.O.E. COACH
 ═══════════════════════════════════════════════════════
 Analiza como coach + nutricionista + médico deportivo:
 

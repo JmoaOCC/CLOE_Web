@@ -156,7 +156,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <div class="mact">
       <button class="btn" onclick="saveEdit()">💾 Guardar</button>
       <button class="btn sec" onclick="advWeek()">Avanzar semana →</button>
-      <button class="btn dan" onclick="delUser()">🗑️ Eliminar</button>
+      <button class="btn dan" onclick="delUser()">Desactivar</button>
       <button class="btn sec" onclick="close('m-edit')">Cerrar</button>
     </div>
   </div>
@@ -236,7 +236,7 @@ function renderTable(){
       <td>
         <button class="abtn p" onclick="openEdit('${u.id}')">Editar</button>
         <button class="abtn" onclick="advWeekDirect('${u.id}',${w})">S→</button>
-        <button class="abtn d" onclick="delDirect('${u.id}')">✕</button>
+        <button class="abtn d" onclick="delDirect('${u.id}')">Desactivar</button>
       </td>
     </tr>`;
   }).join('');
@@ -262,6 +262,15 @@ function genPass(){
   pb.classList.add('on');
 }
 
+async function waitForProfile(uid){
+  for(let i=0;i<6;i++){
+    const {data}=await sb.from('profiles').select('id').eq('id',uid).maybeSingle();
+    if(data) return data;
+    await new Promise(resolve=>setTimeout(resolve,350));
+  }
+  return null;
+}
+
 async function createUser(){
   const name=document.getElementById('c-name').value.trim();
   const email=document.getElementById('c-email').value.trim();
@@ -275,6 +284,12 @@ async function createUser(){
 
   if(!name||!email||!pass){toast('Nombre, email y contraseña son obligatorios.');return;}
   if(pass.length<8){toast('La contraseña debe tener al menos 8 caracteres.');return;}
+  const {data:existingProfile,error:existingError}=await sb.from('profiles').select('id,email,status').eq('email',email).maybeSingle();
+  if(existingError){toast('Error comprobando email existente: '+existingError.message);return;}
+  if(existingProfile){
+    toast('Ese email ya existe en el sistema. Usa otro o reactiva/edita el usuario existente.');
+    return;
+  }
 
   const {data:{session:currentSession}}=await sb.auth.getSession();
   const previousSession=currentSession||adminSession;
@@ -287,17 +302,31 @@ async function createUser(){
     adminSession=previousSession;
   }
   if(error){toast('Error auth: '+error.message);return;}
+  if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){
+    toast('Ese email ya existe en Supabase Auth. Usa otro email o revisa Authentication > Users.');
+    return;
+  }
   const uid=data.user?.id;
   if(!uid){toast('No se pudo obtener el ID. Intenta de nuevo.');return;}
 
-  const {error:pe}=await sb.from('profiles').upsert({
-    id:uid, full_name:name, email, role:'user', status:'pending',
+  const profilePayload={
+    full_name:name, email, role:'user', status:'pending',
     week:1, age, sex, weight_kg:weight, height_cm:height, goal,
     week1_plan:plan||null,
     current_plan:plan||null,
     created_at:new Date().toISOString()
-  });
-  if(pe){toast('Error perfil: '+pe.message);return;}
+  };
+  const createdProfile=await waitForProfile(uid);
+  const {error:pe}=createdProfile
+    ? await sb.from('profiles').update(profilePayload).eq('id',uid)
+    : await sb.from('profiles').upsert({id:uid,...profilePayload});
+  if(pe){
+    if(pe.message?.includes('profiles_id_fkey')){
+      toast('No se pudo enlazar el usuario con Auth. Suele pasar si el email ya existe en Supabase Auth o si la confirmación de email está interfiriendo. Prueba con otro email o revisa Authentication > Users.');
+      return;
+    }
+    toast('Error perfil: '+pe.message);return;
+  }
 
   close('m-create');
   toast(`✅ Usuario ${name} creado. Email: ${email}`);
