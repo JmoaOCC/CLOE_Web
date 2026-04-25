@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>C.L.O.E. COACH</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>C.L.O.E COACH</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
-.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
 .sidebar{background:#101622;padding:22px 18px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto}
 .brand{font-size:26px;font-weight:800;margin-bottom:2px}.brand span{color:var(--accent)}
-.tagline{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:18px}
-.user-info{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:16px}
+.tagline{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:14px}
+.user-info{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:14px}
 .user-name{font-size:13px;font-weight:700;margin-bottom:2px}
 .user-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
 .ns{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:10px 0 4px}
@@ -22,70 +22,117 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .nav button:hover{background:var(--surface2);color:var(--text)}
 .nav button.on{background:var(--surface2);color:var(--accent);border-left:2px solid var(--accent)}
 .nav button .ic{font-size:14px;width:18px;text-align:center}
-.week-pill{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);padding:8px 12px;border-radius:10px;margin-top:auto;color:var(--muted)}
+.week-pill{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);padding:8px 12px;border-radius:10px;color:var(--muted);margin-top:auto}
 .week-pill span{color:var(--accent);font-weight:500}
 .main{padding:26px;overflow-y:auto}
 .ph{margin-bottom:20px}.ph h1{font-size:22px;font-weight:800}
 .ph p{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin-bottom:20px}
 .card{background:var(--surface);padding:15px;border-radius:14px;border:1px solid var(--border)}
 .cl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-.cv{font-size:28px;font-weight:800;font-family:'DM Mono',monospace}
+.cv{font-size:26px;font-weight:800;font-family:'DM Mono',monospace}
 .cv.a{color:var(--accent)}.cv.b{color:var(--accent2)}.cv.o{color:var(--accent3)}
 .cs{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
 .stitle{font-size:13px;font-weight:800;margin:20px 0 10px;display:flex;align-items:center;gap:8px}
 .stitle::after{content:'';flex:1;height:1px;background:var(--border)}
-/* plan viewer */
-.plan-viewer{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.day-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.day-tab{font-family:'DM Mono',monospace;font-size:11px;padding:7px 12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s}
+.day-tab:hover{color:var(--text)}
+.day-tab.active{background:var(--accent);color:#111;border-color:var(--accent);font-weight:500}
+.workout-block{background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:14px}
+.workout-header{background:var(--surface2);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.workout-title{font-size:13px;font-weight:800}
+.workout-badge{font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:6px}
+.wb-s{color:var(--accent3);border:1px solid var(--accent3)}
+.wb-r{color:var(--accent);border:1px solid var(--accent)}
+.wb-rest{color:var(--muted);border:1px solid var(--border)}
+.workout-body{padding:16px}
+.exercise-row{padding:10px 12px;border-radius:10px;background:var(--surface2);margin-bottom:8px;border:1px solid transparent}
+.ex-top{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center}
+.ex-name{font-size:13px;font-weight:700}
+.ex-detail{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.ex-rir{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);background:rgba(241,161,53,.1);padding:3px 8px;border-radius:6px}
+.ex-prog{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2)}
+.ex-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.intervals-block{background:#070e1c;border-radius:12px;border:1px solid var(--border);padding:14px;margin-bottom:10px;position:relative}
+.intervals-block pre{white-space:pre-wrap;color:var(--accent);line-height:1.9;font-size:12px;font-family:'DM Mono',monospace}
+.copy-btn{position:absolute;top:10px;right:10px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent)}
+.session-goal{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding:10px 12px;background:var(--surface2);border-radius:8px;margin-top:10px;line-height:1.7;border-left:2px solid var(--accent2)}
+.meal-day-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.meal-day-tab{font-family:'DM Mono',monospace;font-size:10px;padding:6px 11px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer}
+.meal-day-tab.active{color:var(--accent);border-color:var(--accent)}
+.macro-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.macro-item{text-align:center;background:var(--surface2);padding:10px;border-radius:10px}
+.macro-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--accent)}
+.macro-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;text-transform:uppercase}
+.meal-block{background:var(--surface2);border-radius:12px;padding:14px;border:1px solid var(--border);margin-bottom:10px}
+.meal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.meal-name{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:1px;text-transform:uppercase}
+.meal-kcal{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.meal-macros{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);margin-top:2px}
+.food-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(43,52,72,.4)}
+.food-row:last-child{border-bottom:none}
+.food-name{font-size:12px}
+.food-amount{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.etag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 5px;border-radius:4px;margin-left:5px;background:rgba(91,156,246,.1);color:var(--accent2);border:1px solid rgba(91,156,246,.2)}
+.nutrition-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--bg);border-radius:8px;border-left:2px solid var(--accent3);line-height:1.7;margin-top:6px}
+.plan-viewer{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px}
 .plan-viewer-hdr{background:var(--surface2);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
 .plan-viewer-title{font-size:13px;font-weight:800}
-.plan-viewer-body{padding:18px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;max-height:600px;overflow-y:auto}
-.plan-viewer-body.empty{color:var(--muted);font-style:italic}
-/* checklist */
+.plan-viewer-body{padding:18px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;max-height:70vh;overflow-y:auto}
+.plan-viewer-body.empty{color:var(--muted)}
 .chk{display:flex;align-items:center;gap:12px;padding:10px;background:var(--surface2);border-radius:10px;margin-bottom:7px;cursor:pointer;border:1px solid var(--border);transition:all .2s}
 .chk.done{border-color:var(--accent);background:rgba(200,241,53,.04)}
-.chkbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:all .2s}
+.chkbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
 .chk.done .chkbox{background:var(--accent);border-color:var(--accent);color:#111}
 .chkt{font-size:12px;font-weight:700}
 .chks{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:1px}
-/* report */
-.report-area{width:100%;background:#070e1c;color:var(--accent);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.9;min-height:340px;resize:vertical;outline:none}
+.report-area{width:100%;background:#070e1c;color:var(--accent);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.9;min-height:320px;resize:vertical;outline:none}
 .alert{background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:11px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:12px;line-height:1.6}
 .btn{background:var(--accent);color:#111;border:none;padding:10px 18px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:12px;cursor:pointer;transition:opacity .2s;white-space:nowrap}
 .btn:hover{opacity:.85}
 .btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-input,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border .2s}
+input,textarea,label{font-family:'DM Mono',monospace}
+input,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:10px;font-size:12px;outline:none;transition:border .2s}
 input:focus,textarea:focus{border-color:var(--accent2)}
-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:block;margin-top:10px;margin-bottom:3px}
+label{font-size:10px;color:var(--muted);display:block;margin-top:10px;margin-bottom:3px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-/* loading */
-.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'DM Mono',monospace;color:var(--muted)}
-@media(max-width:860px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto;padding:14px}}
+.plan-row{display:grid;grid-template-columns:70px 100px 1fr;gap:10px;align-items:center;padding:9px 12px;background:var(--surface2);border-radius:10px;font-family:'DM Mono',monospace;font-size:11px;margin-bottom:6px}
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'DM Mono',monospace;color:var(--muted);font-size:13px}
+@media(max-width:860px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}}
 </style>
 </head>
 <body>
 
-<div id="loading-screen" class="loading-screen">Cargando tu plan...</div>
+<div id="loading-screen" class="loading-screen">Cargando tu plan CLOE...</div>
 
 <div class="app" id="app-shell" style="display:none">
 <aside class="sidebar">
-  <div class="brand">C.L.O.E. <span>COACH</span></div>
+  <div class="brand">C.L.O.E <span>COACH</span></div>
   <div class="tagline">DOCE ENGINE</div>
   <div class="user-info">
     <div class="user-name" id="sb-name">—</div>
-    <div class="user-meta" id="sb-meta">—</div>
+    <div class="user-meta" id="sb-goal">—</div>
   </div>
-  <div class="ns">App</div>
+  <div class="ns">Core</div>
   <div class="nav">
     <button class="on" onclick="view('dashboard')"><span class="ic">⚡</span>Dashboard</button>
-    <button onclick="view('plan')"><span class="ic">📋</span>Mi plan</button>
-    <button onclick="view('report')"><span class="ic">📊</span>Reporte semanal</button>
+    <button onclick="view('training')"><span class="ic">🏋️</span>Fuerza</button>
+    <button onclick="view('running')"><span class="ic">🏃</span>Running</button>
+    <button onclick="view('nutrition')"><span class="ic">🥗</span>Nutrición DOCE</button>
+  </div>
+  <div class="ns">Gestión</div>
+  <div class="nav">
+    <button onclick="view('plan')"><span class="ic">📅</span>Plan 16 semanas</button>
+    <button onclick="view('myplan')"><span class="ic">📋</span>Mi plan completo</button>
+    <button onclick="view('report')"><span class="ic">📊</span>Generar reporte</button>
     <button onclick="view('checkin')"><span class="ic">✅</span>Checklist</button>
   </div>
-  <div class="week-pill">
+  <div class="week-pill" style="margin-top:16px">
     Semana <span id="sb-week">1</span>/16 · <span id="sb-phase">BASE</span>
   </div>
-  <div style="margin-top:12px">
+  <div style="margin-top:10px">
     <button class="btn sec" style="width:100%;padding:8px;font-size:11px" onclick="logout()">Cerrar sesión</button>
   </div>
 </aside>
@@ -93,258 +140,505 @@ label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:
 </div>
 
 <script>
-const SB_URL='https://wxvgxcogrlcflxldaemw.supabase.co';
-const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
-const {createClient}=supabase;
-const sb=createClient(SB_URL,SB_KEY);
+// ── CONFIG ────────────────────────────────────────────────
+const SB_URL = 'https://TU_PROYECTO.supabase.co';
+const SB_KEY = 'TU_ANON_KEY';
+// ─────────────────────────────────────────────────────────
 
-let profile=null;
-let checklist={};
-let currentView='dashboard';
+const {createClient} = supabase;
+const sb = createClient(SB_URL, SB_KEY);
 
-function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÍFICO';}
+let profile = null;
+let checklist = {};
+let currentView = 'dashboard';
+let trainingTab = 0;
+let runningTab = 0;
+let nutritionTab = 0;
 
-(async()=>{
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='login.html';return;}
+const DAYS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const DAYLABELS = ['FUERZA A','INTERVALOS','DESCANSO','FUERZA B','TEMPO','TIRADA LARGA','DESCANSO'];
+const DAYTYPES = ['strength','running','rest','strength','running','running','rest'];
 
-  const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
-  if(error||!data){
-    document.getElementById('loading-screen').textContent='No se pudo cargar tu perfil: '+(error?.message||'perfil no encontrado');
-    return;
-  }
-  if(data.role==='admin'){window.location.href='admin.html';return;}
-
-  profile=data;
-  // Cargar checklist desde localStorage (por usuario)
-  const saved=localStorage.getItem('cloe_chk_'+profile.id);
-  if(saved) checklist=JSON.parse(saved);
-
-  document.getElementById('sb-name').textContent=profile.full_name||'—';
-  document.getElementById('sb-meta').textContent=(profile.goal||'—');
-  document.getElementById('sb-week').textContent=profile.week||1;
-  document.getElementById('sb-phase').textContent=phase(profile.week||1);
-
-  document.getElementById('loading-screen').style.display='none';
-  document.getElementById('app-shell').style.display='grid';
-
-  view('dashboard');
-})();
-
-function view(v){
-  currentView=v;
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
-  const map={dashboard:0,plan:1,report:2,checkin:3};
-  document.querySelectorAll('.nav button')[map[v]]?.classList.add('on');
-  render();
+function phase(w){ return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÍFICO'; }
+function getPaces(w){
+  if(w<=4)  return {easy:'6:45',tempo:'5:50',interval:'5:20'};
+  if(w<=8)  return {easy:'6:30',tempo:'5:40',interval:'5:10'};
+  if(w<=12) return {easy:'6:15',tempo:'5:30',interval:'5:00'};
+  return          {easy:'6:00',tempo:'5:20',interval:'4:55'};
 }
 
-function render(){
-  const c=document.getElementById('main');
-  const w=profile?.week||1;
-  switch(currentView){
-    case 'dashboard': c.innerHTML=renderDashboard(w); break;
-    case 'plan':      c.innerHTML=renderPlan(w); break;
-    case 'report':    c.innerHTML=renderReport(w); break;
-    case 'checkin':   c.innerHTML=renderCheckin(w); break;
-  }
-}
-
-function renderDashboard(w){
-  const checks=Object.keys(checklist).filter(k=>k.startsWith(`w${w}_`)&&checklist[k]).length;
-  const hasPlan=!!(profile?.current_plan||profile?.week1_plan);
-  return `
-  <div class="ph"><h1>Hola, ${(profile?.full_name||'').split(' ')[0] || 'coach'} 👋</h1>
-  <p>Semana ${w} · ${phase(w)} · ${profile?.goal||'—'}</p></div>
-  <div class="cards">
-    <div class="card"><div class="cl">Semana</div><div class="cv a">S${w}</div><div class="cs">${phase(w)}</div></div>
-    <div class="card"><div class="cl">Checks hoy</div><div class="cv b">${checks}</div><div class="cs">de 7</div></div>
-    <div class="card"><div class="cl">Plan</div><div class="cv o">${hasPlan?'✓':'—'}</div><div class="cs">${hasPlan?'disponible':'pendiente'}</div></div>
-    <div class="card"><div class="cl">Objetivo</div><div class="cv" style="font-size:14px;margin-top:4px">${profile?.goal||'—'}</div></div>
-  </div>
-  <div class="stitle">Acceso rápido</div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap">
-    <button class="btn" onclick="view('plan')">📋 Ver mi plan</button>
-    <button class="btn sec" onclick="view('report')">📊 Generar reporte</button>
-    <button class="btn sec" onclick="view('checkin')">✅ Checklist del día</button>
-  </div>
-  ${!hasPlan?`<div style="margin-top:20px;padding:14px;background:rgba(241,161,53,.07);border:1px solid rgba(241,161,53,.25);border-radius:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent3);line-height:1.7">
-    ⏳ Tu plan de Semana 1 está siendo preparado por tu coach. Aparecerá aquí en cuanto esté listo.
-  </div>`:''}`;
-}
-
-function renderPlan(w){
-  const plan=profile?.current_plan||profile?.week1_plan;
-  return `
-  <div class="ph"><h1>Mi plan — Semana ${w}</h1><p>${phase(w)} · ${profile?.goal||'—'}</p></div>
-  <div class="plan-viewer">
-    <div class="plan-viewer-hdr">
-      <div class="plan-viewer-title">Plan semana ${w} · ${phase(w)}</div>
-      ${plan?`<button class="btn sec" style="padding:5px 12px;font-size:10px" onclick="copyPlan()">📋 Copiar</button>`:''}
-    </div>
-    <div class="plan-viewer-body ${plan?'':'empty'}" id="plan-body">
-${plan||'Tu coach está preparando tu plan. Aparecerá aquí cuando esté listo.'}
-    </div>
-  </div>`;
-}
-
-function copyPlan(){
-  const text=document.getElementById('plan-body').textContent;
-  navigator.clipboard.writeText(text).then(()=>{
-    const b=document.querySelector('.plan-viewer-hdr .btn');
-    if(b){b.textContent='✅ Copiado';setTimeout(()=>b.textContent='📋 Copiar',2000);}
+// ── EXERCISES ────────────────────────────────────────────
+const EX_A = [
+  {name:'Prensa de piernas',    muscle:'Cuádriceps / Glúteo', sets:3,reps:'8', rir:'RIR 3',key:'prensa',    prog:'inferior'},
+  {name:'Press banca plano',    muscle:'Pectoral / Tríceps',  sets:3,reps:'8', rir:'RIR 2',key:'banca',     prog:'upper'},
+  {name:'Remo con barra',       muscle:'Dorsal / Bíceps',     sets:3,reps:'10',rir:'RIR 2',key:'remo',      prog:'upper'},
+  {name:'Peso muerto rumano',   muscle:'Isquios / Glúteo',    sets:3,reps:'10',rir:'RIR 2',key:'rdl',       prog:'inferior'},
+  {name:'Elevaciones laterales',muscle:'Deltoides lateral',   sets:3,reps:'15',rir:'RIR 1',key:'laterales', prog:'upper'},
+];
+const EX_B = [
+  {name:'Hack squat',                 muscle:'Cuádriceps',     sets:3,reps:'8', rir:'RIR 3',key:'hack',     prog:'inferior'},
+  {name:'Press inclinado mancuernas', muscle:'Pectoral alto',  sets:3,reps:'10',rir:'RIR 2',key:'inclin',   prog:'upper'},
+  {name:'Jalón al pecho',             muscle:'Dorsal / Bíceps',sets:3,reps:'10',rir:'RIR 2',key:'jalon',    prog:'upper'},
+  {name:'Hip thrust',                 muscle:'Glúteo máximo',  sets:3,reps:'10',rir:'RIR 2',key:'hipthrust',prog:'inferior'},
+  {name:'Face pull',                  muscle:'Deltoides post.',sets:3,reps:'15',rir:'RIR 1',key:'facepull', prog:'upper'},
+];
+function getExercises(day, w){
+  return (day==='A'?EX_A:EX_B).map(ex=>{
+    let s=ex.sets;
+    if(w>=5&&['prensa','remo','hack','jalon','rdl','hipthrust'].includes(ex.key)) s=4;
+    if(w>=9) s=Math.min(s+1,5);
+    return {...ex,sets:s};
   });
 }
 
-function renderReport(w){
+// ── RUNNING ───────────────────────────────────────────────
+function runIntervals(w){
+  const p=getPaces(w);
+  let sets,dist,wMin,rDur,rKm;
+  if(w<=4){sets=6;dist='400m';wMin='2m30s';rDur='2m';rKm='0.22km';}
+  else if(w<=8){sets=8;dist='400m';wMin='2m30s';rDur='90s';rKm='0.18km';}
+  else if(w<=12){sets=6;dist='800m';wMin='5m';rDur='2m';rKm='0.22km';}
+  else{sets=4;dist='1200m';wMin='7m';rDur='2m30s';rKm='0.27km';}
+  const wKm=dist==='400m'?'0.40km':dist==='800m'?'0.80km':'1.20km';
+  return {
+    label:'INTERVALOS', day:'Martes',
+    fmt:`Warmup\n10m ${p.easy}/km (1.4km) Pace\n\nMain set ${sets}x\n${wMin} ${p.interval}/km (${wKm}) Pace\n${rDur} ${p.easy}/km (${rKm}) Pace\n\nCooldown\n10m ${p.easy}/km (1.4km) Pace`,
+    goal:`${sets}×${dist} a ${p.interval}/km. Recuperación ${rDur} trot suave. Economía de carrera.`
+  };
+}
+function runTempo(w){
+  const p=getPaces(w);
+  const dur=w<=4?20:w<=8?25:w<=12?30:35;
+  const [mm,ss]=p.tempo.split(':').map(Number);
+  const km=(dur/(mm+ss/60)).toFixed(1);
+  return {
+    label:'TEMPO', day:'Viernes',
+    fmt:`Warmup\n10m ${p.easy}/km (1.4km) Pace\n\nMain set\n${dur}m ${p.tempo}/km (~${km}km) Pace\n\nCooldown\n10m ${p.easy}/km (1.4km) Pace`,
+    goal:`${dur}min a ${p.tempo}/km. Umbral de lactato. Esfuerzo controlado.`
+  };
+}
+function runLong(w){
+  const p=getPaces(w);
+  const dur=w<=4?50:w<=8?65:w<=12?75:90;
+  const [mm,ss]=p.easy.split(':').map(Number);
+  const km=(dur/(mm+ss/60)).toFixed(1);
+  return {
+    label:'TIRADA LARGA', day:'Sábado',
+    fmt:`Easy Run\n${dur}m ${p.easy}/km (~${km}km) Pace`,
+    goal:`${dur}min completamente conversacional. Base aeróbica. No superes ${p.easy}/km.`
+  };
+}
+
+// ── NUTRITION ────────────────────────────────────────────
+// Adapta macros al perfil del usuario
+function getNutrition(){
+  // Si tenemos macros del perfil, los usamos; si no, defaults
+  const kcal = profile?.kcal || 2475;
+  const prot = profile?.protein || 154;
+  const carbs = profile?.carbs || 310;
+  const fat = profile?.fat || 69;
+  const kcalRest = Math.round(kcal * 0.87);
+  const carbsRest = Math.round(carbs * 0.82);
+
+  return {
+    training: {
+      kcal, protein:prot, carbs, fat,
+      timing:'⏰ Pre-entreno (1-2h antes): HC + P, bajo en grasa. Post (≤2h): HC + P para recuperación.',
+      meals:[
+        {name:'Desayuno', kcal:Math.round(kcal*0.19), p:Math.round(prot*0.23), hc:Math.round(carbs*0.19), g:Math.round(fat*0.14),
+         note:'HC complejos + proteína. Energía para el día.',
+         items:[{f:'Avena en copos',a:'70g',e:'HC'},{f:'Plátano',a:'1 ud · 120g',e:'HC'},{f:'Whey protein',a:'30g',e:'P'},{f:'Leche semidesnatada',a:'200ml',e:'P+HC'}]},
+        {name:'Comida principal', kcal:Math.round(kcal*0.29), p:Math.round(prot*0.32), hc:Math.round(carbs*0.29), g:Math.round(fat*0.20),
+         note:'Comida más grande. HC + P + verdura + grasa de calidad.',
+         items:[{f:'Pechuga de pollo',a:'180g cocinada',e:'P'},{f:'Arroz blanco',a:'75g seco',e:'HC'},{f:'Verduras salteadas',a:'200g',e:'libre'},{f:'AOVE',a:'10g',e:'G'}]},
+        {name:'Merienda / Pre-entreno', kcal:Math.round(kcal*0.16), p:Math.round(prot*0.18), hc:Math.round(carbs*0.17), g:Math.round(fat*0.12),
+         note:'60-90min antes del entreno. HC rápidos + proteína.',
+         items:[{f:'Yogur griego 0%',a:'200g',e:'P'},{f:'Avena',a:'35g',e:'HC'},{f:'Miel',a:'10g',e:'HC'},{f:'½ plátano',a:'60g',e:'HC'}]},
+        {name:'Cena / Post-entreno', kcal:Math.round(kcal*0.26), p:Math.round(prot*0.30), hc:Math.round(carbs*0.25), g:Math.round(fat*0.20),
+         note:'Dentro de las 2h post-entreno. HC + P para recuperación muscular.',
+         items:[{f:'Salmón al horno',a:'160g',e:'P+G'},{f:'Patata cocida',a:'270g',e:'HC'},{f:'Ensalada grande',a:'150g',e:'libre'},{f:'AOVE',a:'8g',e:'G'}]},
+        {name:'Post-cena', kcal:Math.round(kcal*0.10), p:Math.round(prot*0.14), hc:Math.round(carbs*0.07), g:Math.round(fat*0.12),
+         note:'Proteína lenta. Preserva músculo durante la noche.',
+         items:[{f:'Requesón / Cottage 0%',a:'180g',e:'P'},{f:'Nueces',a:'15g',e:'G'},{f:'Frutos rojos',a:'70g',e:'HC'}]},
+      ]
+    },
+    rest: {
+      kcal:kcalRest, protein:prot, carbs:carbsRest, fat,
+      timing:'💤 Día descanso: −HC, proteína intacta.',
+      meals:[
+        {name:'Desayuno', kcal:Math.round(kcalRest*0.20), p:Math.round(prot*0.21), hc:Math.round(carbsRest*0.17), g:Math.round(fat*0.22),
+         note:'Más proteína animal, menos HC.',
+         items:[{f:'Huevos revueltos',a:'3 uds',e:'P+G'},{f:'Pan integral',a:'55g',e:'HC'},{f:'Aguacate',a:'50g',e:'G'},{f:'Tomate',a:'1 ud',e:'libre'}]},
+        {name:'Comida principal', kcal:Math.round(kcalRest*0.31), p:Math.round(prot*0.32), hc:Math.round(carbsRest*0.28), g:Math.round(fat*0.21),
+         note:'Reducir HC respecto a días de entreno.',
+         items:[{f:'Pavo o pollo',a:'180g',e:'P'},{f:'Quinoa',a:'65g seco',e:'HC'},{f:'Verduras al vapor',a:'250g',e:'libre'},{f:'AOVE',a:'10g',e:'G'}]},
+        {name:'Merienda', kcal:Math.round(kcalRest*0.13), p:Math.round(prot*0.19), hc:Math.round(carbsRest*0.11), g:Math.round(fat*0.09),
+         note:'Sin carbos rápidos. Proteína + fibra.',
+         items:[{f:'Yogur griego 0%',a:'200g',e:'P'},{f:'Frutos rojos',a:'100g',e:'HC'},{f:'Whey protein',a:'15g',e:'P'}]},
+        {name:'Cena', kcal:Math.round(kcalRest*0.26), p:Math.round(prot*0.28), hc:Math.round(carbsRest*0.21), g:Math.round(fat*0.23),
+         note:'Ligera. Proteína + HC moderado.',
+         items:[{f:'Merluza al horno',a:'180g',e:'P'},{f:'Boniato asado',a:'180g',e:'HC'},{f:'Ensalada',a:'150g',e:'libre'},{f:'AOVE',a:'8g',e:'G'}]},
+        {name:'Post-cena', kcal:Math.round(kcalRest*0.10), p:Math.round(prot*0.14), hc:Math.round(carbsRest*0.06), g:Math.round(fat*0.12),
+         note:'Igual que días de entreno. Clave para recomposición.',
+         items:[{f:'Requesón / Cottage 0%',a:'180g',e:'P'},{f:'Nueces',a:'15g',e:'G'}]},
+      ]
+    }
+  };
+}
+
+// ── INIT ─────────────────────────────────────────────────
+(async()=>{
+  const {data:{session}} = await sb.auth.getSession();
+  if(!session){ window.location.href='login.html'; return; }
+
+  const {data, error} = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+  if(error || !data){ window.location.href='login.html'; return; }
+  if(data.role === 'admin'){ window.location.href='admin.html'; return; }
+
+  profile = data;
+  const saved = localStorage.getItem('cloe_chk_'+profile.id);
+  if(saved) checklist = JSON.parse(saved);
+
+  document.getElementById('sb-name').textContent = profile.full_name || '—';
+  document.getElementById('sb-goal').textContent = profile.goal || '—';
+  document.getElementById('sb-week').textContent = profile.week || 1;
+  document.getElementById('sb-phase').textContent = phase(profile.week || 1);
+
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('app-shell').style.display='grid';
+  view('dashboard');
+})();
+
+// ── VIEW ROUTER ───────────────────────────────────────────
+function view(v){
+  currentView = v;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
+  const map = {dashboard:0,training:1,running:2,nutrition:3,plan:4,myplan:5,report:6,checkin:7};
+  document.querySelectorAll('.nav button')[map[v]]?.classList.add('on');
+  document.getElementById('main').innerHTML = renderView();
+}
+
+function renderView(){
+  const w = profile?.week || 1;
+  switch(currentView){
+    case 'dashboard':  return renderDashboard(w);
+    case 'training':   return renderTraining(w);
+    case 'running':    return renderRunning(w);
+    case 'nutrition':  return renderNutrition(w);
+    case 'plan':       return renderPlan(w);
+    case 'myplan':     return renderMyPlan(w);
+    case 'report':     return renderReport(w);
+    case 'checkin':    return renderCheckin(w);
+  }
+  return '';
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────
+function renderDashboard(w){
+  const p = getPaces(w);
+  const today = new Date().toISOString().slice(0,10);
+  const checks = Object.keys(checklist).filter(k=>k.startsWith(`w${w}_${today}_`)&&checklist[k]).length;
+  const hasPlan = !!(profile?.current_plan || profile?.week1_plan);
   return `
-  <div class="ph"><h1>Reporte semanal</h1><p>Genera el texto para enviárselo a tu coach</p></div>
-  <div class="alert">1. Rellena los datos · 2. Pulsa "Generar reporte" · 3. Cópialo y envíaselo a tu coach junto con fotos y CSV de Intervals</div>
-  <div class="g2">
-    <div><label>Peso esta semana (kg)</label><input type="number" id="r-weight" placeholder="72.5" step="0.1"></div>
-    <div><label>Cintura (cm)</label><input type="number" id="r-waist" placeholder="82"></div>
-    <div><label>Energía media (1-10)</label><input type="number" id="r-energy" placeholder="7" min="1" max="10"></div>
-    <div><label>Hambre media (1-10)</label><input type="number" id="r-hunger" placeholder="5" min="1" max="10"></div>
-    <div><label>Sueño medio (h)</label><input type="number" id="r-sleep" placeholder="7.2" step="0.5"></div>
-    <div><label>Adherencia entreno (%)</label><input type="number" id="r-adh" placeholder="90"></div>
+  <div class="ph">
+    <h1>Hola, ${(profile?.full_name||'').split(' ')[0]||'coach'} 👋</h1>
+    <p>Semana ${w} · ${phase(w)} · ${profile?.goal||'—'}</p>
   </div>
-  <label>Datos CSV Intervals.icu (pega aquí o describe)</label>
-  <textarea id="r-intervals" rows="3" placeholder="Distancia total, TSS, ritmo medio, sesiones completadas..."></textarea>
-  <label>Observaciones libres</label>
-  <textarea id="r-notes" rows="3" placeholder="Cómo fue la semana, dolores, fatiga, logros, bloqueos..."></textarea>
-  <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-    <button class="btn" onclick="genReport(${w})">📋 Generar reporte</button>
+  <div class="cards">
+    <div class="card"><div class="cl">Adherencia hoy</div><div class="cv a">${Math.round(checks/7*100)}%</div><div class="cs">${checks}/7 checks</div></div>
+    <div class="card"><div class="cl">Kcal objetivo</div><div class="cv b">${profile?.kcal||2475}</div><div class="cs">${profile?.protein||154}P · ${profile?.carbs||310}HC · ${profile?.fat||69}G</div></div>
+    <div class="card"><div class="cl">Bloque</div><div class="cv">S${w}/16</div><div class="cs">${phase(w)}</div></div>
+    <div class="card"><div class="cl">Ritmo easy hoy</div><div class="cv o">${p.easy}</div><div class="cs">/km · S${w}</div></div>
   </div>
-  <div id="report-out" style="display:none;margin-top:18px">
-    <div class="stitle">Reporte generado</div>
-    <textarea class="report-area" id="report-text" readonly></textarea>
-    <div style="display:flex;gap:10px;margin-top:12px">
-      <button class="btn" id="copy-report-btn" onclick="copyReport()">📋 Copiar reporte</button>
+  <div class="stitle">Acceso rápido</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+    <button class="btn" onclick="view('training')">🏋️ Fuerza</button>
+    <button class="btn sec" onclick="view('running')">🏃 Running</button>
+    <button class="btn sec" onclick="view('nutrition')">🥗 Nutrición</button>
+    <button class="btn sec" onclick="view('myplan')">📋 Mi plan</button>
+    <button class="btn sec" onclick="view('report')">📊 Reporte</button>
+  </div>
+  ${!hasPlan?`<div style="padding:14px;background:rgba(241,161,53,.07);border:1px solid rgba(241,161,53,.25);border-radius:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent3);line-height:1.7">⏳ Tu plan de Semana 1 está siendo preparado por tu coach.</div>`:''}`;
+}
+
+// ── TRAINING ─────────────────────────────────────────────
+function renderTraining(w){
+  const sel = trainingTab;
+  const exList = getExercises(sel===0?'A':'B', w);
+  return `
+  <div class="ph"><h1>Fuerza · Semana ${w}</h1><p>Principios DOCE · RIR · Sobrecarga progresiva</p></div>
+  <div class="day-tabs">
+    <div class="day-tab ${sel===0?'active':''}" onclick="trainingTab=0;view('training')">Día A · Lunes</div>
+    <div class="day-tab ${sel===1?'active':''}" onclick="trainingTab=1;view('training')">Día B · Jueves</div>
+  </div>
+  <div style="background:rgba(241,161,53,.07);border:1px solid rgba(241,161,53,.25);border-radius:10px;padding:11px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent3);margin-bottom:14px">
+    ⚡ Si completas todas las reps dentro del RIR → próxima semana +2.5kg tren superior / +5kg inferior
+  </div>
+  <div class="workout-block">
+    <div class="workout-header">
+      <div class="workout-title">Día ${sel===0?'A · Lunes':'B · Jueves'}</div>
+      <div class="workout-badge wb-s">FUERZA</div>
+    </div>
+    <div class="workout-body">
+      ${exList.map(ex=>{
+        const prev = parseFloat(localStorage.getItem(`cloe_w${profile.id}_${ex.key}`)||'0');
+        const target = prev>0 ? (prev+(ex.prog==='upper'?2.5:5)) : null;
+        return `<div class="exercise-row">
+          <div class="ex-top">
+            <div>
+              <div class="ex-name">${ex.name}</div>
+              <div class="ex-detail">${ex.sets}×${ex.reps} reps · ${ex.muscle}</div>
+            </div>
+            <div class="ex-rir">${ex.rir}</div>
+            <div class="ex-prog">${target?'→ '+target+'kg':'libre'}</div>
+          </div>
+          <div class="ex-inputs">
+            <div><label>Peso usado (kg)</label><input type="number" placeholder="${target?target+' kg':''}" onchange="saveWeight('${ex.key}',this.value)"></div>
+            <div><label>Reps completadas</label><input type="number" placeholder="${ex.reps}"></div>
+          </div>
+        </div>`;
+      }).join('')}
+      <label>Observaciones</label>
+      <textarea placeholder="Sensaciones, dolor, notas..." rows="2"></textarea>
+      <br><br>
+      <button class="btn" onclick="flashSave(this)">💾 Guardar sesión</button>
     </div>
   </div>`;
 }
 
+// ── RUNNING ───────────────────────────────────────────────
+function renderRunning(w){
+  const sessions = [runIntervals(w), runTempo(w), runLong(w)];
+  const sel = runningTab;
+  const s = sessions[sel];
+  return `
+  <div class="ph"><h1>Running · Semana ${w}</h1><p>Formato Intervals.icu · Ritmos absolutos sin zonas</p></div>
+  <div class="day-tabs">
+    ${sessions.map((ss,i)=>`<div class="day-tab ${i===sel?'active':''}" onclick="runningTab=${i};view('running')">${ss.label}</div>`).join('')}
+  </div>
+  <div class="workout-block">
+    <div class="workout-header">
+      <div class="workout-title">${s.label} · ${s.day}</div>
+      <div class="workout-badge wb-r">RUNNING</div>
+    </div>
+    <div class="workout-body">
+      <div class="intervals-block">
+        <button class="copy-btn" onclick="copyText(this,${JSON.stringify(s.fmt).replace(/"/g,'&quot;')})">📋 Copiar</button>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;letter-spacing:1px;text-transform:uppercase">Intervals.icu — listo para pegar</div>
+        <pre>${s.fmt}</pre>
+      </div>
+      <div class="session-goal">💡 ${s.goal}</div>
+    </div>
+  </div>
+  <div class="stitle">Progresión de ritmos</div>
+  ${[1,5,9,13].map(sw=>{
+    const pp=getPaces(sw); const ph=phase(sw);
+    const active=w>=sw&&w<=(sw+3);
+    return `<div class="plan-row" style="${active?'border:1px solid var(--accent)':''}">
+      <span style="color:${active?'var(--accent)':'var(--accent2)'}">S${sw}–${sw+3}</span>
+      <span style="color:var(--muted)">${ph}</span>
+      <span style="color:var(--muted)">Easy ${pp.easy} · Int ${pp.interval} · Tempo ${pp.tempo}</span>
+    </div>`;
+  }).join('')}`;
+}
+
+// ── NUTRITION ─────────────────────────────────────────────
+function renderNutrition(w){
+  const N = getNutrition();
+  const LABELS = ['Lun (Fuerza A)','Mar (Intervalos)','Mié (Descanso)','Jue (Fuerza B)','Vie (Tempo)','Sáb (Larga)','Dom (Descanso)'];
+  const TYPES  = ['training','training','rest','training','training','training','rest'];
+  const idx = nutritionTab;
+  const isRest = TYPES[idx]==='rest';
+  const nutr = isRest ? N.rest : N.training;
+  return `
+  <div class="ph"><h1>Nutrición DOCE</h1><p>Intercambios · Flexible · 80/20</p></div>
+  <div class="meal-day-tabs">${LABELS.map((l,i)=>`<div class="meal-day-tab ${i===idx?'active':''}" onclick="nutritionTab=${i};view('nutrition')">${l}</div>`).join('')}</div>
+  <div class="macro-bar">
+    <div class="macro-item"><div class="macro-val">${nutr.kcal}</div><div class="macro-label">Kcal</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${nutr.protein}g</div><div class="macro-label">Proteína</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${nutr.carbs}g</div><div class="macro-label">HC</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${nutr.fat}g</div><div class="macro-label">Grasa</div></div>
+  </div>
+  <div class="nutrition-note" style="margin-bottom:14px">${nutr.timing}</div>
+  ${nutr.meals.map(m=>`
+    <div class="meal-block">
+      <div class="meal-header">
+        <div>
+          <div class="meal-name">${m.name}</div>
+          <div class="meal-macros">${m.p}g P · ${m.hc}g HC · ${m.g}g G</div>
+        </div>
+        <div class="meal-kcal">~${m.kcal} kcal</div>
+      </div>
+      ${m.items.map(it=>`<div class="food-row">
+        <span class="food-name">${it.f}<span class="etag">${it.e}</span></span>
+        <span class="food-amount">${it.a}</span>
+      </div>`).join('')}
+      <div class="nutrition-note">💡 ${m.note}</div>
+    </div>
+  `).join('')}`;
+}
+
+// ── PLAN 16 SEMANAS ───────────────────────────────────────
+function renderPlan(w){
+  return `
+  <div class="ph"><h1>Plan 16 semanas</h1><p>${profile?.goal||'—'}</p></div>
+  ${[
+    {c:'var(--accent2)',t:'FASE 1 · BASE (S1–4)',d:'Easy 6:45/km · 6×400 @ 5:20 · Tirada 50min · Fuerza 3 series RIR 3-2'},
+    {c:'var(--accent3)',t:'FASE 2 · VOLUMEN (S5–8)',d:'Easy 6:30/km · 8×400 @ 5:10 · Tirada 65min · Fuerza +1 serie'},
+    {c:'var(--accent)',t:'FASE 3 · RITMO (S9–12)',d:'Tempo 5:30/km · 6×800 @ 5:00 · Tirada 75min · Fuerza intensidad alta'},
+    {c:'#f1356a',t:'FASE 4 · ESPECÍFICO (S13–16)',d:'Tempo 5:20 · 4×1200 @ 4:55 · S15 taper -30% · S16 carrera'},
+  ].map(ph=>`
+    <div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:3px solid ${ph.c}">
+      <div style="font-size:13px;font-weight:800;margin-bottom:6px">${ph.t}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.8">${ph.d}</div>
+    </div>
+  `).join('')}
+  <div class="stitle">Semana a semana</div>
+  ${Array.from({length:16},(_,i)=>i+1).map(sw=>{
+    const p=getPaces(sw); const cur=sw===w;
+    return `<div class="plan-row" style="${cur?'border:1px solid var(--accent)':''}">
+      <span style="color:${cur?'var(--accent)':'var(--accent2)'}">S${sw}${cur?' ◀':''}</span>
+      <span style="color:var(--muted)">${phase(sw)}</span>
+      <span style="color:var(--muted)">${sw===15?'TAPER -30%':sw===16?'🏁 CARRERA':p.easy+' · '+p.interval}</span>
+    </div>`;
+  }).join('')}`;
+}
+
+// ── MI PLAN COMPLETO ──────────────────────────────────────
+function renderMyPlan(w){
+  const plan = profile?.current_plan || profile?.week1_plan;
+  return `
+  <div class="ph"><h1>Mi plan · Semana ${w}</h1><p>Plan personalizado generado por tu coach</p></div>
+  <div class="plan-viewer">
+    <div class="plan-viewer-hdr">
+      <div class="plan-viewer-title">Semana ${w} · ${phase(w)}</div>
+      ${plan?`<button class="btn sec" style="padding:5px 12px;font-size:10px" onclick="copyPlan()">📋 Copiar</button>`:''}
+    </div>
+    <div class="plan-viewer-body ${plan?'':'empty'}" id="plan-body">${plan||'Tu coach está preparando tu plan. Aparecerá aquí en breve.'}</div>
+  </div>`;
+}
+function copyPlan(){
+  navigator.clipboard.writeText(document.getElementById('plan-body').textContent)
+    .then(()=>{const b=document.querySelector('.plan-viewer-hdr .btn');if(b){b.textContent='✅';setTimeout(()=>b.textContent='📋 Copiar',2000);}});
+}
+
+// ── REPORTE ───────────────────────────────────────────────
+function renderReport(w){
+  return `
+  <div class="ph"><h1>Reporte semanal</h1><p>Envíaselo a tu coach con fotos y CSV de Intervals</p></div>
+  <div class="alert">Rellena los datos · pulsa Generar · copia el texto · mándalo a tu coach</div>
+  <div class="g2">
+    <div><label>Peso esta semana (kg)</label><input type="number" id="r-w" placeholder="72.5" step="0.1"></div>
+    <div><label>Cintura (cm)</label><input type="number" id="r-c" placeholder="82"></div>
+    <div><label>Energía media (1-10)</label><input type="number" id="r-e" placeholder="7" min="1" max="10"></div>
+    <div><label>Hambre media (1-10)</label><input type="number" id="r-h" placeholder="5" min="1" max="10"></div>
+    <div><label>Sueño medio (h)</label><input type="number" id="r-s" placeholder="7.2" step="0.5"></div>
+    <div><label>Adherencia entreno (%)</label><input type="number" id="r-a" placeholder="90"></div>
+  </div>
+  <label>CSV Intervals.icu</label>
+  <textarea id="r-csv" rows="3" placeholder="Pega aquí datos de Intervals: distancia, TSS, ritmo medio..."></textarea>
+  <label>Observaciones</label>
+  <textarea id="r-n" rows="3" placeholder="Cómo fue la semana, dolores, logros, bloqueos..."></textarea>
+  <div style="display:flex;gap:10px;margin-top:14px">
+    <button class="btn" onclick="genReport(${w})">📋 Generar reporte</button>
+  </div>
+  <div id="rep-out" style="display:none;margin-top:16px">
+    <div class="stitle">Reporte listo</div>
+    <textarea class="report-area" id="rep-text" readonly></textarea>
+    <button class="btn" id="rep-btn" style="margin-top:10px" onclick="copyReport()">📋 Copiar reporte</button>
+  </div>`;
+}
 function genReport(w){
-  const weight=document.getElementById('r-weight').value;
-  const waist=document.getElementById('r-waist').value;
-  const energy=document.getElementById('r-energy').value;
-  const hunger=document.getElementById('r-hunger').value;
-  const sleep=document.getElementById('r-sleep').value;
-  const adh=document.getElementById('r-adh').value;
-  const intervals=document.getElementById('r-intervals').value;
-  const notes=document.getElementById('r-notes').value;
-
-  const plan=profile?.current_plan||profile?.week1_plan||'(no disponible)';
-
-  const text=
-`═══════════════════════════════════════════════════════
-C.L.O.E. COACH · REPORTE SEMANA ${w}
-Usuario: ${profile?.full_name||'—'}
-Fecha: ${new Date().toLocaleDateString('es-ES')}
+  const wv=document.getElementById('r-w')?.value;
+  const cv=document.getElementById('r-c')?.value;
+  const ev=document.getElementById('r-e')?.value;
+  const hv=document.getElementById('r-h')?.value;
+  const sv=document.getElementById('r-s')?.value;
+  const av=document.getElementById('r-a')?.value;
+  const csv=document.getElementById('r-csv')?.value;
+  const nv=document.getElementById('r-n')?.value;
+  const plan=(profile?.current_plan||profile?.week1_plan||'').substring(0,400);
+  const text=`═══════════════════════════════════════════════════════
+C.L.O.E COACH · REPORTE SEMANA ${w}
+Usuario: ${profile?.full_name||'—'} · ${new Date().toLocaleDateString('es-ES')}
 ═══════════════════════════════════════════════════════
+Objetivo: ${profile?.goal||'—'} · Semana ${w}/16 · ${phase(w)}
 
-── PERFIL ─────────────────────────────────────────────
-Nombre:   ${profile?.full_name||'—'}
-Edad:     ${profile?.age||'—'} · Sexo: ${profile?.sex||'—'}
-Peso ini: ${profile?.weight_kg||'—'} kg · Altura: ${profile?.height_cm||'—'} cm
-Objetivo: ${profile?.goal||'—'}
-Semana:   ${w}/16 · Fase: ${phase(w)}
+MÉTRICAS
+Peso: ${wv||'n/d'} kg · Cintura: ${cv||'n/d'} cm
+Energía: ${ev||'n/d'}/10 · Hambre: ${hv||'n/d'}/10
+Sueño: ${sv||'n/d'}h · Adherencia entreno: ${av||'n/d'}%
+Observaciones: ${nv||'ninguna'}
 
-── MÉTRICAS SEMANA ${w} ──────────────────────────────────
-Peso:              ${weight||'n/d'} kg
-Cintura:           ${waist||'n/d'} cm
-Energía (1-10):    ${energy||'n/d'}
-Hambre (1-10):     ${hunger||'n/d'}
-Sueño medio:       ${sleep||'n/d'} h
-Adherencia entreno:${adh||'n/d'} %
-Observaciones:     ${notes||'ninguna'}
+CSV INTERVALS
+${csv||'(no proporcionado)'}
 
-── CSV INTERVALS.ICU ──────────────────────────────────
-${intervals||'(no proporcionado)'}
+FOTOS: [ADJUNTAR FRENTE / LATERAL / ESPALDA]
 
-── FOTOS PROGRESO ─────────────────────────────────────
-[ADJUNTAR FOTOS FRENTE / LATERAL / ESPALDA]
-
-── PLAN QUE SE ESTABA SIGUIENDO ──────────────────────
-${plan.substring(0,500)}${plan.length>500?'\n... (plan completo en el historial)':''}
+PLAN SEMANA ${w} (resumen)
+${plan}${plan.length>=400?'...':''}
 
 ═══════════════════════════════════════════════════════
-INSTRUCCIÓN PARA C.L.O.E. COACH
-═══════════════════════════════════════════════════════
-
-Con todos los datos anteriores (incluyendo fotos y CSV),
-analiza como coach + nutricionista + médico deportivo:
-
-1. ANÁLISIS RENDIMIENTO
-   Fuerza y running: progresión, ritmos, carga
-
-2. ANÁLISIS COMPOSICIÓN CORPORAL
-   Tendencia peso · cintura · fotos
-
-3. ANÁLISIS RECUPERACIÓN
-   Sueño · energía · señales fatiga
-
-4. ALERTAS O RIESGOS
-   Lesión potencial · déficit extremo · sobreentrenamiento
-
-5. AJUSTES SEMANA SIGUIENTE
-   Cambios concretos justificados
-
-6. SEMANA ${w+1} COMPLETA:
-   A. Fuerza (día A + día B con pesos objetivo)
-   B. Running (3 sesiones formato Intervals.icu)
-   C. Nutrición (ajustes si procede)
-   D. Objetivos de la semana
-
-Sé directo. Sin teoría. Como coach real.
+Analiza como coach + nutricionista + médico deportivo:
+1. Rendimiento (fuerza + running)
+2. Composición corporal
+3. Recuperación
+4. Alertas o riesgos
+5. Ajustes semana ${w+1}
+6. Plan semana ${w+1} completo
 ═══════════════════════════════════════════════════════`;
-
-  document.getElementById('report-text').value=text;
-  document.getElementById('report-out').style.display='block';
+  document.getElementById('rep-text').value=text;
+  document.getElementById('rep-out').style.display='block';
 }
-
 function copyReport(){
-  const a=document.getElementById('report-text');
-  a.select(); document.execCommand('copy');
-  const b=document.getElementById('copy-report-btn');
-  b.textContent='✅ Copiado';setTimeout(()=>b.textContent='📋 Copiar reporte',2500);
+  const a=document.getElementById('rep-text');a.select();document.execCommand('copy');
+  const b=document.getElementById('rep-btn');b.textContent='✅ Copiado';setTimeout(()=>b.textContent='📋 Copiar reporte',2500);
 }
 
+// ── CHECKLIST ─────────────────────────────────────────────
 function renderCheckin(w){
+  const today=new Date().toISOString().slice(0,10);
   const items=[
     {k:'steps',t:'Pasos 8.000+',s:'Objetivo NEAT diario'},
     {k:'sleep',t:'Sueño 7h+',s:'Recuperación y composición'},
     {k:'nutr',t:'Nutrición 80/20',s:'Al menos 4/5 comidas según plan DOCE'},
     {k:'workout',t:'Entreno completado',s:'Fuerza o running según plan'},
-    {k:'protein',t:'Proteína >150g',s:'Comprueba el total diario'},
+    {k:'protein',t:'Proteína objetivo',s:'Comprueba el total diario'},
     {k:'hydro',t:'Hidratación 2.5L',s:'Fundamental en días de entreno'},
     {k:'mob',t:'Movilidad / foam',s:'5-10min tras entreno'},
   ];
-  const today=new Date().toISOString().slice(0,10);
+  const done=items.filter(i=>checklist[`w${w}_${today}_${i.k}`]).length;
   return `
-  <div class="ph"><h1>Checklist diario</h1><p>${today} · Semana ${w}</p></div>
+  <div class="ph"><h1>Checklist diario</h1><p>${today} · Semana ${w} · ${done}/7</p></div>
   ${items.map(item=>{
     const key=`w${w}_${today}_${item.k}`;
-    const done=!!checklist[key];
-    return `<div class="chk ${done?'done':''}" onclick="toggleChk('${key}')">
-      <div class="chkbox">${done?'✓':''}</div>
+    const d=!!checklist[key];
+    return `<div class="chk ${d?'done':''}" onclick="toggleChk('${key}')">
+      <div class="chkbox">${d?'✓':''}</div>
       <div><div class="chkt">${item.t}</div><div class="chks">${item.s}</div></div>
     </div>`;
-  }).join('')}
-  <div style="margin-top:18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">
-    ${Object.keys(checklist).filter(k=>k.startsWith(`w${w}_${today}_`)&&checklist[k]).length}/7 completados hoy
-  </div>`;
+  }).join('')}`;
 }
 
+// ── UTILS ─────────────────────────────────────────────────
 function toggleChk(key){
   checklist[key]=!checklist[key];
-  localStorage.setItem('cloe_chk_'+profile.id, JSON.stringify(checklist));
-  render();
+  localStorage.setItem('cloe_chk_'+profile.id,JSON.stringify(checklist));
+  view(currentView);
 }
-
+function saveWeight(key,val){
+  localStorage.setItem(`cloe_w${profile.id}_${key}`,val);
+}
+function flashSave(btn){
+  btn.textContent='✅ Guardado';setTimeout(()=>btn.textContent='💾 Guardar sesión',2000);
+}
+function copyText(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    const o=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=o,2000);
+  });
+}
 async function logout(){
-  await sb.auth.signOut();
-  window.location.href='login.html';
+  await sb.auth.signOut();window.location.href='login.html';
 }
 </script>
 </body>
