@@ -1,4 +1,4 @@
--- C.L.O.E COACH
+-- C.L.O.E. COACH
 -- Pega este archivo completo en Supabase SQL Editor y ejecútalo.
 
 create table if not exists profiles (

@@ -1,4 +1,4 @@
-# C.L.O.E COACH · Setup completo
+# C.L.O.E. COACH · Setup completo
 
 ## Archivos del sistema
 
