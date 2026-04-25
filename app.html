@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>C.L.O.E COACH</title>
+<title>C.L.O.E. COACH</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -179,13 +179,13 @@ label{font-size:10px;color:var(--muted);display:block;margin-top:9px;margin-bott
 </head>
 <body>
 
-<div id="loading-screen" class="loading-screen">Cargando tu plan CLOE...</div>
+<div id="loading-screen" class="loading-screen">Cargando tu plan C.L.O.E....</div>
 
 <!-- DESKTOP APP -->
 <div class="app" id="app-shell" style="display:none">
 <aside class="sidebar">
-  <div class="brand">C.L.O.E <span>COACH</span></div>
-  <div class="tagline">DOCE ENGINE</div>
+  <div class="brand">C.L.O.E. <span>COACH</span></div>
+  <div class="tagline">Crush Limits Or Explode</div>
   <div class="user-info">
     <div class="user-name" id="sb-name">—</div>
     <div class="user-meta" id="sb-goal">—</div>
@@ -237,8 +237,8 @@ label{font-size:10px;color:var(--muted);display:block;margin-top:9px;margin-bott
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────
-const SB_URL = 'https://TU_PROYECTO.supabase.co';
-const SB_KEY = 'TU_ANON_KEY';
+const SB_URL = 'https://wxvgxcogrlcflxldaemw.supabase.co';
+const SB_KEY = 'sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
 // ─────────────────────────────────────────────────────────
 
 const {createClient} = supabase;
@@ -405,7 +405,10 @@ function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${
   const {data:{session}}=await sb.auth.getSession();
   if(!session){window.location.href='login.html';return;}
   const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
-  if(error||!data){window.location.href='login.html';return;}
+  if(error||!data){
+    document.getElementById('loading-screen').textContent='No se pudo cargar tu perfil: '+(error?.message||'perfil no encontrado');
+    return;
+  }
   if(data.role==='admin'){window.location.href='admin.html';return;}
   profile=data;
   const saved=localStorage.getItem('cloe_chk_'+profile.id);

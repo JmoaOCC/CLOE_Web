@@ -338,7 +338,8 @@ async function advWeek(){
   const u=users.find(x=>x.id===editId);
   if(!u) return;
   const next=Math.min((u.week||1)+1,16);
-  await sb.from('profiles').update({week:next}).eq('id',editId);
+  const {error}=await sb.from('profiles').update({week:next}).eq('id',editId);
+  if(error){toast('Error: '+error.message);return;}
   close('m-edit');
   toast('✅ Avanzado a semana '+next);
   load();
@@ -346,23 +347,26 @@ async function advWeek(){
 
 async function advWeekDirect(id,w){
   const next=Math.min(w+1,16);
-  await sb.from('profiles').update({week:next}).eq('id',id);
+  const {error}=await sb.from('profiles').update({week:next}).eq('id',id);
+  if(error){toast('Error: '+error.message);return;}
   toast('✅ Semana '+next);
   load();
 }
 
 async function delUser(){
-  if(!editId||!confirm('¿Eliminar este usuario?')) return;
-  await sb.from('profiles').delete().eq('id',editId);
+  if(!editId||!confirm('¿Desactivar este usuario? Su cuenta seguirá existiendo en Supabase Auth.')) return;
+  const {error}=await sb.from('profiles').update({status:'inactive'}).eq('id',editId);
+  if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('🗑️ Eliminado.');
+  toast('✅ Usuario desactivado.');
   load();
 }
 
 async function delDirect(id){
-  if(!confirm('¿Eliminar?')) return;
-  await sb.from('profiles').delete().eq('id',id);
-  toast('🗑️ Eliminado.');
+  if(!confirm('¿Desactivar este usuario? Su cuenta seguirá existiendo en Supabase Auth.')) return;
+  const {error}=await sb.from('profiles').update({status:'inactive'}).eq('id',id);
+  if(error){toast('Error: '+error.message);return;}
+  toast('✅ Usuario desactivado.');
   load();
 }
 
