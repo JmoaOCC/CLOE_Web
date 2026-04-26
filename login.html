@@ -57,55 +57,104 @@ input:focus{border-color:var(--accent)}
 <script>
 const SB_URL='https://wxvgxcogrlcflxldaemw.supabase.co';
 const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
-const {createClient}=supabase;
-const sb=createClient(SB_URL,SB_KEY);
+let sb = null;
 
-init();
+window.onload = function() {
+  const err = document.getElementById('err');
+  if (typeof supabase === 'undefined') {
+    err.textContent = 'Error de conexión: Tu red (antivirus o firewall corporativo) está bloqueando la conexión. Intenta desde otra red o usa tu móvil.';
+    err.classList.add('show');
+    return;
+  }
+  try {
+    const {createClient} = supabase;
+    sb = createClient(SB_URL, SB_KEY);
+    init();
+    const passInput = document.getElementById('pass');
+    if(passInput) {
+      passInput.addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
+    }
+  } catch(e) {
+    err.textContent = 'Error al iniciar la base de datos: ' + e.message;
+    err.classList.add('show');
+  }
+};
 
 async function init(){
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session) return;
-  document.getElementById('hint').textContent='Sesion abierta. Redirigiendo...';
-  redirect(session.user.id);
-  return;
-  document.getElementById('hint').innerHTML='Ya hay una sesión abierta en este navegador. Si quieres limpiarla, <button type="button" onclick="forceLogout()">cerrar sesión</button>.';
+  if(!sb) return;
+  try {
+    const {data:{session}} = await sb.auth.getSession();
+    if(!session) return;
+    document.getElementById('hint').textContent = 'Sesión detectada. Redirigiendo...';
+    await redirect(session.user.id);
+  } catch (e) {
+    console.error("Error de sesión local:", e);
+    document.getElementById('hint').innerHTML = 'Error al validar tu sesión previa. <button type="button" onclick="forceLogout()">Haz clic aquí para limpiar caché</button>';
+  }
 }
 
 async function login(){
+  const err = document.getElementById('err');
+  if (!sb) {
+    err.textContent = 'El sistema no pudo conectar con la base de datos. Comprueba tu red.';
+    err.classList.add('show');
+    return;
+  }
+
   const email=document.getElementById('email').value.trim();
   const pass=document.getElementById('pass').value;
   const btn=document.getElementById('btn');
-  const err=document.getElementById('err');
   const spin=document.getElementById('spin');
   err.classList.remove('show');
-  if(!email||!pass){showErr('Rellena email y contraseña.');return;}
-  btn.disabled=true; spin.classList.add('show');
-  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
-  spin.classList.remove('show'); btn.disabled=false;
-  if(error){showErr(error.message);return;}
-  redirect(data.user.id);
+  
+  if(!email||!pass){ showErr('Rellena email y contraseña.'); return; }
+  
+  btn.disabled=true; 
+  spin.classList.add('show');
+  
+  try {
+    const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
+    if(error){
+      spin.classList.remove('show'); 
+      btn.disabled=false;
+      showErr('Error al acceder: ' + error.message);
+      return;
+    }
+    await redirect(data.user.id);
+  } catch(e) {
+    spin.classList.remove('show'); 
+    btn.disabled=false;
+    showErr('Fallo de red al intentar acceder: ' + e.message);
+  }
 }
 
 async function redirect(uid){
-  const {data,error}=await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
-  if(!data&&!error){showErr('La sesion esta creada, pero este usuario todavia no tiene perfil en Supabase. Revisa la tabla profiles desde admin.');return;}
-  if(error){showErr('La sesión está creada, pero no se pudo leer tu perfil en Supabase: '+error.message);return;}
-  const needsOnboarding = data?.role!=='admin' && (
-    (Object.prototype.hasOwnProperty.call(data,'onboarding_completed') && data.onboarding_completed!==true) ||
-    !data?.age || !data?.sex || !data?.weight_kg || !data?.height_cm || !data?.goal
-  );
-  if(data?.role==='admin') window.location.href='admin.html';
-  else if(needsOnboarding) window.location.href='onboarding.html';
-  else window.location.href='app.html';
+  try {
+    const {data,error} = await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
+    if(error){showErr('La sesión está creada, pero falló la lectura de tu perfil: '+error.message); return;}
+    if(!data){showErr('Usuario sin perfil configurado. Pide a tu coach que genere tu acceso.'); return;}
+    
+    const needsOnboarding = data.role !== 'admin' && (
+      data.onboarding_completed !== true ||
+      !data.age || !data.sex || !data.weight_kg || !data.height_cm || !data.goal
+    );
+    
+    if(data.role === 'admin') window.location.href = 'admin.html';
+    else if(needsOnboarding) window.location.href = 'onboarding.html';
+    else window.location.href = 'app.html';
+  } catch(e) {
+    showErr('Error crítico al redirigir: ' + e.message);
+    document.getElementById('spin').classList.remove('show');
+    document.getElementById('btn').disabled=false;
+  }
 }
 
 function showErr(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show');}
 async function forceLogout(){
-  await sb.auth.signOut();
+  if(sb) await sb.auth.signOut();
   document.getElementById('hint').textContent='Sesión local cerrada. Ya puedes volver a entrar.';
   document.getElementById('err').classList.remove('show');
 }
-document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 
 function toggleFirstTime(){
   const c=document.getElementById('firsttime-card');
@@ -113,6 +162,7 @@ function toggleFirstTime(){
 }
 
 async function sendMagicLink(){
+  if(!sb) return;
   const email=document.getElementById('ft-email').value.trim();
   const btn=document.getElementById('ft-btn');
   const ftErr=document.getElementById('ft-err');
@@ -121,15 +171,22 @@ async function sendMagicLink(){
   document.getElementById('ft-ok').style.display='none';
   if(!email){ftErr.textContent='Introduce tu email.';ftErr.classList.add('show');return;}
   btn.disabled=true;spin.classList.add('show');
-  const redirectTo=window.location.href.replace(/\/[^/]*$/','/onboarding.html?firsttime=1');
-  const {error}=await sb.auth.signInWithOtp({
-    email,
-    options:{shouldCreateUser:false,emailRedirectTo:redirectTo}
-  });
-  spin.classList.remove('show');btn.disabled=false;
-  if(error){ftErr.textContent=error.message;ftErr.classList.add('show');return;}
-  document.getElementById('ft-ok').style.display='block';
-  btn.style.display='none';
+  
+  try {
+    const redirectTo=window.location.href.replace(/\/[^/]*$/','/onboarding.html?firsttime=1');
+    const {error}=await sb.auth.signInWithOtp({
+      email,
+      options:{shouldCreateUser:false,emailRedirectTo:redirectTo}
+    });
+    spin.classList.remove('show');btn.disabled=false;
+    if(error){ftErr.textContent=error.message;ftErr.classList.add('show');return;}
+    document.getElementById('ft-ok').style.display='block';
+    btn.style.display='none';
+  } catch(e) {
+    spin.classList.remove('show');btn.disabled=false;
+    ftErr.textContent='Fallo de red: ' + e.message;
+    ftErr.classList.add('show');
+  }
 }
 </script>
 </body>
