@@ -749,12 +749,35 @@ function extractPlanNutritionData(text, fallbackMacros){
     const name=b.title.replace(/^(?:TOMA\s*\d+|OPCI[ÓO]N)\s*[-–—:]?\s*/i,'').trim()||b.title;
     const kcal=(b.content.match(/\((\d+)\s*(?:kcal|cal|calor)/i)||[])[1];
     const macros=parseMacrosLine(b.content);
-    return {key:'plan_meal_'+i,name,timing:b.title,kcal:kcal?+kcal:null,macros,content:b.content};
+
+    const options = [];
+    const lines = b.content.split('\n');
+    let curOpt = null;
+    lines.forEach(l => {
+        const m = l.match(/^(Opci[óo]n\s+[A-Z])\s*[-:·]?\s*(.*)$/i);
+        if(m) {
+            if(curOpt) options.push(curOpt);
+            curOpt = { label: m[1], items: [], kcal: kcal, p: macros?.protein||'', hc: macros?.carbs||'', g: macros?.fat||'' };
+            if(m[2].trim()) curOpt.items.push({f: m[2].trim(), a: '', note: ''});
+        } else if(curOpt && l.trim() && !l.match(/MACROS/i) && !l.match(/(\d+)\s*(?:kcal|cal|calor)/i)) {
+            curOpt.items.push({f: l.trim(), a: '', note: ''});
+        }
+    });
+    if(curOpt) options.push(curOpt);
+
+    if(options.length === 0) {
+        options.push({
+           label: 'Única',
+           kcal: kcal||'', p: macros?.protein||'', hc: macros?.carbs||'', g: macros?.fat||'',
+           items: b.content.split('\n').filter(l => l.trim() && !l.match(/MACROS/i) && !l.match(/(\d+)\s*(?:kcal|cal|calor)/i)).map(l => ({f: l.trim(), a: '', note: ''}))
+        });
+    }
+    return {key:'plan_meal_'+i,name,timing:b.title,kcal:kcal?+kcal:null,macros,content:b.content, options};
   });
   if(!meals.length) return null;
   const training=parseMacrosLine((text.match(/MACROS\s+D[IÍ]A\s+ENTRENO[^\n]+/i)||[])[0])||fallbackMacros;
   const rest=parseMacrosLine((text.match(/MACROS\s+D[IÍ]A\s+DESCANSO[^\n]+/i)||[])[0])||training;
-  return {training,rest,meals};
+  return {training:{...training,meals},rest:{...rest,meals},meals};
 }
 function extractPlanSupplementsData(text){
   if(!text) return null;
@@ -846,6 +869,26 @@ function extractPlanStrengthDays(text){
     days.push({title: b.title, content: b.content, key});
   });
   return days;
+}
+
+function getCustomExercises(content) {
+  if(!content) return [];
+  const lines = content.split('\n');
+  const exList = [];
+  let i = 0;
+  for (let line of lines) {
+      const match = line.match(/^(?:[-•*]\s*)?([^:]+?)\s*[:|-]?\s*(\d+)\s*[x×]\s*(\d+(?:-\d+)?)(.*)$/);
+      if (match && !match[1].toUpperCase().includes('DÍA')) {
+          exList.push({
+              key: 'cex_'+i,
+              name: match[1].trim().replace(/[-:]$/, '').trim(),
+              sets: parseInt(match[2]), reps: match[3], meta: match[4].trim(),
+              rest: match[4].match(/(\d+\s*s(?:eg)?)/i) ? match[4].match(/(\d+\s*s(?:eg)?)/i)[1] : '—'
+          });
+          i++;
+      }
+  }
+  return exList;
 }
 
 // ── INIT ─────────────────────────────────────────────────
@@ -1455,7 +1498,7 @@ function parsePlanStructured(text){
     const key = found[idx][0];
     const startLine = found[idx][1];
     const endLine = idx + 1 < found.length ? found[idx + 1][1] : lines.length;
-    secs[key] = lines.slice(startLine, endLine).join('\n');
+    secs[key] = lines.slice(startLine + 1, endLine).join('\n').trim();
   }
   if (found.length === 0) secs.B = text;
   
@@ -1473,17 +1516,39 @@ function switchPlanTab(id,el){
 }
 function togglePlanBlk(id){document.getElementById(id)?.classList.toggle('on');}
 
+function parseToVisualCards(text) {
+  const lines = text.split('\n');
+  let out = '';
+  for(let l of lines) {
+      const tr = l.trim();
+      if(!tr) continue;
+      const m = tr.match(/^[-•*]\s*([^:]+):\s*(.+)$/);
+      if(m && m[1].length < 40) {
+          out += `<div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:8px; display:flex; flex-direction:column;">
+             <span style="font-weight:800; color:var(--accent2); font-size:11px; margin-bottom:4px">${esc(m[1])}</span>
+             <span style="color:var(--text); font-size:10px; line-height:1.6">${esc(m[2])}</span>
+          </div>`;
+      } else if (tr.match(/^[-•*]\s*(.+)$/)) {
+          const m2 = tr.match(/^[-•*]\s*(.+)$/);
+          out += `<div style="padding:4px 0; margin-bottom:4px; border-bottom:1px solid rgba(43,52,72,0.3); font-size:10px; line-height:1.6; display:flex; gap:6px;"><span style="color:var(--accent)">•</span> <span>${esc(m2[1])}</span></div>`;
+      } else {
+          out += `<div style="margin-bottom:8px; font-size:10px; line-height:1.6;">${esc(tr)}</div>`;
+      }
+  }
+  return out;
+}
+
 function planBlocks(text,firstOpen){
   if(!text) return `<div class="plan-txt" style="color:var(--muted)">—</div>`;
   const rx=/(?:─|-){5,}\s*\n([^\n─-]+)\n(?:─|-){5,}\s*\n([\s\S]*?)(?=(?:─|-){5,}|$)/g;
   const blocks=[];let m;
   while((m=rx.exec(text))!==null) blocks.push({title:m[1].trim(),content:m[2].trim()});
-  if(!blocks.length) return `<div class="plan-txt">${esc(text)}</div>`;
+  if(!blocks.length) return `<div class="plan-txt">${parseToVisualCards(text)}</div>`;
   return blocks.map((blk,i)=>{
     const id='pb'+(++_blkId);
     const t=blk.title;
     const icon=t.match(/FUERZA.+A|D[IÍ]A\s+A/i)?'🏋️ A':t.match(/FUERZA.+B|D[IÍ]A\s+B/i)?'🏋️ B':t.match(/INTERVAL/i)?'⚡':t.match(/TEMPO/i)?'🏃':t.match(/TIRADA/i)?'🛣️':t.match(/DESCANSO/i)?'😴':'📋';
-    const isIv=blk.content.includes('Warmup')||blk.content.includes('Main set');
+    const isIv=blk.content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+|Duraci[óo]n:|Ritmo objetivo:/i);
     const open=!!(firstOpen&&i===0);
     const safeT=JSON.stringify(blk.content);
     return `<div class="plan-blk">
@@ -1492,7 +1557,7 @@ function planBlocks(text,firstOpen){
         <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">${open?'▲':'▼'}</span>
       </div>
       <div class="plan-blk-body${open?' on':''}" id="${id}">
-        ${isIv?`<div class="plan-intervals"><button class="plan-cpbtn" onclick="copyText(this,${safeT.replace(/"/g,'&quot;')})">📋 Copiar</button><pre>${esc(blk.content)}</pre></div>`:`<div class="plan-txt">${esc(blk.content)}</div>`}
+        ${isIv?`<div class="plan-intervals"><button class="plan-cpbtn" onclick="copyText(this,${safeT.replace(/"/g,'&quot;')})">📋 Copiar</button><pre>${esc(blk.content)}</pre></div>`:`<div class="plan-txt">${parseToVisualCards(blk.content)}</div>`}
       </div>
     </div>`;
   }).join('');
@@ -1500,32 +1565,41 @@ function planBlocks(text,firstOpen){
 
 function planSupps(text){
   if(!text) return `<div class="plan-txt" style="color:var(--muted)">—</div>`;
-  if((text.match(/(?:─|-){5,}/g)||[]).length>=2) return planBlocks(text,true);
-  const lines=text.split('\n');
-  const groups=[];let cur=null;
-  lines.forEach(line=>{
-    const t=line.trim();
-    if(!t){if(cur&&cur.items.length){groups.push(cur);cur=null;}return;}
-    const noIcon=!t.match(/^[·⚠✓🍋💊🐟☀️💪🌿🧘🪨⚡🥛🍌💧]/u);
-    const isHdr=noIcon&&/^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s\-\(\)]+:?\s*$/.test(t)&&t.length>4&&t.length<80;
-    if(isHdr){if(cur) groups.push(cur);cur={title:t.replace(/:$/,'').trim(),items:[]};}
-    else if(cur) cur.items.push(t);
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  let html = '';
+  
+  lines.forEach(line => {
+      const parts = line.split('|').map(p => p.trim());
+      if(parts.length >= 3 && line.startsWith('-')) {
+          let namePart = parts[0].replace(/^[-•*]/, '').trim();
+          let name = namePart; let desc = '';
+          if(namePart.includes(':')) {
+              const idx = namePart.indexOf(':');
+              name = namePart.substring(0, idx).trim();
+              desc = namePart.substring(idx+1).trim();
+          }
+          html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+              <div style="font-weight:800;color:var(--accent);font-size:12px;margin-bottom:4px">💊 ${esc(name)}</div>
+              ${desc ? `<div style="font-size:10px;color:var(--text);margin-bottom:8px;line-height:1.5">${esc(desc)}</div>` : ''}
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'DM Mono',monospace;font-size:9px;">
+                  <div style="background:var(--bg);padding:8px;border-radius:8px;border:1px solid rgba(43,52,72,0.5)">
+                      <span style="color:var(--muted);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:1px">Dosis</span>
+                      <span style="color:var(--text)">${esc(parts[1])}</span>
+                  </div>
+                  <div style="background:var(--bg);padding:8px;border-radius:8px;border:1px solid rgba(43,52,72,0.5)">
+                      <span style="color:var(--muted);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:1px">Cuándo tomar</span>
+                      <span style="color:var(--text)">${esc(parts[2])}</span>
+                  </div>
+              </div>
+              ${parts[3] ? `<div style="margin-top:8px;font-size:10px;color:var(--accent2);background:rgba(91,156,246,0.08);padding:6px 8px;border-radius:6px;line-height:1.5">💡 ${esc(parts[3])}</div>` : ''}
+          </div>`;
+      } else if(!line.startsWith('-') && line.toUpperCase() === line && line.length < 60) {
+          html += `<div style="font-weight:800;margin-top:16px;margin-bottom:8px;font-size:11px;color:var(--accent3);letter-spacing:1px">${esc(line)}</div>`;
+      } else {
+          html += `<div class="plan-txt" style="margin-bottom:4px">${esc(line)}</div>`;
+      }
   });
-  if(cur) groups.push(cur);
-  if(!groups.length||groups.every(g=>!g.items.length)) return `<div class="plan-txt">${esc(text)}</div>`;
-  const icMap={'LEVANTARTE':'🌅','AYUNAS':'🌅','DESAYUNO':'🍳','FUERZA':'🏋️','RUNNING':'🏃','ENTRENO':'⚡','CENAR':'🌙','ACOSTARTE':'😴','NOCHE':'😴','POST':'🥛','PRE':'⚡'};
-  return groups.map((g,i)=>{
-    const id='ps'+(++_blkId);
-    const open=i<2;
-    const icon=Object.entries(icMap).find(([k])=>g.title.toUpperCase().includes(k))?.[1]||'💊';
-    return `<div class="plan-blk">
-      <div class="plan-blk-hdr" onclick="togglePlanBlk('${id}')">
-        <div class="plan-blk-title">${icon} ${esc(g.title)}</div>
-        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">${g.items.length} · ${open?'▲':'▼'}</span>
-      </div>
-      <div class="plan-blk-body${open?' on':''}" id="${id}"><div class="plan-txt">${g.items.map(esc).join('\n')}</div></div>
-    </div>`;
-  }).join('');
+  return html || `<div class="plan-txt">${esc(text)}</div>`;
 }
 
 function planTomas(text){
@@ -1979,13 +2053,37 @@ function renderMobileDay(){
   if(type==='strength'){
     const customStrength=getPlanStrengthForDay(d);
     if(customStrength){
+      const exList = getCustomExercises(customStrength.content);
       html+=`<div class="mob-section">
       <div class="mob-section-title">🏋️ ${esc(customStrength.title)}</div>
       <div class="mob-intervals">
         <button class="mob-copy" onclick="copyText(this,${JSON.stringify(customStrength.content).replace(/"/g,'&quot;')})">📋</button>
         <pre>${esc(customStrength.content)}</pre>
       </div>
-    </div>`;
+      `;
+      if(exList.length > 0) {
+         html += exList.map(ex => {
+            const savedSets=log.sets?.[ex.key]||[];
+            let sHtml=`<div class="mob-set-row" style="margin-bottom:3px"><div></div><div class="mob-set-lbl">kg</div><div class="mob-set-lbl">reps</div><div class="mob-set-lbl">RIR</div><div></div></div>`;
+            for(let si=0;si<ex.sets;si++){
+              const sv=savedSets[si]||{};
+              sHtml+=`<div class="mob-set-row"><div class="mob-set-num">S${si+1}</div>
+                <input class="mob-set-input" type="number" placeholder="kg" value="${sv.kg||''}" id="ms_${ex.key}_${si}_kg" inputmode="decimal" onchange="saveDayData()">
+                <input class="mob-set-input" type="number" placeholder="${ex.reps}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="numeric" onchange="saveDayData()">
+                <input class="mob-set-input" type="text" placeholder="RIR" value="${sv.rir||''}" id="ms_${ex.key}_${si}_rir" inputmode="text" onchange="saveDayData()">
+                <button class="mob-set-done ${sv.done?'ok':''}" id="ms_${ex.key}_${si}_done" onclick="toggleSetDone('${ex.key}',${si})">✓</button></div>`;
+            }
+            const ytUrl=`https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name + ' tecnica')}`;
+            return `<div class="mob-ex"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
+                <div class="mob-ex-name">${esc(ex.name)}<span class="mob-ex-rir">${esc(ex.meta)}</span></div>
+                <a href="${ytUrl}" target="_blank" rel="noopener" class="cal-ex-vid" style="font-size:9px;padding:3px 7px;margin-top:1px;flex-shrink:0">📺 Video</a>
+              </div><div class="mob-ex-meta">${ex.sets}×${ex.reps}</div><div class="mob-sets">${sHtml}</div></div>`;
+         }).join('');
+      } else {
+         html += `<div style="margin-top:10px"><label>Anota aquí tus pesos e hitos:</label>
+           <textarea class="mob-obs-ta" id="mstr_obs" placeholder="Ej: Sentadilla 60kg, Press 40kg..." onchange="saveDayData()">${log.strengthObs||''}</textarea></div>`;
+      }
+      html+=`</div>`;
     }else{
     const {exList,fmt}=getStrengthIntervals(wd===0?'A':'B',q);
     html+=`<div class="mob-section">
@@ -2004,9 +2102,9 @@ function renderMobileDay(){
           const sv=savedSets[si]||{};
           sHtml+=`<div class="mob-set-row">
             <div class="mob-set-num">S${si+1}</div>
-            <input class="mob-set-input" type="number" placeholder="${target||''}" value="${sv.kg||''}" id="ms_${ex.key}_${si}_kg" inputmode="decimal">
-            <input class="mob-set-input" type="number" placeholder="${ex.reps}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="numeric">
-            <input class="mob-set-input" type="number" placeholder="RIR" value="${sv.rir||''}" id="ms_${ex.key}_${si}_rir" min="0" max="5" inputmode="numeric">
+            <input class="mob-set-input" type="number" placeholder="${target||''}" value="${sv.kg||''}" id="ms_${ex.key}_${si}_kg" inputmode="decimal" onchange="saveDayData()">
+            <input class="mob-set-input" type="number" placeholder="${ex.reps}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="numeric" onchange="saveDayData()">
+            <input class="mob-set-input" type="text" placeholder="RIR" value="${sv.rir||''}" id="ms_${ex.key}_${si}_rir" inputmode="text" onchange="saveDayData()">
             <button class="mob-set-done ${sv.done?'ok':''}" id="ms_${ex.key}_${si}_done" onclick="toggleSetDone('${ex.key}',${si})">✓</button>
           </div>`;
         }
@@ -2039,10 +2137,10 @@ function renderMobileDay(){
         <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);border-left:2px solid var(--accent2);padding-left:9px;margin-bottom:10px">💡 ${rs.goal}</div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Registro post-sesión</div>
         <div class="g2" style="gap:7px">
-          <div><label>Ritmo medio logrado</label><input type="text" id="mrun_pace" placeholder="6:30/km" value="${rl.pace||''}" inputmode="text"></div>
-          <div><label>Distancia (km)</label><input type="number" id="mrun_dist" placeholder="5.2" value="${rl.dist||''}" inputmode="decimal"></div>
-          <div><label>Tiempo (min)</label><input type="number" id="mrun_time" placeholder="35" value="${rl.time||''}" inputmode="numeric"></div>
-          <div><label>Sensación RPE (1-10)</label><input type="number" id="mrun_feel" placeholder="7" min="1" max="10" value="${rl.feel||''}" inputmode="numeric"></div>
+          <div><label>Ritmo / Velocidad</label><input type="text" id="mrun_pace" placeholder="Ej: 6:30/km o 25km/h" value="${rl.pace||''}" inputmode="text" onchange="saveDayData()"></div>
+          <div><label>Distancia (km/m)</label><input type="number" id="mrun_dist" placeholder="5.2" value="${rl.dist||''}" inputmode="decimal" onchange="saveDayData()"></div>
+          <div><label>Tiempo (min)</label><input type="number" id="mrun_time" placeholder="35" value="${rl.time||''}" inputmode="numeric" onchange="saveDayData()"></div>
+          <div><label>Sensación RPE (1-10)</label><input type="number" id="mrun_feel" placeholder="7" min="1" max="10" value="${rl.feel||''}" inputmode="numeric" onchange="saveDayData()"></div>
         </div>
       </div>`;
     }
@@ -2114,7 +2212,7 @@ function renderMobileDay(){
   // ── OBSERVACIONES ──
   html+=`<div class="mob-section">
     <div class="mob-section-title">📝 Observaciones del día</div>
-    <textarea class="mob-obs-ta" id="mob-obs" placeholder="Cómo te has sentido, dolores, energía, notas para tu coach...">${log.obs||''}</textarea>
+    <textarea class="mob-obs-ta" id="mob-obs" placeholder="Cómo te has sentido, dolores, energía, notas para tu coach..." onchange="saveDayData()">${log.obs||''}</textarea>
   </div>`;
 
   // Día activo: sin checklist diario en esta vista.
@@ -2202,17 +2300,16 @@ function saveDayData(){
   const type=DAYTYPES[wd];
   // collect set data
   if(type==='strength'){
-    if(getPlanStrengthForDay(mobDayIdx)){
-      log.sets=log.sets||{};
-      saveDayLog(q,mobDayIdx,log);
-      updateMobStatus(q,mobDayIdx);
-      const btn=document.querySelector('.mob-save-btn');
-      if(btn){btn.textContent='Guardado';setTimeout(()=>btn.textContent='Guardar dia',2000);}
-      return;
+    let exListToSave = [];
+    const customStrength=getPlanStrengthForDay(mobDayIdx);
+    if(customStrength){
+      exListToSave = getCustomExercises(customStrength.content);
+      log.strengthObs = document.getElementById('mstr_obs')?.value || '';
+    } else {
+      exListToSave = getStrengthIntervals(wd===0?'A':'B',q).exList;
     }
-    const {exList}=getStrengthIntervals(wd===0?'A':'B',q);
     if(!log.sets) log.sets={};
-    exList.forEach(ex=>{
+    exListToSave.forEach(ex=>{
       if(!log.sets[ex.key]) log.sets[ex.key]=[];
       for(let si=0;si<ex.sets;si++){
         if(!log.sets[ex.key][si]) log.sets[ex.key][si]={};
