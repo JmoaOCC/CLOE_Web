@@ -832,7 +832,7 @@ function parsePlanSchedule(text){
     const k=m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const idx=dm[k];if(idx===undefined) return;
     const val=m[2].trim();
-    const type=val.match(/DESCANSO/i)?'rest':val.match(/FUERZA|GYM/i)?'strength':val.match(/RUNNING|CARDIO|ANDAR|NATACI[ÓO]N|RODILLO/i)?'running':null;
+    const type=val.match(/DESCANSO/i)?'rest':val.match(/FUERZA|GYM/i)?'strength':val.match(/RUNNING|CARDIO|ANDAR|NATACI[ÓO]N|RODILLO|CICLISMO/i)?'running':null;
     if(type && !sched[idx]){sched[idx]={label:val.split(/[·—|]/)[0].trim().toUpperCase(),type};found++;}
   });
   return found>=5?sched:null;
@@ -1837,7 +1837,11 @@ function renderReport(q){
   <textarea id="r-csv" rows="3" placeholder="Distancia total, TSS, ritmos medios, sesiones completadas..."></textarea>
   <label>Observaciones libres</label>
   <textarea id="r-n" rows="3" placeholder="Lesiones, contexto vital, fatiga, bloqueos, éxitos, cómo te has sentido..."></textarea>
-  <div style="display:flex;gap:8px;margin-top:11px">
+  <div style="background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:12px;margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.7">
+    <span style="color:var(--accent);font-weight:700">📸 Fotografías de progreso</span><br>
+    Recuerda tomarte 3 fotos (Frente, Perfil y Espalda). Al copiar el reporte y pegarlo en el chat de la IA, <b>asegúrate de adjuntar las 3 imágenes en el mismo mensaje</b>.
+  </div>
+  <div style="display:flex;gap:8px;margin-top:16px">
     <button class="btn" onclick="genReport(${q})">📋 Generar reporte IA</button>
   </div>
   <div id="rep-out" style="display:none;margin-top:13px">
@@ -1965,7 +1969,8 @@ ${daysSummary||'  Sin datos registrados en el Día Activo'}
 CSV INTERVALS.ICU
 ${csv||'(no proporcionado)'}
 
-FOTOS: [ADJUNTAR FRENTE · LATERAL · ESPALDA]
+FOTOS ADJUNTAS
+En este mensaje se adjuntan las fotografías de progreso actuales (Frente, Perfil, Espalda) para su análisis visual.
 
 ═══════════════════════════════════════════════════════
 INSTRUCCIÓN C.L.O.E. · ANÁLISIS Y PLAN Q${q+1}
@@ -1977,11 +1982,12 @@ Si algún dato necesario no está en el reporte, escribe "SIN DATOS" en ese camp
 
 ANÁLISIS OBLIGATORIO:
 1. COMPOSICIÓN CORPORAL: delta peso ${deltaP}kg · grasa corporal ${sc.fat||'?'}% · masa muscular ${sc.musclemass||'?'}kg · grasa visceral ${sc.visceral||'?'} · edad metabólica ${sc.metage||'?'} · tendencia vs Q${q-1}
-2. RENDIMIENTO FUERZA: progresión pesos, RIR real vs objetivo, tempo, adherencia, fatiga
-3. RENDIMIENTO RUNNING: ritmos logrados vs objetivo, TSS, distribución carga semanal
-4. RECUPERACIÓN: sueño ${sv||'?'}h · energía ${ev||'?'}/10 · señales de sobreentrenamiento o fatiga
-5. HIDRATACIÓN Y METABOLISMO: agua corporal ${sc.water||'?'}% · BMR ${sc.bmr||'?'} kcal · eficiencia metabólica
-6. ALERTAS: lesión potencial, sobreentrenamiento, déficit calórico excesivo, señales de alarma
+2. ANÁLISIS VISUAL (FOTOS): Analiza las fotografías adjuntas. Evalúa cambios en definición, volumen muscular y reducción de grasa. Contrasta tu análisis visual con los datos de la báscula.
+3. RENDIMIENTO FUERZA: progresión pesos, RIR real vs objetivo, tempo, adherencia, fatiga
+4. RENDIMIENTO RUNNING: ritmos logrados vs objetivo, TSS, distribución carga semanal
+5. RECUPERACIÓN: sueño ${sv||'?'}h · energía ${ev||'?'}/10 · señales de sobreentrenamiento o fatiga
+6. HIDRATACIÓN Y METABOLISMO: agua corporal ${sc.water||'?'}% · BMR ${sc.bmr||'?'} kcal · eficiencia metabólica
+7. ALERTAS: lesión potencial, sobreentrenamiento, déficit calórico excesivo, señales de alarma
 
 AJUSTE NUTRICIONAL:
 - Si adherencia < 80%: mantener calorías, trabajar adherencia primero
@@ -2163,48 +2169,33 @@ function renderMobileDay(){
     <div class="mob-section-title">🥗 Nutrición del día</div>
     ${nutr.meals.map(meal=>{
       const done=!!(log.meals?.[meal.key]);
+      const selOpt=log.mealOpts?.[meal.key]||0;
       if(!meal.options){
         const mm=meal.macros||{};
-        return `<div class="mob-meal">
-        <div class="mob-meal-hdr" onclick="toggleMobMeal('${meal.key}')">
-          <div class="mob-meal-left">
-            <div class="mob-meal-name">${esc(meal.name)}</div>
-            <div class="mob-meal-meta">${meal.kcal?'~'+meal.kcal+' kcal · ':''}${mm.protein?mm.protein+'g P · ':''}MI PLAN</div>
-          </div>
-          <div class="mob-meal-check ${done?'done':''}" id="mmcheck_${meal.key}">${done?'✓':''}</div>
+        return `<div class="cal-meal-row" style="${done?'border-color:var(--accent)':''}">
+          <div class="cal-meal-name">${esc(meal.name)}</div>
+          <div class="cal-meal-opts"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">MI PLAN</span></div>
+          <div class="mob-meal-check ${done?'done':''}" style="margin-left:8px;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--border);cursor:pointer;${done?'background:var(--accent);color:#111;border-color:var(--accent)':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
         </div>
-        <div class="mob-meal-body" id="mmbody_${meal.key}">
-          ${meal.content.split('\n').map(line=>line.trim()).filter(Boolean).map(line=>`<div class="mob-food-row"><span>${esc(line)}</span></div>`).join('')}
-          <button class="mob-mark-btn ${done?'done':''}" onclick="markMeal('${meal.key}')">
-            ${done?'✓ Completada - toca para desmarcar':'Marcar como completada'}
-          </button>
-        </div>
-      </div>`;
+        <div class="cal-meal-detail" style="margin-bottom:12px">
+          ${meal.content.split('\n').map(line=>line.trim()).filter(Boolean).map(line=>`<div class="cal-meal-detail-item"><span>${esc(line)}</span></div>`).join('')}
+        </div>`;
       }
-      const selOpt=log.mealOpts?.[meal.key]||0;
       const opt=meal.options[selOpt];
-      return `<div class="mob-meal">
-        <div class="mob-meal-hdr" onclick="toggleMobMeal('${meal.key}')">
-          <div class="mob-meal-left">
-            <div class="mob-meal-name">${meal.name}</div>
-            <div class="mob-meal-meta">~${opt.kcal} kcal · ${opt.p}g P · Opción: ${opt.label.split('·')[0]}</div>
-          </div>
-          <div class="mob-meal-check ${done?'done':''}" id="mmcheck_${meal.key}">${done?'✓':''}</div>
+      const lbl = opt.label.split('·')[1]?.trim() || opt.label;
+      return `<div class="cal-meal-row" style="${done?'border-color:var(--accent)':''}">
+        <div class="cal-meal-name">${esc(meal.name)}</div>
+        <div class="cal-meal-opts">
+          ${meal.options.map((o,i)=>`<button class="cal-meal-opt ${i===selOpt?'sel':''}" onclick="selectMobMealOpt('${meal.key}',${i})">${String.fromCharCode(65+i)}</button>`).join('')}
         </div>
-        <div class="mob-meal-body" id="mmbody_${meal.key}">
-          <div class="mob-opt-tabs">
-            ${meal.options.map((o,i)=>`<button class="mob-opt-btn ${i===selOpt?'sel':''}" onclick="selectMobMealOpt('${meal.key}',${i})">${o.label.split('·')[0]}</button>`).join('')}
-          </div>
-          <div id="mmopt_${meal.key}">
-            ${opt.items.map(it=>`<div class="mob-food-row">
-              <span>${it.f}${it.note?` <span style="color:var(--accent3);font-size:9px">· ${it.note}</span>`:''}</span>
-              <span class="mob-food-amt">${it.a}</span>
-            </div>`).join('')}
-          </div>
-          <button class="mob-mark-btn ${done?'done':''}" onclick="markMeal('${meal.key}')">
-            ${done?'✓ Completada — toca para desmarcar':'Marcar como completada'}
-          </button>
-        </div>
+        <div class="mob-meal-check ${done?'done':''}" style="margin-left:8px;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--border);cursor:pointer;${done?'background:var(--accent);color:#111;border-color:var(--accent)':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
+      </div>
+      <div id="mmopt_${meal.key}" class="cal-meal-detail" style="margin-bottom:12px">
+        <div class="cal-meal-detail-macros">Opción ${String.fromCharCode(65+selOpt)} · ${esc(lbl)} · ${opt.kcal} kcal · ${opt.p}g P · ${opt.hc}g HC</div>
+        ${opt.items.map(it=>`<div class="cal-meal-detail-item">
+          <span>${esc(it.f)}${it.note?` <span style="color:var(--accent3);font-size:8px">· ${esc(it.note)}</span>`:''}</span>
+          <span class="cal-meal-detail-amt">${esc(it.a)}</span>
+        </div>`).join('')}
       </div>`;
     }).join('')}
   </div>`;
