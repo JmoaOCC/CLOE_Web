@@ -38,7 +38,7 @@ input:focus{border-color:var(--accent)}
     <input type="email" id="email" placeholder="tu@email.com" autocomplete="email">
     <label>Contraseña</label>
     <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password">
-    <button class="btn" id="btn" onclick="login()">Entrar</button>
+    <button class="btn" id="btn" onclick="doLogin()">Entrar</button>
     <div class="err" id="err"></div>
     <div class="spin" id="spin">Verificando acceso...</div>
     <div class="hint" id="hint">Acceso privado para usuarios y administrador.</div>
@@ -48,7 +48,7 @@ input:focus{border-color:var(--accent)}
     <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:14px;letter-spacing:.5px">PRIMER ACCESO - ENLACE POR EMAIL</div>
     <label>Email (el mismo que te ha dado el coach)</label>
     <input type="email" id="ft-email" placeholder="tu@email.com" autocomplete="email">
-    <button class="btn" id="ft-btn" onclick="sendMagicLink()" style="margin-top:14px">Enviar enlace de acceso</button>
+    <button class="btn" id="ft-btn" onclick="doMagicLink()" style="margin-top:14px">Enviar enlace de acceso</button>
     <div class="err" id="ft-err"></div>
     <div class="spin" id="ft-spin">Enviando enlace...</div>
     <div class="notice" id="ft-ok" style="display:none">Enlace enviado a tu email. Haz clic en el enlace del email para acceder y completar tu perfil.</div>
@@ -59,135 +59,215 @@ const SB_URL='https://wxvgxcogrlcflxldaemw.supabase.co';
 const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
 let sb = null;
 
-window.onload = function() {
-  const err = document.getElementById('err');
-  if (typeof supabase === 'undefined') {
-    err.textContent = 'Error de conexión: Tu red (antivirus o firewall corporativo) está bloqueando la conexión. Intenta desde otra red o usa tu móvil.';
-    err.classList.add('show');
-    return;
-  }
-  try {
-    const {createClient} = supabase;
-    sb = createClient(SB_URL, SB_KEY);
-    init();
-    const passInput = document.getElementById('pass');
-    if(passInput) {
-      passInput.addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
-    }
-  } catch(e) {
-    err.textContent = 'Error al iniciar la base de datos: ' + e.message;
-    err.classList.add('show');
-  }
-};
-
-async function init(){
-  if(!sb) return;
-  try {
-    const {data:{session}} = await sb.auth.getSession();
-    if(!session) return;
-    document.getElementById('hint').textContent = 'Sesión detectada. Redirigiendo...';
-    await redirect(session.user.id);
-  } catch (e) {
-    console.error("Error de sesión local:", e);
-    document.getElementById('hint').innerHTML = 'Error al validar tu sesión previa. <button type="button" onclick="forceLogout()">Haz clic aquí para limpiar caché</button>';
+function showErr(m) {
+  const e = document.getElementById('err');
+  if(e) {
+    e.textContent = m;
+    e.classList.add('show');
   }
 }
 
-async function login(){
+// Inicialización inmediata sin esperar a window.onload que podría colgarse
+try {
+  if (typeof supabase !== 'undefined') {
+    const { createClient } = supabase;
+    sb = createClient(SB_URL, SB_KEY);
+    
+    // Comprobar sesión asíncronamente
+    sb.auth.getSession().then(({data}) => {
+      if(data && data.session) {
+        const hint = document.getElementById('hint');
+        if(hint) hint.textContent = 'Sesión detectada. Redirigiendo...';
+        redirect(data.session.user.id);
+      }
+    }).catch(err => {
+      console.error("Error comprobando sesión:", err);
+    });
+  } else {
+    showErr("Supabase no cargó. ¿Estás en la red de la oficina?");
+  }
+} catch(e) {
+  showErr("Error inicializando: " + e.message);
+}
+
+async function doLogin() {
   const err = document.getElementById('err');
+  const spin = document.getElementById('spin');
+  const btn = document.getElementById('btn');
+  
+  if(err) {
+    err.classList.remove('show');
+    err.textContent = '';
+  }
+
   if (!sb) {
-    err.textContent = 'El sistema no pudo conectar con la base de datos. Comprueba tu red.';
-    err.classList.add('show');
+    showErr('El sistema no conectó a la base de datos. Recarga la página.');
     return;
   }
 
-  const email=document.getElementById('email').value.trim();
-  const pass=document.getElementById('pass').value;
-  const btn=document.getElementById('btn');
-  const spin=document.getElementById('spin');
-  err.classList.remove('show');
-  
-  if(!email||!pass){ showErr('Rellena email y contraseña.'); return; }
-  
-  btn.disabled=true; 
-  spin.classList.add('show');
-  
+  const emailInput = document.getElementById('email');
+  const passInput = document.getElementById('pass');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const pass = passInput ? passInput.value : '';
+
+  if(!email || !pass) { 
+    showErr('Por favor, rellena email y contraseña.'); 
+    return; 
+  }
+
+  if(btn) {
+    btn.disabled = true;
+    btn.textContent = 'Conectando...';
+  }
+  if(spin) spin.classList.add('show');
+
   try {
-    const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
-    if(error){
-      spin.classList.remove('show'); 
-      btn.disabled=false;
-      showErr('Error al acceder: ' + error.message);
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    
+    if (error) {
+      reactivateBtn();
+      showErr('Error: ' + (error.message.includes('Invalid') ? 'Credenciales incorrectas.' : error.message));
       return;
     }
+    
     await redirect(data.user.id);
   } catch(e) {
-    spin.classList.remove('show'); 
-    btn.disabled=false;
-    showErr('Fallo de red al intentar acceder: ' + e.message);
+    reactivateBtn();
+    showErr('Fallo de red: ' + e.message);
   }
 }
 
-async function redirect(uid){
+async function redirect(uid) {
   try {
-    const {data,error} = await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
-    if(error){showErr('La sesión está creada, pero falló la lectura de tu perfil: '+error.message); return;}
-    if(!data){showErr('Usuario sin perfil configurado. Pide a tu coach que genere tu acceso.'); return;}
+    const { data, error } = await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
+    
+    if(error) {
+      showErr('Sesión creada, pero falló la lectura de tu perfil: ' + error.message);
+      reactivateBtn();
+      return;
+    }
+    if(!data) {
+      showErr('Usuario sin perfil configurado. Pide a tu coach que genere tu acceso.');
+      reactivateBtn();
+      return;
+    }
     
     const needsOnboarding = data.role !== 'admin' && (
       data.onboarding_completed !== true ||
       !data.age || !data.sex || !data.weight_kg || !data.height_cm || !data.goal
     );
     
-    if(data.role === 'admin') window.location.href = 'admin.html';
-    else if(needsOnboarding) window.location.href = 'onboarding.html';
-    else window.location.href = 'app.html';
+    if(data.role === 'admin') window.location.replace('admin.html');
+    else if(needsOnboarding) window.location.replace('onboarding.html');
+    else window.location.replace('app.html');
+    
   } catch(e) {
     showErr('Error crítico al redirigir: ' + e.message);
-    document.getElementById('spin').classList.remove('show');
-    document.getElementById('btn').disabled=false;
+    reactivateBtn();
   }
 }
 
-function showErr(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show');}
-async function forceLogout(){
+function reactivateBtn() {
+  const spin = document.getElementById('spin');
+  const btn = document.getElementById('btn');
+  if(spin) spin.classList.remove('show');
+  if(btn) {
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+}
+
+async function forceLogout() {
   if(sb) await sb.auth.signOut();
-  document.getElementById('hint').textContent='Sesión local cerrada. Ya puedes volver a entrar.';
-  document.getElementById('err').classList.remove('show');
+  const hint = document.getElementById('hint');
+  const err = document.getElementById('err');
+  if(hint) hint.textContent = 'Sesión cerrada. Ya puedes volver a entrar.';
+  if(err) err.classList.remove('show');
 }
 
-function toggleFirstTime(){
-  const c=document.getElementById('firsttime-card');
-  c.style.display=c.style.display==='none'?'block':'none';
+function toggleFirstTime() {
+  const c = document.getElementById('firsttime-card');
+  if(c) c.style.display = c.style.display === 'none' ? 'block' : 'none';
 }
 
-async function sendMagicLink(){
-  if(!sb) return;
-  const email=document.getElementById('ft-email').value.trim();
-  const btn=document.getElementById('ft-btn');
-  const ftErr=document.getElementById('ft-err');
-  const spin=document.getElementById('ft-spin');
-  ftErr.classList.remove('show');
-  document.getElementById('ft-ok').style.display='none';
-  if(!email){ftErr.textContent='Introduce tu email.';ftErr.classList.add('show');return;}
-  btn.disabled=true;spin.classList.add('show');
+async function doMagicLink() {
+  const ftErr = document.getElementById('ft-err');
+  const spin = document.getElementById('ft-spin');
+  const btn = document.getElementById('ft-btn');
+  const ftOk = document.getElementById('ft-ok');
+  
+  if(ftErr) {
+    ftErr.classList.remove('show');
+    ftErr.textContent = '';
+  }
+  if(ftOk) ftOk.style.display = 'none';
+
+  if(!sb) {
+    if(ftErr) {
+      ftErr.textContent = 'Sistema desconectado.';
+      ftErr.classList.add('show');
+    }
+    return;
+  }
+
+  const emailInput = document.getElementById('ft-email');
+  const email = emailInput ? emailInput.value.trim() : '';
+  
+  if(!email) {
+    if(ftErr) {
+      ftErr.textContent = 'Introduce tu email.';
+      ftErr.classList.add('show');
+    }
+    return;
+  }
+  
+  if(btn) btn.disabled = true;
+  if(spin) spin.classList.add('show');
   
   try {
-    const redirectTo=window.location.href.replace(/\/[^/]*$/','/onboarding.html?firsttime=1');
-    const {error}=await sb.auth.signInWithOtp({
+    const redirectTo = window.location.href.replace(/\/[^/]*$/, '/onboarding.html?firsttime=1');
+    const { error } = await sb.auth.signInWithOtp({
       email,
-      options:{shouldCreateUser:false,emailRedirectTo:redirectTo}
+      options: { shouldCreateUser: false, emailRedirectTo: redirectTo }
     });
-    spin.classList.remove('show');btn.disabled=false;
-    if(error){ftErr.textContent=error.message;ftErr.classList.add('show');return;}
-    document.getElementById('ft-ok').style.display='block';
-    btn.style.display='none';
+    
+    if(spin) spin.classList.remove('show');
+    if(btn) btn.disabled = false;
+    
+    if(error) {
+      if(ftErr) {
+        ftErr.textContent = error.message;
+        ftErr.classList.add('show');
+      }
+      return;
+    }
+    
+    if(ftOk) ftOk.style.display = 'block';
+    if(btn) btn.style.display = 'none';
   } catch(e) {
-    spin.classList.remove('show');btn.disabled=false;
-    ftErr.textContent='Fallo de red: ' + e.message;
-    ftErr.classList.add('show');
+    if(spin) spin.classList.remove('show');
+    if(btn) btn.disabled = false;
+    if(ftErr) {
+      ftErr.textContent = 'Fallo de red: ' + e.message;
+      ftErr.classList.add('show');
+    }
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const passInput = document.getElementById('pass');
+  if(passInput) {
+    passInput.addEventListener('keydown', e => { 
+      if(e.key === 'Enter') doLogin(); 
+    });
+  }
+  const ftEmailInput = document.getElementById('ft-email');
+  if(ftEmailInput) {
+    ftEmailInput.addEventListener('keydown', e => { 
+      if(e.key === 'Enter') doMagicLink(); 
+    });
+  }
+});
 </script>
 </body>
 </html>
