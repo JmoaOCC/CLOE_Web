@@ -116,7 +116,7 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 .mob-day-bar{background:#101622;border-bottom:1px solid var(--border);padding:9px 12px;display:flex;gap:5px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
 .mob-day-btn{font-family:'DM Mono',monospace;font-size:10px;padding:5px 9px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
 .mob-day-btn.on{background:var(--accent);color:#111;border-color:var(--accent);font-weight:500}
-.mob-body{flex:1;overflow-y:auto;padding:13px 13px 80px;-webkit-overflow-scrolling:touch}
+.mob-body{flex:1;overflow-y:auto;padding:13px 13px 20px;-webkit-overflow-scrolling:touch}
 .mob-section{margin-bottom:16px}
 .mob-section-title{font-size:12px;font-weight:800;margin-bottom:9px;display:flex;align-items:center;gap:6px}
 .mob-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
@@ -167,11 +167,6 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 /* MOBILE OBS */
 .mob-obs-ta{background:#0f1624;color:var(--text);border:1px solid var(--border);padding:9px;border-radius:9px;font-family:'DM Mono',monospace;font-size:12px;width:100%;outline:none;min-height:80px;resize:none;line-height:1.7}
 .mob-obs-ta:focus{border-color:var(--accent2)}
-/* MOBILE SAVE BAR */
-.mob-save-bar{position:fixed;bottom:0;left:0;right:0;background:#101622;border-top:1px solid var(--border);padding:9px 13px;display:flex;gap:8px;align-items:center;z-index:1001}
-.mob-save-btn{flex:1;background:var(--accent);color:#111;border:none;padding:10px;border-radius:10px;font-weight:800;font-family:Syne,sans-serif;font-size:12px;cursor:pointer}
-.mob-status{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);min-width:80px}
-.mob-status span{color:var(--accent);font-weight:500}
 @media(max-width:860px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}}
 /* ── MI PLAN ── */
 .myplan-tabs{display:flex;gap:5px;margin-bottom:13px;flex-wrap:wrap}
@@ -234,8 +229,8 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 .cal-ex-vid:hover{background:rgba(255,50,50,.2);border-color:rgba(255,50,50,.5)}
 .cal-meal-row{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:9px;margin-bottom:4px;border:1px solid var(--border)}
 .cal-meal-name{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;flex:1}
-.cal-meal-opts{display:flex;gap:4px}
-.cal-meal-opt{font-family:'DM Mono',monospace;font-size:9px;padding:3px 9px;border-radius:5px;background:var(--bg);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;font-weight:500}
+.cal-meal-opts{display:flex;gap:5px;flex-wrap:wrap}
+.cal-meal-opt{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:6px;background:var(--bg);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;font-weight:500}
 .cal-meal-opt.sel{background:rgba(200,241,53,.13);border-color:var(--accent);color:var(--accent)}
 .cal-meal-detail{margin:0 0 10px 10px;padding:8px 10px;background:var(--bg);border-radius:8px;border-left:2px solid var(--border)}
 .cal-meal-detail-macros{font-family:'DM Mono',monospace;font-size:8px;color:var(--accent2);margin-bottom:5px}
@@ -283,10 +278,6 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
   </div>
   <div class="mob-day-bar" id="mob-day-bar"></div>
   <div class="mob-body" id="mob-body"></div>
-  <div class="mob-save-bar">
-    <div class="mob-status">Guardado: <span id="mob-status-text">—</span></div>
-    <button class="mob-save-btn" onclick="saveDayData()">💾 Guardar día</button>
-  </div>
 </div>
 
 <script>
@@ -1145,7 +1136,7 @@ function renderCalDetail(q,di){
     return `<div class="cal-meal-row">
       <div class="cal-meal-name">${meal.name}</div>
       <div class="cal-meal-opts">
-        ${meal.options.map((o,i)=>`<button class="cal-meal-opt" type="button">${String.fromCharCode(65+i)}</button>`).join('')}
+        ${meal.options.map((o,i)=>`<button class="cal-meal-opt" type="button">${o.label.split('·')[1]?.trim() || String.fromCharCode(65+i)}</button>`).join('')}
       </div>
     </div>
     ${meal.options.map((opt,i)=>`<div class="cal-meal-detail">
@@ -2186,7 +2177,7 @@ function renderMobileDay(){
       return `<div class="cal-meal-row" style="${done?'border-color:var(--accent)':''}">
         <div class="cal-meal-name">${esc(meal.name)}</div>
         <div class="cal-meal-opts">
-          ${meal.options.map((o,i)=>`<button class="cal-meal-opt ${i===selOpt?'sel':''}" onclick="selectMobMealOpt('${meal.key}',${i})">${String.fromCharCode(65+i)}</button>`).join('')}
+          ${meal.options.map((o,i)=>`<button class="cal-meal-opt ${i===selOpt?'sel':''}" onclick="selectMobMealOpt('${meal.key}',${i})">${o.label.split('·')[1]?.trim() || String.fromCharCode(65+i)}</button>`).join('')}
         </div>
         <div class="mob-meal-check ${done?'done':''}" style="margin-left:8px;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--border);cursor:pointer;${done?'background:var(--accent);color:#111;border-color:var(--accent)':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
       </div>
@@ -2325,11 +2316,11 @@ function saveDayData(){
   log.obs=document.getElementById('mob-obs')?.value||'';
   saveDayLog(q,mobDayIdx,log);
   updateMobStatus(q,mobDayIdx);
-  const btn=document.querySelector('.mob-save-btn');
-  if(btn){btn.textContent='✅ Guardado';setTimeout(()=>btn.textContent='💾 Guardar día',2000);}
 }
 
 function updateMobStatus(q,d){
+  const statusEl = document.getElementById('mob-status-text');
+  if(!statusEl) return;
   const wd=d%7;
   const log=loadDayLog(q,d);const type=DAYTYPES[wd];const parts=[];
   if(type==='strength'&&getPlanStrengthForDay(d)){
@@ -2344,7 +2335,7 @@ function updateMobStatus(q,d){
   if(log.meals){const mc=Object.values(log.meals).filter(Boolean).length;if(mc>0) parts.push(`${mc}/6 tomas`);}
   if(log.supps){const sc=Object.values(log.supps).filter(Boolean).length;if(sc>0) parts.push(`${sc} supps`);}
   if(log.obs) parts.push('obs ✓');
-  document.getElementById('mob-status-text').textContent=parts.join(' · ')||'sin datos';
+  statusEl.textContent=parts.join(' · ')||'sin datos';
 }
 
 function toggleMobChk(q,d,key){
