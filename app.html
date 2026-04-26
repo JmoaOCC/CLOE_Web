@@ -845,8 +845,11 @@ function extractPlanStrengthDays(text){
   try{
     const {data:{session}}=await sb.auth.getSession();
     if(!session){window.location.href='login.html';return;}
-    const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
-    if(error||!data){window.location.href='login.html';return;}
+    const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+    if(error||!data){
+      document.getElementById('loading-screen').textContent='Sesion iniciada, pero no se pudo leer el perfil. Revisa que el usuario exista en profiles.';
+      return;
+    }
     if(data.role==='admin'){window.location.href='admin.html';return;}
     if(data.status==='inactive'){await sb.auth.signOut();window.location.href='login.html';return;}
     if(data.onboarding_completed!==true){window.location.href='onboarding.html';return;}

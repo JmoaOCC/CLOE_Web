@@ -65,6 +65,9 @@ init();
 async function init(){
   const {data:{session}}=await sb.auth.getSession();
   if(!session) return;
+  document.getElementById('hint').textContent='Sesion abierta. Redirigiendo...';
+  redirect(session.user.id);
+  return;
   document.getElementById('hint').innerHTML='Ya hay una sesión abierta en este navegador. Si quieres limpiarla, <button type="button" onclick="forceLogout()">cerrar sesión</button>.';
 }
 
@@ -84,7 +87,8 @@ async function login(){
 }
 
 async function redirect(uid){
-  const {data,error}=await sb.from('profiles').select('*').eq('id',uid).single();
+  const {data,error}=await sb.from('profiles').select('*').eq('id',uid).maybeSingle();
+  if(!data&&!error){showErr('La sesion esta creada, pero este usuario todavia no tiene perfil en Supabase. Revisa la tabla profiles desde admin.');return;}
   if(error){showErr('La sesión está creada, pero no se pudo leer tu perfil en Supabase: '+error.message);return;}
   const needsOnboarding = data?.role!=='admin' && (
     (Object.prototype.hasOwnProperty.call(data,'onboarding_completed') && data.onboarding_completed!==true) ||
