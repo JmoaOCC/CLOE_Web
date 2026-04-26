@@ -777,6 +777,92 @@ function extractPlanNutritionData(text, fallbackMacros){
   const rest=parseMacrosLine((text.match(/MACROS\s+D[IÍ]A\s+DESCANSO[^\n]+/i)||[])[0])||training;
   return {training:{...training,meals},rest:{...rest,meals},meals};
 }
+function parsePlanMacroLoose(line){
+  if(!line) return null;
+  const m=String(line).match(/(\d+)\s*kcal[\s\S]*?(\d+)\s*g?\s*P[\s\S]*?(\d+)\s*g?\s*HC[\s\S]*?(\d+)\s*g?\s*G/i)
+    || String(line).match(/(\d+)\s*kcal[\s\S]*?(\d+)\s*P[\s\S]*?(\d+)\s*HC[\s\S]*?(\d+)\s*G/i);
+  return m?{kcal:+m[1],protein:+m[2],carbs:+m[3],fat:+m[4]}:null;
+}
+function extractPlanNutritionDataClean(text, fallbackMacros){
+  if(!text) return null;
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const mealTitleRx=/^(?:[-•*]\s*)?(DESAYUNO|ALMUERZO|COMIDA|MERIENDA|CENA|POST[\s-]*CENA|PRE[\s-]*ENTRENO|POST[\s-]*ENTRENO|TOMA\s*\d+)\b(?:\s*\(([^)]*)\))?/i;
+  const optionRx=/^Opci[oó]n\s+([A-Z])(?:\s*[-:·]\s*(.*))?$/i;
+  const stopRx=/D[IÍ]A\s+DESCANSO|REGLAS\s+GENERALES|ALCOHOL|SUPLEMENTOS|ENTRENAMIENTO|AJUSTES|NOTAS/i;
+  const separatorRx=/^[─━═_\-=]{3,}/;
+  const meals=[];
+  let cur=null, curOpt=null;
+  const closeOpt=()=>{
+    if(cur&&curOpt){
+      const seen=new Set();
+      curOpt.items=curOpt.items.filter(it=>{
+        const k=(it.f||'').toLowerCase().trim();
+        if(!k||seen.has(k)) return false;
+        seen.add(k);return true;
+      });
+      cur.options.push(curOpt); curOpt=null;
+    }
+  };
+  const closeMeal=()=>{
+    if(!cur) return;
+    closeOpt();
+    cur.content=cur.contentLines.join('\n').trim();
+    delete cur.contentLines;
+    if(cur.options.length===0&&cur.content){
+      const macros=parsePlanMacroLoose(cur.content);
+      cur.options.push({
+        label:'Unica',
+        kcal:macros?.kcal||cur.kcal||'',p:macros?.protein||'',hc:macros?.carbs||'',g:macros?.fat||'',
+        items:cur.content.split('\n').filter(l=>l.trim()&&!parsePlanMacroLoose(l)&&!l.match(/MACROS/i)).map(l=>({f:l.trim().replace(/^[-•]\s*/,''),a:'',note:''}))
+      });
+    }
+    if(cur.options.length>0||cur.content) meals.push(cur);
+    cur=null;
+  };
+  lines.forEach(raw=>{
+    const line=raw.replace(/^[-•]\s*/,'').trim();
+    if(!line||separatorRx.test(line)) return;
+    if(stopRx.test(line)){ closeMeal(); return; }
+    const mt=line.match(mealTitleRx);
+    if(mt&&!/^Mismos men/i.test(line)){
+      closeMeal();
+      const base=mt[1].replace(/\s+/g,' ').trim();
+      const timing=mt[2]||'';
+      cur={key:'plan_meal_'+meals.length,name:base,timing:timing||'',kcal:null,macros:null,contentLines:[],options:[]};
+      return;
+    }
+    if(!cur) return;
+    const om=line.match(optionRx);
+    if(om){
+      closeOpt();
+      curOpt={label:`Opción ${om[1].toUpperCase()}`,items:[],kcal:'',p:'',hc:'',g:''};
+      if(om[2]) curOpt.items.push({f:om[2].trim(),a:'',note:''});
+      return;
+    }
+    const macros=parsePlanMacroLoose(line);
+    if(macros){
+      if(curOpt){
+        curOpt.kcal=macros.kcal;curOpt.p=macros.protein;curOpt.hc=macros.carbs;curOpt.g=macros.fat;
+      }else{
+        cur.kcal=macros.kcal;cur.macros=macros;
+      }
+      cur.contentLines.push(line);
+      return;
+    }
+    if(curOpt) curOpt.items.push({f:line.replace(/^[-•]\s*/,''),a:'',note:''});
+    cur.contentLines.push(line);
+  });
+  closeMeal();
+  meals.forEach(meal=>{
+    const first=meal.options.find(o=>o.kcal);
+    if(first&&!meal.kcal) meal.kcal=+first.kcal;
+    if(first&&!meal.macros) meal.macros={kcal:+first.kcal,protein:+first.p||0,carbs:+first.hc||0,fat:+first.g||0};
+  });
+  if(!meals.length) return null;
+  const training=parsePlanMacroLoose((text.match(/MACROS\s+D[IÍ]A\s+ENTRENO[^\n]+/i)||[])[0])||fallbackMacros;
+  const rest=parsePlanMacroLoose((text.match(/MACROS\s+D[IÍ]A\s+DESCANSO[^\n]+/i)||[])[0])||training;
+  return {training:{...training,meals},rest:{...rest,meals},meals};
+}
 function extractPlanSupplementsData(text){
   if(!text) return null;
   const blocks=splitPlanBlocks(text,null);
@@ -795,7 +881,7 @@ function applyPlanData(planText){
     profile.fat=+structured.macros.g||profile.fat;
   }
   const fallback={kcal:profile.kcal||2475,protein:profile.protein||154,carbs:profile.carbs||310,fat:profile.fat||69};
-  profile._planNutrition=extractPlanNutritionData(structured.C||'',fallback);
+  profile._planNutrition=extractPlanNutritionDataClean(structured.C||'',fallback)||extractPlanNutritionData(structured.C||'',fallback);
   profile._planSupplements=extractPlanSupplementsData(structured.A||'');
 }
 function getPlanStrengthForDay(dayIdx){
@@ -2228,7 +2314,7 @@ function renderMobileDay(){
             <div class="meal-macros" style="font-size:9px;color:var(--muted)">${esc(meal.timing||'')}</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <div class="meal-kcal">~${meal.options[0].kcal||''} kcal</div>
+            ${meal.options[0].kcal?`<div class="meal-kcal">~${meal.options[0].kcal} kcal</div>`:''}
             <div class="mob-meal-check ${done?'done':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
           </div>
         </div>
@@ -2237,10 +2323,10 @@ function renderMobileDay(){
         </div>
         ${meal.options.map((opt,i)=>`
           <div class="meal-option ${i===0?'active':''}" id="opt_${meal.key}_${i}">
-            <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
+            ${(opt.p||opt.hc||opt.g||opt.kcal)?`<div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
               <span>${opt.p}g P · ${opt.hc}g HC · ${opt.g}g G</span>
-              <span style="color:var(--muted)">${opt.kcal} kcal</span>
-            </div>
+              ${opt.kcal?`<span style="color:var(--muted)">${opt.kcal} kcal</span>`:''}
+            </div>`:''}
             ${opt.items.map(it=>`
               <div class="food-row">
                 <div><div class="food-name">${esc(it.f)}</div>${it.note?`<div class="food-note">${esc(it.note)}</div>`:''}</div>
