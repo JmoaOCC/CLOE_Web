@@ -56,7 +56,7 @@ También tienes el mismo bloque preparado en [supabase-setup.sql](./supabase-set
 
 ```sql
 create table profiles (
-  id uuid references auth.users on delete cascade primary key,
+  id uuid references auth.users(id) on delete cascade primary key,
   full_name text,
   email text,
   role text default 'user',
@@ -89,9 +89,15 @@ as $$
 $$;
 
 -- Cada usuario solo ve su propio perfil
-create policy "own profile"
-  on profiles for all
+create policy "own profile select"
+  on profiles for select
   using (auth.uid() = id);
+
+-- Cada usuario actualiza su perfil (evitando que se hagan admin a sí mismos)
+create policy "own profile update"
+  on profiles for update
+  using (auth.uid() = id)
+  with check (auth.uid() = id and role = 'user');
 
 -- Admin ve y edita todos
 create policy "admin all"
@@ -111,7 +117,7 @@ $$ language plpgsql security definer;
 
 create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute procedure handle_new_user();
+  for each row execute function handle_new_user();
 ```
 
 ### 4. Crear tu cuenta admin
