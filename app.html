@@ -629,6 +629,93 @@ function getPrevWeight(key){ return parseFloat(localStorage.getItem(`cloe_pw_${p
 function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${key}`,val); }
 
 // ── PLAN RUNTIME PARSERS ──────────────────────────────────
+function getPlanText(){ return profile?.current_plan||profile?.quincena1_plan||''; }
+function splitPlanBlocks(text, titleRx){
+  if(!text) return [];
+  const blocks=[];let m;
+  const box='(?:[─━═\\-]{5,})';
+  const rx=new RegExp(box+'\\s*\\n([^\\n─━═-]+)\\n'+box+'\\s*\\n([\\s\\S]*?)(?='+box+'|$)','gi');
+  while((m=rx.exec(text))!==null){
+    const title=m[1].trim();
+    const content=m[2].trim();
+    if(!titleRx||titleRx.test(title)) blocks.push({title,content});
+  }
+  if(blocks.length) return blocks;
+  const lines=text.split('\n');
+  let cur=null;
+  lines.forEach(line=>{
+    const t=line.trim();
+    if(titleRx&&titleRx.test(t)){
+      if(cur) blocks.push(cur);
+      cur={title:t,content:''};
+    }else if(cur){
+      cur.content+=(cur.content?'\n':'')+line;
+    }
+  });
+  if(cur) blocks.push({title:cur.title,content:cur.content.trim()});
+  return blocks.filter(b=>b.content);
+}
+function parseMacrosLine(line){
+  if(!line) return null;
+  const m=line.match(/(\d+)\s*kcal[\s\S]*?(\d+)\s*g?\s*P[\s\S]*?(\d+)\s*g?\s*HC[\s\S]*?(\d+)\s*g?\s*G/i);
+  return m?{kcal:+m[1],protein:+m[2],carbs:+m[3],fat:+m[4]}:null;
+}
+function extractPlanNutritionData(text, fallbackMacros){
+  if(!text) return null;
+  const meals=splitPlanBlocks(text,/TOMA/i).map((b,i)=>{
+    const name=b.title.replace(/^TOMA\s*\d+\s*[-–—:]?\s*/i,'').trim()||b.title;
+    const kcal=(b.content.match(/\((\d+)\s*(?:kcal|cal|calor)/i)||[])[1];
+    const macros=parseMacrosLine(b.content);
+    return {key:'plan_meal_'+i,name,timing:b.title,kcal:kcal?+kcal:null,macros,content:b.content};
+  });
+  if(!meals.length) return null;
+  const training=parseMacrosLine((text.match(/MACROS\s+D[IÍ]A\s+ENTRENO[^\n]+/i)||[])[0])||fallbackMacros;
+  const rest=parseMacrosLine((text.match(/MACROS\s+D[IÍ]A\s+DESCANSO[^\n]+/i)||[])[0])||training;
+  return {training,rest,meals};
+}
+function extractPlanSupplementsData(text){
+  if(!text) return null;
+  const blocks=splitPlanBlocks(text,null);
+  if(blocks.length) return blocks.map((b,i)=>({key:'plan_supp_'+i,title:b.title,items:b.content.split('\n').map(x=>x.trim()).filter(Boolean)}));
+  const lines=text.split('\n').map(x=>x.trim()).filter(Boolean);
+  return lines.length?[{key:'plan_supps',title:'Suplementos personalizados',items:lines}]:null;
+}
+function applyPlanData(planText){
+  if(!planText||!profile) return;
+  const structured=parsePlanStructured(planText);
+  profile._planStructured=structured;
+  if(structured.macros){
+    profile.kcal=+structured.macros.kcal||profile.kcal;
+    profile.protein=+structured.macros.p||profile.protein;
+    profile.carbs=+structured.macros.hc||profile.carbs;
+    profile.fat=+structured.macros.g||profile.fat;
+  }
+  const fallback={kcal:profile.kcal||2475,protein:profile.protein||154,carbs:profile.carbs||310,fat:profile.fat||69};
+  profile._planNutrition=extractPlanNutritionData(structured.C||'',fallback);
+  profile._planSupplements=extractPlanSupplementsData(structured.A||'');
+}
+function getPlanStrengthForDay(dayIdx){
+  const days=profile?._strengthDays||[];
+  if(!days.length) return null;
+  const label=(DAYLABELS[dayIdx]||'').toUpperCase();
+  const byKey=days.find(d=>label.includes(d.key));
+  if(byKey) return byKey;
+  const strengthBefore=DAYTYPES.slice(0,dayIdx+1).filter(t=>t==='strength').length-1;
+  return days[Math.max(0,Math.min(strengthBefore,days.length-1))]||days[0];
+}
+function getPlanRunningSessionForDay(dayIdx){
+  let sessions=null;
+  try{
+    const pr=typeof profile?.plan_running==='string'?JSON.parse(profile.plan_running):profile?.plan_running;
+    if(pr&&typeof pr==='object'&&Object.keys(pr).length>0) sessions=pr;
+  }catch(e){}
+  if(!sessions) return null;
+  const label=(DAYLABELS[dayIdx]||'').toUpperCase();
+  const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/CARDIO|SUAVE|RODAJE/i)?'cardio':null;
+  const found=key&&sessions[key]?key:Object.keys(sessions)[0];
+  const names={intervals:'INTERVALOS',tempo:'TEMPO',long:'TIRADA LARGA',cardio:'CARDIO'};
+  return found?{label:names[found]||found.toUpperCase(),fmt:sessions[found],goal:'Plan personalizado de MI PLAN'}:null;
+}
 function parsePlanSchedule(text){
   if(!text) return null;
   const dm={'lunes':0,'martes':1,'miércoles':2,'miercoles':2,'jueves':3,'viernes':4,'sábado':5,'sabado':5,'domingo':6};
@@ -696,8 +783,9 @@ function extractPlanStrengthDays(text){
     if(saved) checklist=JSON.parse(saved);
 
     // Parse plan structure at runtime
-    const planText=profile.current_plan||profile.quincena1_plan;
+    const planText=getPlanText();
     if(planText){
+      applyPlanData(planText);
       const sched=parsePlanSchedule(planText);
       if(sched) sched.forEach((day,i)=>{if(day){DAYLABELS[i]=day.label;DAYTYPES[i]=day.type;}});
       profile._paces=parsePlanPaces(planText);
@@ -756,7 +844,7 @@ function renderDashboard(q,w){
   const p=getCurrentPaces(q);
   const today=new Date().toISOString().slice(0,10);
   const checks=Object.keys(checklist).filter(k=>k.startsWith(`q${q}_${today}_`)&&checklist[k]).length;
-  const hasPlan=!!(profile?.current_plan||profile?.week1_plan);
+  const hasPlan=!!getPlanText();
   return `
   <div class="ph"><h1>Hola, ${(profile?.full_name||'').split(' ')[0]||'coach'} 👋</h1>
   <p>Quincena ${q}/8 · ${getPhase(q)} · ${profile?.goal||'—'}</p></div>
@@ -780,6 +868,20 @@ function renderDashboard(q,w){
 
 // ── SUPPLEMENTS ───────────────────────────────────────────
 function renderSupplements(q){
+  if(profile?._planSupplements?.length){
+    return `
+  <div class="ph"><h1>Suplementos</h1><p>Protocolo personalizado de MI PLAN · Quincena ${q}</p></div>
+  ${profile._planSupplements.map(sec=>`
+    <div class="supp-block">
+      <div class="supp-header"><div class="supp-title">${esc(sec.title)}</div><div class="supp-badge">MI PLAN</div></div>
+      <div class="supp-body">
+        ${sec.items.map(item=>`<div class="supp-row">
+          <div class="supp-icon">💊</div>
+          <div style="flex:1"><div class="supp-dose">${esc(item)}</div></div>
+        </div>`).join('')}
+      </div>
+    </div>`).join('')}`;
+  }
   const dayType=DAYTYPES[todayPlanIdx()];
   const extraKey=dayType==='strength'?'entreno_fuerza':dayType==='running'?'entreno_running':null;
   const sections=[
@@ -900,6 +1002,7 @@ function renderRunning(q){
       <span style="color:var(--muted)">${getPhase(q)}</span>
       <span style="color:var(--muted)">Easy ${p.easy}${p.tempo?' · Tempo '+p.tempo:''}${p.interval?' · Int '+p.interval:''}</span>
     </div>`;
+    }
   }
   // Generic sessions
   const sessions=[runIntervals(q),runTempo(q),runLong(q)];
@@ -929,12 +1032,47 @@ function renderRunning(q){
 
 // ── NUTRITION ─────────────────────────────────────────────
 function renderNutrition(q){
+  if(profile?._planNutrition){
+    const LABELS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+    const idx=nutritionDayTab;
+    const isRest=DAYTYPES[idx]==='rest';
+    const data=profile._planNutrition;
+    const macros=isRest?(data.rest||data.training):data.training;
+    return `
+  <div class="ph"><h1>Nutrición</h1><p>Plan personalizado de MI PLAN · Quincena ${q}</p></div>
+  <div class="meal-day-tabs">${LABELS.map((l,i)=>`<div class="meal-day-tab ${i===idx?'active':''}" onclick="nutritionDayTab=${i};view('nutrition')">${l}</div>`).join('')}</div>
+  ${macros?`<div class="macro-bar">
+    <div class="macro-item"><div class="macro-val">${macros.kcal}</div><div class="macro-label">Kcal</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${macros.protein}g</div><div class="macro-label">Proteína</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${macros.carbs}g</div><div class="macro-label">HC</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${macros.fat}g</div><div class="macro-label">Grasa</div></div>
+  </div>`:''}
+  <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${isRest?'Día descanso según MI PLAN':'Día entreno según MI PLAN'}</div>
+  ${data.meals.map(meal=>`
+    <div class="meal-block">
+      <div class="meal-header">
+        <div>
+          <div class="meal-name">${esc(meal.name)}</div>
+          <div class="meal-macros" style="font-size:9px;color:var(--muted)">${esc(meal.timing)}</div>
+        </div>
+        ${meal.kcal?`<div class="meal-kcal">~${meal.kcal} kcal</div>`:''}
+      </div>
+      <div class="meal-option active" style="display:block">
+        ${meal.macros?`<div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
+          <span>${meal.macros.protein}g P · ${meal.macros.carbs}g HC · ${meal.macros.fat}g G</span>
+          <span style="color:var(--muted)">${meal.macros.kcal} kcal</span>
+        </div>`:''}
+        ${meal.content.split('\n').map(line=>line.trim()).filter(Boolean).map(line=>`
+          <div class="food-row"><div class="food-name">${esc(line)}</div></div>`).join('')}
+      </div>
+    </div>`).join('')}`;
+  }
   const LABELS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   const TYPES=['training','training','rest','training','training','training','rest'];
   const idx=nutritionDayTab;
   const N=getNutrition();
   const isRest=TYPES[idx]==='rest';
-  const nutr=isRest?N.rest:N.training;
+  const nutr=isRest?(N.rest||N.training):N.training;
   return `
   <div class="ph"><h1>Nutrición DOCE</h1><p>Sistema intercambios · Elige tu opción cada comida · Regla 80/20</p></div>
   <div class="meal-day-tabs">${LABELS.map((l,i)=>`<div class="meal-day-tab ${i===idx?'active':''}" onclick="nutritionDayTab=${i};view('nutrition')">${l}</div>`).join('')}</div>
@@ -1026,7 +1164,8 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 function parsePlanStructured(text){
   if(!text) return {};
-  const macroM=text.match(/Macros:\s*(\d+)\s*kcal[^·\n]*·\s*(\d+)g?\s*P\s*[\/·]\s*(\d+)g?\s*HC\s*[\/·]\s*(\d+)g?\s*G/i);
+  const macroM=text.match(/Macros:[^\n]+/i);
+  const macros=parseMacrosLine(macroM?macroM[0]:'');
   const faseM=text.match(/Fase:\s*([^\n\r]+)/i);
   const lines=text.split('\n');
   const starts={};
@@ -1042,7 +1181,7 @@ function parsePlanStructured(text){
     secs[k]=lines.slice(starts[k],nxt?starts[nxt]:lines.length).join('\n');
   });
   return{
-    macros:macroM?{kcal:macroM[1],p:macroM[2],hc:macroM[3],g:macroM[4]}:null,
+    macros:macros?{kcal:macros.kcal,p:macros.protein,hc:macros.carbs,g:macros.fat}:null,
     fase:faseM?faseM[1].trim():null,
     A:secs.A||'',B:secs.B||'',C:secs.C||'',D:secs.D||'',E:secs.E||'',F:secs.F||''
   };
@@ -1167,7 +1306,7 @@ function planGoals(objText,fechasText){
 }
 
 function renderMyPlan(q){
-  const planText=profile?.current_plan||profile?.quincena1_plan;
+  const planText=getPlanText();
   if(!planText) return `
   <div class="ph"><h1>Mi plan · Q${q}</h1><p>Plan personalizado por tu coach</p></div>
   <div style="padding:24px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;line-height:2">⏳ Tu plan de Quincena ${q} está siendo preparado por tu coach.</div>`;
@@ -1401,9 +1540,10 @@ function renderMobileDay(){
   const d=mobDayIdx;
   const type=DAYTYPES[d];
   const log=loadDayLog(q,d);
+  const planNut=profile?._planNutrition;
   const N=getNutrition();
   const isRest=type==='rest';
-  const nutr=isRest?N.rest:N.training;
+  const nutr=planNut?{...(isRest?(planNut.rest||planNut.training):planNut.training),meals:planNut.meals}:isRest?N.rest:N.training;
   document.getElementById('mob-date-label').textContent=`${DAYS[d]} · ${DAYLABELS[d]} · Q${q}`;
 
   let html='';
@@ -1439,6 +1579,16 @@ function renderMobileDay(){
 
   // ── FUERZA ──
   if(type==='strength'){
+    const customStrength=getPlanStrengthForDay(d);
+    if(customStrength){
+      html+=`<div class="mob-section">
+      <div class="mob-section-title">🏋️ ${esc(customStrength.title)}</div>
+      <div class="mob-intervals">
+        <button class="mob-copy" onclick="copyText(this,${JSON.stringify(customStrength.content).replace(/"/g,'&quot;')})">📋</button>
+        <pre>${esc(customStrength.content)}</pre>
+      </div>
+    </div>`;
+    }else{
     const {exList,fmt}=getStrengthIntervals(d===0?'A':'B',q);
     html+=`<div class="mob-section">
       <div class="mob-section-title">🏋️ Fuerza Día ${d===0?'A':'B'}</div>
@@ -1470,11 +1620,12 @@ function renderMobileDay(){
         </div>`;
       }).join('')}
     </div>`;
+    }
   }
 
   // ── RUNNING ──
   if(type==='running'){
-    const rs=getRunSession(d,q);
+    const rs=getPlanRunningSessionForDay(d)||getRunSession(d,q);
     if(rs){
       const rl=log.running||{};
       html+=`<div class="mob-section">
@@ -1512,6 +1663,24 @@ function renderMobileDay(){
     <div class="mob-section-title">🥗 Nutrición del día</div>
     ${nutr.meals.map(meal=>{
       const done=!!(log.meals?.[meal.key]);
+      if(!meal.options){
+        const mm=meal.macros||{};
+        return `<div class="mob-meal">
+        <div class="mob-meal-hdr" onclick="toggleMobMeal('${meal.key}')">
+          <div class="mob-meal-left">
+            <div class="mob-meal-name">${esc(meal.name)}</div>
+            <div class="mob-meal-meta">${meal.kcal?'~'+meal.kcal+' kcal · ':''}${mm.protein?mm.protein+'g P · ':''}MI PLAN</div>
+          </div>
+          <div class="mob-meal-check ${done?'done':''}" id="mmcheck_${meal.key}">${done?'✓':''}</div>
+        </div>
+        <div class="mob-meal-body" id="mmbody_${meal.key}">
+          ${meal.content.split('\n').map(line=>line.trim()).filter(Boolean).map(line=>`<div class="mob-food-row"><span>${esc(line)}</span></div>`).join('')}
+          <button class="mob-mark-btn ${done?'done':''}" onclick="markMeal('${meal.key}')">
+            ${done?'✓ Completada - toca para desmarcar':'Marcar como completada'}
+          </button>
+        </div>
+      </div>`;
+      }
       const selOpt=log.mealOpts?.[meal.key]||0;
       const opt=meal.options[selOpt];
       return `<div class="mob-meal">
@@ -1597,9 +1766,9 @@ function selectMobMealOpt(key,idx){
   // update content
   const N=getNutrition();
   const isRest=DAYTYPES[mobDayIdx]==='rest';
-  const nutr=isRest?N.rest:N.training;
+  const nutr=isRest?(N.rest||N.training):N.training;
   const meal=nutr.meals.find(m=>m.key===key);
-  if(!meal) return;
+  if(!meal||!meal.options) return;
   const opt=meal.options[idx];
   const optEl=document.getElementById('mmopt_'+key);
   if(optEl) optEl.innerHTML=opt.items.map(it=>`<div class="mob-food-row">
@@ -1628,6 +1797,14 @@ function saveDayData(){
   const type=DAYTYPES[mobDayIdx];
   // collect set data
   if(type==='strength'){
+    if(getPlanStrengthForDay(mobDayIdx)){
+      log.sets=log.sets||{};
+      saveDayLog(q,mobDayIdx,log);
+      updateMobStatus(q,mobDayIdx);
+      const btn=document.querySelector('.mob-save-btn');
+      if(btn){btn.textContent='âœ… Guardado';setTimeout(()=>btn.textContent='ðŸ’¾ Guardar dÃ­a',2000);}
+      return;
+    }
     const {exList}=getStrengthIntervals(mobDayIdx===0?'A':'B',q);
     if(!log.sets) log.sets={};
     exList.forEach(ex=>{
@@ -1661,7 +1838,9 @@ function saveDayData(){
 
 function updateMobStatus(q,d){
   const log=loadDayLog(q,d);const type=DAYTYPES[d];const parts=[];
-  if(type==='strength'&&log.sets){
+  if(type==='strength'&&getPlanStrengthForDay(d)){
+    parts.push('fuerza MI PLAN');
+  }else if(type==='strength'&&log.sets){
     const {exList}=getStrengthIntervals(d===0?'A':'B',q);
     const done=exList.reduce((acc,ex)=>acc+(log.sets[ex.key]||[]).filter(s=>s&&s.done).length,0);
     const total=exList.reduce((acc,ex)=>acc+ex.sets,0);
