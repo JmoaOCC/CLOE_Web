@@ -1073,6 +1073,14 @@ function renderCalDetail(q,di){
     </div>
   </div>`;
 
+  // ─ SUPLEMENTOS ─
+  const planText = getPlanText();
+  const s = parsePlanStructured(planText);
+  if (s.A && s.A.trim().length > 0) {
+    html += `<div class="stitle" style="margin:0 0 9px">💊 Suplementos</div>`;
+    html += planSupps(s.A);
+  }
+
   // ─ ENTRENAMIENTO ─
   if(type==='strength'){
     const isA=wd===0;
@@ -2044,7 +2052,15 @@ function renderMobileDay(){
 
   let html='';
 
-  // Día activo: los suplementos se consultan en MI PLAN.
+  // ── SUPLEMENTOS ──
+  const planText = getPlanText();
+  const s = parsePlanStructured(planText);
+  if (s.A && s.A.trim().length > 0) {
+    html += `<div class="mob-section">
+      <div class="mob-section-title">💊 Suplementos</div>
+      ${planSupps(s.A)}
+    </div>`;
+  }
 
   // ── FUERZA ──
   if(type==='strength'){
