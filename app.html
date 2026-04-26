@@ -704,15 +704,26 @@ function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${
 function getPlanText(){ return profile?.current_plan||profile?.quincena1_plan||''; }
 function splitPlanBlocks(text, titleRx){
   if(!text) return [];
-  const blocks=[];let m;
-  const box='(?:[─━═\\-]{5,})';
-  const rx=new RegExp(box+'\\s*\\n([^\\n─━═-]+)\\n'+box+'\\s*\\n([\\s\\S]*?)(?='+box+'|$)','gi');
-  while((m=rx.exec(text))!==null){
-    const title=m[1].trim();
-    const content=m[2].trim();
-    if(!titleRx||titleRx.test(title)) blocks.push({title,content});
+  const blocks=[];
+  const rx = /(?:^[─━═\-]{5,}[ \t]*\r?\n)?^([^─━═\-\n]+)\r?\n^[─━═\-]{5,}[ \t]*(?:\r?\n|$)/gm;
+  let m;
+  let lastIndex = 0;
+  let currentTitle = null;
+  
+  while ((m = rx.exec(text)) !== null) {
+    if (currentTitle) {
+      const content = text.substring(lastIndex, m.index).trim();
+      if (!titleRx || titleRx.test(currentTitle)) blocks.push({ title: currentTitle, content });
+    }
+    currentTitle = m[1].trim();
+    lastIndex = rx.lastIndex;
+  }
+  if (currentTitle) {
+    const content = text.substring(lastIndex).trim();
+    if (!titleRx || titleRx.test(currentTitle)) blocks.push({ title: currentTitle, content });
   }
   if(blocks.length) return blocks;
+  
   const lines=text.split('\n');
   let cur=null;
   lines.forEach(line=>{
@@ -734,8 +745,8 @@ function parseMacrosLine(line){
 }
 function extractPlanNutritionData(text, fallbackMacros){
   if(!text) return null;
-  const meals=splitPlanBlocks(text,/TOMA/i).map((b,i)=>{
-    const name=b.title.replace(/^TOMA\s*\d+\s*[-–—:]?\s*/i,'').trim()||b.title;
+  const meals=splitPlanBlocks(text,/TOMA|DESAYUNO|ALMUERZO|COMIDA|MERIENDA|CENA|POST/i).map((b,i)=>{
+    const name=b.title.replace(/^(?:TOMA\s*\d+|OPCI[ÓO]N)\s*[-–—:]?\s*/i,'').trim()||b.title;
     const kcal=(b.content.match(/\((\d+)\s*(?:kcal|cal|calor)/i)||[])[1];
     const macros=parseMacrosLine(b.content);
     return {key:'plan_meal_'+i,name,timing:b.title,kcal:kcal?+kcal:null,macros,content:b.content};
@@ -793,13 +804,13 @@ function parsePlanSchedule(text){
   const dm={'lunes':0,'martes':1,'miércoles':2,'miercoles':2,'jueves':3,'viernes':4,'sábado':5,'sabado':5,'domingo':6};
   const sched=Array(7).fill(null);let found=0;
   text.split('\n').forEach(line=>{
-    const m=line.match(/^\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+):\s+(\S[^\n]*)/);
+    const m=line.match(/^(?:\[)?\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d+)?(?:\])?\s*[:\-]?\s*([^|\n]+)/);
     if(!m) return;
     const k=m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const idx=dm[k];if(idx===undefined) return;
     const val=m[2].trim();
-    const type=val.match(/^DESCANSO/i)?'rest':val.match(/FUERZA|GYM/i)?'strength':val.match(/RUNNING|CARDIO|ANDAR/i)?'running':null;
-    if(type){sched[idx]={label:val.split(/[·—]/)[0].trim().toUpperCase(),type};found++;}
+    const type=val.match(/DESCANSO/i)?'rest':val.match(/FUERZA|GYM/i)?'strength':val.match(/RUNNING|CARDIO|ANDAR|NATACI[ÓO]N|RODILLO/i)?'running':null;
+    if(type && !sched[idx]){sched[idx]={label:val.split(/[·—|]/)[0].trim().toUpperCase(),type};found++;}
   });
   return found>=5?sched:null;
 }
@@ -813,30 +824,27 @@ function parsePlanPaces(text){
 function extractPlanRunningSessions(text){
   if(!text) return {};
   const sessions={};const seen=new Set();
-  const rx=/─{5,}\s*\n([^\n─]+)\n─{5,}\s*\n([\s\S]*?)(?=─{5,}|$)/gi;
-  let m;
-  while((m=rx.exec(text))!==null){
-    const title=m[1].trim().toUpperCase();const content=m[2].trim();
-    if(title.match(/FUERZA|DESCANSO/i)||title.match(/SEMANA\s+\d/i)) continue;
-    if(!content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+/i)) continue;
+  const blocks = splitPlanBlocks(text, null);
+  blocks.forEach(b => {
+    const title = b.title.toUpperCase();
+    if(title.match(/FUERZA|DESCANSO|NATACI[ÓO]N|RODILLO/i)||title.match(/SEMANA\s+\d/i)) return;
+    if(!b.content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+|Duraci[óo]n:|Ritmo objetivo:/i)) return;
     const key=title.match(/INTERVAL/i)?'intervals':title.match(/TEMPO/i)?'tempo':title.match(/TIRADA|LARGA/i)?'long':'cardio';
-    if(!seen.has(key)){seen.add(key);sessions[key]=content;}
-  }
+    if(!seen.has(key)){seen.add(key);sessions[key]=b.content;}
+  });
   return sessions;
 }
 function extractPlanStrengthDays(text){
   if(!text) return [];
   const days=[];const seenKeys=new Set();
-  const rx=/─{5,}\s*\n([^\n─]*FUERZA[^\n─]*)\n─{5,}\s*\n([\s\S]*?)(?=─{5,}|$)/gi;
-  let m;
-  while((m=rx.exec(text))!==null){
-    const title=m[1].trim();const content=m[2].trim();
-    const km=title.match(/FUERZA\s+([ABCD])\b/i);
-    const key=km?km[1].toUpperCase():'D'+(days.length+1);
-    if(seenKeys.has(key)) continue;
+  const blocks = splitPlanBlocks(text, /FUERZA/i);
+  blocks.forEach(b => {
+    const km = b.title.match(/FUERZA\s+([ABCD])\b/i);
+    const key = km ? km[1].toUpperCase() : 'D'+(days.length+1);
+    if(seenKeys.has(key)) return;
     seenKeys.add(key);
-    days.push({title,content,key});
-  }
+    days.push({title: b.title, content: b.content, key});
+  });
   return days;
 }
 
@@ -1427,22 +1435,30 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 function parsePlanStructured(text){
   if(!text) return {};
-  const macroM=text.match(/Macros:[^\n]+/i);
-  const macros=parseMacrosLine(macroM?macroM[0]:'');
+  const macroM=text.match(/(?:Macros|MACROS DIARIOS)[:\s]*([^\n]+)/i);
+  const macros=parseMacrosLine(macroM ? macroM[0] : '');
   const faseM=text.match(/Fase:\s*([^\n\r]+)/i);
   const lines=text.split('\n');
-  const starts={};
-  lines.forEach((l,i)=>{
-    const m=l.match(/([A-F])\.\s*(SUPLEMENTOS|ENTRENAMIENTO|NUTRICI[ÓO]N|OBJETIVOS|AJUSTES|FECHAS)/i);
-    if(m) starts[m[1].toUpperCase()]=i;
+  const starts = { A: -1, B: -1, C: -1, D: -1, E: -1, F: -1 };
+  
+  lines.forEach((l, i) => {
+    if (l.match(/^(?:[A-F]|\d+)\.\s*(?:SUPLEMENTOS|SUPLEMENTACI[ÓO]N)/i)) starts.A = i;
+    else if (l.match(/^(?:[A-F]|\d+)\.\s*(?:ENTRENAMIENTO|PRIMERA SEMANA)/i) && starts.B === -1) starts.B = i;
+    else if (l.match(/^(?:[A-F]|\d+)\.\s*NUTRICI[ÓO]N/i)) starts.C = i;
+    else if (l.match(/^(?:[A-F]|\d+)\.\s*OBJETIVOS/i)) starts.D = i;
+    else if (l.match(/^(?:[A-F]|\d+)\.\s*AJUSTES/i)) starts.E = i;
+    else if (l.match(/^(?:[A-F]|\d+)\.\s*FECHAS/i)) starts.F = i;
   });
-  const keys=['A','B','C','D','E','F'];
-  const secs={};
-  keys.forEach((k,idx)=>{
-    if(starts[k]===undefined) return;
-    const nxt=keys.slice(idx+1).find(x=>starts[x]!==undefined);
-    secs[k]=lines.slice(starts[k],nxt?starts[nxt]:lines.length).join('\n');
-  });
+  const found = Object.entries(starts).filter(([k, v]) => v !== -1).sort((a, b) => a[1] - b[1]);
+  const secs = { A: '', B: '', C: '', D: '', E: '', F: '' };
+  for (let idx = 0; idx < found.length; idx++) {
+    const key = found[idx][0];
+    const startLine = found[idx][1];
+    const endLine = idx + 1 < found.length ? found[idx + 1][1] : lines.length;
+    secs[key] = lines.slice(startLine, endLine).join('\n');
+  }
+  if (found.length === 0) secs.B = text;
+  
   return{
     macros:macros?{kcal:macros.kcal,p:macros.protein,hc:macros.carbs,g:macros.fat}:null,
     fase:faseM?faseM[1].trim():null,
