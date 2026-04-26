@@ -415,13 +415,13 @@ function getStrengthIntervals(day, q){
   ];
   const exList=day==='A'?exA:exB;
   // Build intervals.icu format
-  let fmt=`Warmup\n5m Movilidad articular + activación\n\nMain set\n`;
+  let fmt=`Warmup\n\n5m Movilidad articular + activación\nMain set\n\n`;
   exList.forEach(ex=>{
     const prev=getPrevWeight(ex.key);
     const target=prev>0?(prev+(ex.prog==='upper'?2.5:5)):'—';
     fmt+=`${ex.name}: ${ex.sets}×${ex.reps} @ ${target!=='—'?target+'kg':'peso libre'} tempo ${ex.tempo} ${ex.rir} descanso ${ex.rest}\n`;
   });
-  fmt+=`\nCooldown\n5m Estiramientos específicos grupos trabajados`;
+  fmt+=`Cooldown\n\n5m Estiramientos específicos grupos trabajados`;
   return {exList,fmt};
 }
 
@@ -435,7 +435,7 @@ function runIntervals(q){
   const wKm=dist==='400m'?'0.40km':dist==='800m'?'0.80km':'1.20km';
   return {
     label:'INTERVALOS',day:'Martes',
-    fmt:`Warmup\n10m ${p.easy}/km (1.4km) Pace\n\nMain set ${sets}x\n${wMin} ${p.interval}/km (${wKm}) Pace\n${rDur} ${p.easy}/km (${rKm}) Pace\n\nCooldown\n10m ${p.easy}/km (1.4km) Pace`,
+    fmt:`Warmup\n\n10m ${p.easy}/km (1.4km) Pace\nMain set ${sets}x\n\n${wMin} ${p.interval}/km (${wKm}) Pace\n${rDur} ${p.easy}/km (${rKm}) Pace\nCooldown\n\n10m ${p.easy}/km (1.4km) Pace`,
     goal:`${sets}×${dist} a ${p.interval}/km. Recuperación ${rDur} trot suave. Economía de carrera.`
   };
 }
@@ -446,7 +446,7 @@ function runTempo(q){
   const km=(dur/(mm+ss/60)).toFixed(1);
   return {
     label:'TEMPO',day:'Viernes',
-    fmt:`Warmup\n10m ${p.easy}/km (1.4km) Pace\n\nMain set\n${dur}m ${p.tempo}/km (~${km}km) Pace\n\nCooldown\n10m ${p.easy}/km (1.4km) Pace`,
+    fmt:`Warmup\n\n10m ${p.easy}/km (1.4km) Pace\nMain set\n\n${dur}m ${p.tempo}/km (~${km}km) Pace\nCooldown\n\n10m ${p.easy}/km (1.4km) Pace`,
     goal:`${dur}min a ${p.tempo}/km. Umbral de lactato. Esfuerzo controlado.`
   };
 }
@@ -994,7 +994,7 @@ function renderDashboard(q,w){
       calHtml+=`<div class="cal-cell ${isToday?'today':''} ${isSel?'selected':''}" onclick="calSelectDay(${di})">
         ${allExDone?'<div class="cal-cell-done">✓</div>':''}
         <div class="cal-cell-day">${dayNames[wd]}</div>
-        <div class="cal-cell-num">${di>=0&&di<14?di+1:fmtShortDate(cellDate)}</div>
+        <div class="cal-cell-num">${cellDate.getDate()}</div>
         <div class="cal-cell-icon">${icon}</div>
         <div class="cal-cell-type">${di<0?'PRE Q1':di>=14?'FUERA Q':shortLabel}</div>
       </div>`;
@@ -1076,9 +1076,33 @@ function renderCalDetail(q,di){
   // ─ SUPLEMENTOS ─
   const planText = getPlanText();
   const s = parsePlanStructured(planText);
+  html += `<div class="stitle" style="margin:0 0 9px">💊 Suplementos</div>`;
   if (s.A && s.A.trim().length > 0) {
-    html += `<div class="stitle" style="margin:0 0 9px">💊 Suplementos</div>`;
     html += planSupps(s.A);
+  } else {
+    const suppExtraKey = type==='strength'?'entreno_fuerza':type==='running'?'entreno_running':null;
+    const suppSections = [
+      {key:'ayuno',title:'🌅 En ayunas'},
+      {key:'preDesayuno',title:'🍳 Pre-desayuno'},
+      ...(suppExtraKey?[{key:suppExtraKey,title:type==='strength'?'🏋️ Pre-entreno fuerza':'🏃 Pre-entreno running'}]:[]),
+      {key:'preCena',title:'🌙 Pre-cena'},
+      {key:'acostarse',title:'😴 Antes de dormir'},
+    ];
+    html += `<div class="supp-block" style="margin-bottom:14px"><div class="supp-body">
+      ${suppSections.map(sec=>{
+        const sups=SUPPLEMENTS[sec.key]||[];
+        if(!sups.length) return '';
+        return `<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent3);letter-spacing:1px;text-transform:uppercase;padding:6px 0 2px;border-bottom:1px solid rgba(43,52,72,.4);margin-bottom:4px">${sec.title}</div>
+        ${sups.map(sup=>`<div class="supp-row">
+          <div class="supp-icon">${sup.icon}</div>
+          <div style="flex:1">
+            <div class="supp-name">${sup.name}</div>
+            <div class="supp-dose">${sup.dose}</div>
+            <div class="supp-timing">${sup.timing}</div>
+          </div>
+        </div>`).join('')}`;
+      }).join('')}
+    </div></div>`;
   }
 
   // ─ ENTRENAMIENTO ─
@@ -2052,15 +2076,7 @@ function renderMobileDay(){
 
   let html='';
 
-  // ── SUPLEMENTOS ──
-  const planText = getPlanText();
-  const s = parsePlanStructured(planText);
-  if (s.A && s.A.trim().length > 0) {
-    html += `<div class="mob-section">
-      <div class="mob-section-title">💊 Suplementos</div>
-      ${planSupps(s.A)}
-    </div>`;
-  }
+  // Día activo: los suplementos se consultan en MI PLAN.
 
   // ── FUERZA ──
   if(type==='strength'){
@@ -2174,35 +2190,53 @@ function renderMobileDay(){
   // ── NUTRICIÓN CON OPCIONES ──
   html+=`<div class="mob-section">
     <div class="mob-section-title">🥗 Nutrición del día</div>
+    <div class="macro-bar">
+      <div class="macro-item"><div class="macro-val">${nutr.kcal||''}</div><div class="macro-label">Kcal</div></div>
+      <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${nutr.protein||''}g</div><div class="macro-label">Proteína</div></div>
+      <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${nutr.carbs||''}g</div><div class="macro-label">HC</div></div>
+      <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${nutr.fat||''}g</div><div class="macro-label">Grasa</div></div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${nutr.timing||''}</div>
     ${nutr.meals.map(meal=>{
       const done=!!(log.meals?.[meal.key]);
-      const selOpt=log.mealOpts?.[meal.key]||0;
       if(!meal.options){
-        const mm=meal.macros||{};
-        return `<div class="cal-meal-row" style="${done?'border-color:var(--accent)':''}">
-          <div class="cal-meal-name">${esc(meal.name)}</div>
-          <div class="cal-meal-opts"><span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">MI PLAN</span></div>
-          <div class="mob-meal-check ${done?'done':''}" style="margin-left:8px;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--border);cursor:pointer;${done?'background:var(--accent);color:#111;border-color:var(--accent)':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
-        </div>
-        <div class="cal-meal-detail" style="margin-bottom:12px">
-          ${meal.content.split('\n').map(line=>line.trim()).filter(Boolean).map(line=>`<div class="cal-meal-detail-item"><span>${esc(line)}</span></div>`).join('')}
+        return `<div class="meal-block" style="${done?'border-color:var(--accent)':''}">
+          <div class="meal-header">
+            <div>
+              <div class="meal-name">${esc(meal.name)}</div>
+              <div class="meal-macros" style="font-size:9px;color:var(--muted)">${esc(meal.timing||'')}</div>
+            </div>
+            <div class="mob-meal-check ${done?'done':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
+          </div>
+          ${(meal.content||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>`<div class="food-row"><div class="food-name">${esc(l)}</div></div>`).join('')}
         </div>`;
       }
-      const opt=meal.options[selOpt];
-      const lbl = opt.label.split('·')[1]?.trim() || opt.label;
-      return `<div class="cal-meal-row" style="${done?'border-color:var(--accent)':''}">
-        <div class="cal-meal-name">${esc(meal.name)}</div>
-        <div class="cal-meal-opts">
-          ${meal.options.map((o,i)=>`<button class="cal-meal-opt ${i===selOpt?'sel':''}" onclick="selectMobMealOpt('${meal.key}',${i})">${o.label.split('·')[1]?.trim() || String.fromCharCode(65+i)}</button>`).join('')}
+      return `<div class="meal-block" style="${done?'border-color:var(--accent)':''}">
+        <div class="meal-header">
+          <div>
+            <div class="meal-name">${esc(meal.name)}</div>
+            <div class="meal-macros" style="font-size:9px;color:var(--muted)">${esc(meal.timing||'')}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="meal-kcal">~${meal.options[0].kcal} kcal</div>
+            <div class="mob-meal-check ${done?'done':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
+          </div>
         </div>
-        <div class="mob-meal-check ${done?'done':''}" style="margin-left:8px;border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid var(--border);cursor:pointer;${done?'background:var(--accent);color:#111;border-color:var(--accent)':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
-      </div>
-      <div id="mmopt_${meal.key}" class="cal-meal-detail" style="margin-bottom:12px">
-        <div class="cal-meal-detail-macros">Opción ${String.fromCharCode(65+selOpt)} · ${esc(lbl)} · ${opt.kcal} kcal · ${opt.p}g P · ${opt.hc}g HC</div>
-        ${opt.items.map(it=>`<div class="cal-meal-detail-item">
-          <span>${esc(it.f)}${it.note?` <span style="color:var(--accent3);font-size:8px">· ${esc(it.note)}</span>`:''}</span>
-          <span class="cal-meal-detail-amt">${esc(it.a)}</span>
-        </div>`).join('')}
+        <div class="meal-option-tabs">
+          ${meal.options.map((opt,i)=>`<button class="meal-opt-btn ${i===0?'sel':''}" onclick="selectMealOpt(this,'${meal.key}',${i})">${opt.label}</button>`).join('')}
+        </div>
+        ${meal.options.map((opt,i)=>`
+          <div class="meal-option ${i===0?'active':''}" id="opt_${meal.key}_${i}">
+            <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
+              <span>${opt.p}g P · ${opt.hc}g HC · ${opt.g}g G</span>
+              <span style="color:var(--muted)">${opt.kcal} kcal</span>
+            </div>
+            ${opt.items.map(it=>`
+              <div class="food-row">
+                <div><div class="food-name">${esc(it.f)}</div>${it.note?`<div class="food-note">${esc(it.note)}</div>`:''}</div>
+                <div class="food-amount">${esc(it.a)}</div>
+              </div>`).join('')}
+          </div>`).join('')}
       </div>`;
     }).join('')}
   </div>`;
@@ -2252,29 +2286,6 @@ function toggleSetDone(key,si){
 function toggleMobMeal(key){
   const body=document.getElementById('mmbody_'+key);
   if(body) body.classList.toggle('open');
-}
-
-function selectMobMealOpt(key,idx){
-  const timeline=getTimelineInfo(); const q=timeline.q||getQuincena(profile?.week||1);
-  const log=loadDayLog(q,mobDayIdx);
-  if(!log.mealOpts) log.mealOpts={};
-  log.mealOpts[key]=idx;
-  saveDayLog(q,mobDayIdx,log);
-  // update tabs
-  const tabs=document.querySelectorAll(`[onclick*="selectMobMealOpt('${key}'"]`);
-  tabs.forEach((t,i)=>t.classList.toggle('sel',i===idx));
-  // update content
-  const N=getNutrition();
-  const isRest=DAYTYPES[mobDayIdx%7]==='rest';
-  const nutr=isRest?(N.rest||N.training):N.training;
-  const meal=nutr.meals.find(m=>m.key===key);
-  if(!meal||!meal.options) return;
-  const opt=meal.options[idx];
-  const optEl=document.getElementById('mmopt_'+key);
-  if(optEl) optEl.innerHTML=opt.items.map(it=>`<div class="mob-food-row">
-    <span>${it.f}${it.note?` <span style="color:var(--accent3);font-size:9px">· ${it.note}</span>`:''}</span>
-    <span class="mob-food-amt">${it.a}</span>
-  </div>`).join('');
 }
 
 function markMeal(key){
