@@ -202,6 +202,46 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 .plan-sig-g{background:rgba(200,241,53,.07);border-left:3px solid var(--accent);color:var(--accent)}
 .plan-sig-w{background:rgba(241,161,53,.07);border-left:3px solid var(--accent3);color:var(--accent3)}
 .plan-adj{padding:6px 0;border-bottom:1px solid rgba(43,52,72,.25);font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.7}.plan-adj:last-child{border-bottom:none}
+
+/* ── DASHBOARD CALENDAR ── */
+.cal-container{margin-bottom:14px}
+.cal-week-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:14px 0 7px;display:flex;align-items:center;gap:8px}
+.cal-week-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.cal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:4px}
+.cal-cell{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:9px 4px 7px;text-align:center;cursor:pointer;transition:all .15s;position:relative;user-select:none}
+.cal-cell:hover{border-color:var(--accent2);background:rgba(91,156,246,.07)}
+.cal-cell.today{border-color:var(--accent);box-shadow:0 0 0 1px rgba(200,241,53,.25)}
+.cal-cell.selected{border-color:var(--accent);background:rgba(200,241,53,.09)}
+.cal-cell-day{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.cal-cell-num{font-size:17px;font-weight:800;line-height:1;margin-bottom:3px}
+.cal-cell.today .cal-cell-num{color:var(--accent)}
+.cal-cell.selected .cal-cell-num{color:var(--accent)}
+.cal-cell-icon{font-size:14px;margin-bottom:2px}
+.cal-cell-type{font-family:'DM Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+.cal-cell-done{position:absolute;top:4px;right:5px;font-size:9px;color:var(--accent);font-weight:800}
+.cal-detail{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
+.cal-detail-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.cal-detail-title{font-size:15px;font-weight:800}
+.cal-detail-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px}
+.cal-ex-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:9px;margin-bottom:5px;border:1px solid var(--border);transition:all .15s}
+.cal-ex-row.done{border-color:var(--accent);background:rgba(200,241,53,.05)}
+.cal-ex-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;cursor:pointer;transition:all .15s}
+.cal-ex-check.ok{background:var(--accent);border-color:var(--accent);color:#111}
+.cal-ex-info{flex:1}
+.cal-ex-name{font-size:11px;font-weight:700}
+.cal-ex-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px}
+.cal-ex-vid{background:rgba(255,50,50,.1);color:#ff5555;border:1px solid rgba(255,50,50,.2);padding:4px 9px;border-radius:6px;font-family:'DM Mono',monospace;font-size:9px;text-decoration:none;flex-shrink:0;transition:all .15s;display:inline-flex;align-items:center;gap:3px}
+.cal-ex-vid:hover{background:rgba(255,50,50,.2);border-color:rgba(255,50,50,.5)}
+.cal-meal-row{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:9px;margin-bottom:4px;border:1px solid var(--border)}
+.cal-meal-name{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;flex:1}
+.cal-meal-opts{display:flex;gap:4px}
+.cal-meal-opt{font-family:'DM Mono',monospace;font-size:9px;padding:3px 9px;border-radius:5px;background:var(--bg);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;font-weight:500}
+.cal-meal-opt.sel{background:rgba(200,241,53,.13);border-color:var(--accent);color:var(--accent)}
+.cal-meal-detail{margin:0 0 10px 10px;padding:8px 10px;background:var(--bg);border-radius:8px;border-left:2px solid var(--border)}
+.cal-meal-detail-macros{font-family:'DM Mono',monospace;font-size:8px;color:var(--accent2);margin-bottom:5px}
+.cal-meal-detail-item{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(43,52,72,.2)}
+.cal-meal-detail-item:last-child{border-bottom:none}
+.cal-meal-detail-amt{color:var(--muted);flex-shrink:0;padding-left:8px}
 </style>
 </head>
 <body>
@@ -210,27 +250,18 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 <div class="app" id="app-shell" style="display:none">
 <aside class="sidebar">
   <div class="brand">C.L.O.E. <span>COACH</span></div>
-  <div class="tagline">DOCE ENGINE · v3</div>
+  <div class="tagline">Crush Limits Or Explode V1</div>
   <div class="user-info">
     <div class="user-name" id="sb-name">—</div>
     <div class="user-meta" id="sb-goal">—</div>
   </div>
-  <div class="ns">Core</div>
   <div class="nav">
     <button class="on" onclick="view('dashboard')"><span class="ic">⚡</span>Dashboard</button>
-    <button onclick="view('training')"><span class="ic">🏋️</span>Fuerza</button>
-    <button onclick="view('running')"><span class="ic">🏃</span>Running</button>
-    <button onclick="view('supplements')"><span class="ic">💊</span>Suplementos</button>
-    <button onclick="view('nutrition')"><span class="ic">🥗</span>Nutrición DOCE</button>
-  </div>
-  <div class="ns">Gestión</div>
-  <div class="nav">
     <button onclick="view('plan')"><span class="ic">📅</span>Plan quincenal</button>
     <button onclick="view('myplan')"><span class="ic">📋</span>Mi plan</button>
     <button onclick="view('report')"><span class="ic">📊</span>Reporte quincenal</button>
-    <button onclick="view('checkin')"><span class="ic">✅</span>Checklist</button>
   </div>
-  <button class="mob-btn-sb" onclick="openMobile()">📱 Versión móvil · Día activo</button>
+  <button class="mob-btn-sb" onclick="openMobile()">🚀 Empezamos C.L.O.E. — Día activo</button>
   <div class="week-pill" style="margin-top:8px">
     <span id="sb-week">Q1</span> · Día <span id="sb-day">1</span>/14 · <span id="sb-phase">BASE</span>
   </div>
@@ -268,6 +299,20 @@ const sb=createClient(SB_URL,SB_KEY);
 
 let profile=null, checklist={}, currentView='dashboard';
 let trainingTab=0, runningTab=0, nutritionDayTab=0, mobDayIdx=0;
+let _calSelectedDay=null;
+
+const YT_LINKS={
+  squat:'sentadilla+t%C3%A9cnica+tutorial+gym',
+  bench:'press+banca+plano+t%C3%A9cnica+tutorial',
+  row:'remo+con+barra+t%C3%A9cnica+tutorial',
+  rdl:'peso+muerto+rumano+t%C3%A9cnica',
+  lateral:'elevaciones+laterales+hombros+t%C3%A9cnica',
+  hack:'hack+squat+m%C3%A1quina+t%C3%A9cnica',
+  incline:'press+inclinado+mancuernas+t%C3%A9cnica',
+  pulldown:'jal%C3%B3n+al+pecho+t%C3%A9cnica',
+  hipthrust:'hip+thrust+gl%C3%BAteos+t%C3%A9cnica',
+  facepull:'face+pull+hombros+t%C3%A9cnica',
+};
 
 // ── QUINCENAS (14 días = 1 quincena) ─────────────────────
 // 8 quincenas = 16 semanas DOCE
@@ -818,7 +863,7 @@ function extractPlanStrengthDays(text){
 function view(v){
   currentView=v;
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
-  const map={dashboard:0,training:1,running:2,supplements:3,nutrition:4,plan:5,myplan:6,report:7,checkin:8};
+  const map={dashboard:0,plan:1,myplan:2,report:3};
   document.querySelectorAll('.nav button')[map[v]]?.classList.add('on');
   document.getElementById('main').innerHTML=renderView();
 }
@@ -842,28 +887,175 @@ function renderView(){
 // ── DASHBOARD ─────────────────────────────────────────────
 function renderDashboard(q,w){
   const p=getCurrentPaces(q);
-  const today=new Date().toISOString().slice(0,10);
-  const checks=Object.keys(checklist).filter(k=>k.startsWith(`q${q}_${today}_`)&&checklist[k]).length;
+  const wNum=profile?.week||1;
+  const weekInQ=(wNum-1)%2; // 0 o 1 → semana 1 o 2 de la Q
+  const todayDi=weekInQ*7+todayPlanIdx(); // 0-13
+  if(_calSelectedDay===null) _calSelectedDay=todayDi;
+  const selDi=_calSelectedDay;
+
+  const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const typeIcons={strength:'🏋️',running:'🏃',rest:'😴'};
   const hasPlan=!!getPlanText();
+
+  let calHtml='';
+  for(let week=0;week<2;week++){
+    calHtml+=`<div class="cal-week-label">SEMANA ${week+1}</div><div class="cal-row">`;
+    for(let wd=0;wd<7;wd++){
+      const di=week*7+wd;
+      const type=DAYTYPES[wd];
+      const log=loadDayLog(q,di);
+      const isToday=di===todayDi;
+      const isSel=di===selDi;
+      const icon=typeIcons[type]||'📅';
+      const shortLabel=DAYLABELS[wd].split(' ')[0];
+      const allExDone=Object.keys(log.calDone||{}).length>0&&Object.values(log.calDone||{}).every(Boolean);
+      calHtml+=`<div class="cal-cell ${isToday?'today':''} ${isSel?'selected':''}" onclick="calSelectDay(${di})">
+        ${allExDone?'<div class="cal-cell-done">✓</div>':''}
+        <div class="cal-cell-day">${dayNames[wd]}</div>
+        <div class="cal-cell-num">${di+1}</div>
+        <div class="cal-cell-icon">${icon}</div>
+        <div class="cal-cell-type">${shortLabel}</div>
+      </div>`;
+    }
+    calHtml+='</div>';
+  }
+
   return `
   <div class="ph"><h1>Hola, ${(profile?.full_name||'').split(' ')[0]||'coach'} 👋</h1>
   <p>Quincena ${q}/8 · ${getPhase(q)} · ${profile?.goal||'—'}</p></div>
   <div class="cards">
     <div class="card"><div class="cl">Quincena</div><div class="cv a">Q${q}</div><div class="cs">${getPhase(q)} · 14 días</div></div>
     <div class="card"><div class="cl">Kcal objetivo</div><div class="cv b">${profile?.kcal||2475}</div><div class="cs">${profile?.protein||154}P · ${profile?.carbs||310}HC</div></div>
-    <div class="card"><div class="cl">Checks hoy</div><div class="cv o">${checks}/7</div><div class="cs">adherencia diaria</div></div>
+    <div class="card"><div class="cl">Día activo</div><div class="cv o">Día ${todayDi+1}</div><div class="cs">${DAYLABELS[todayPlanIdx()]}</div></div>
     <div class="card"><div class="cl">Ritmo easy</div><div class="cv p">${p.easy}</div><div class="cs">/km · Q${q}</div></div>
   </div>
-  <div class="stitle">Acceso rápido</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-    <button class="btn" onclick="openMobile()">📱 Versión móvil</button>
-    <button class="btn sec" onclick="view('supplements')">💊 Suplementos</button>
-    <button class="btn sec" onclick="view('training')">🏋️ Fuerza</button>
-    <button class="btn sec" onclick="view('running')">🏃 Running</button>
-    <button class="btn sec" onclick="view('nutrition')">🥗 Nutrición</button>
-    <button class="btn sec" onclick="view('report')">📊 Reporte Q${q}</button>
-  </div>
-  ${!hasPlan?`<div style="padding:12px 14px;background:rgba(241,161,53,.07);border:1px solid rgba(241,161,53,.25);border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);line-height:1.7">⏳ Tu plan de Quincena 1 está siendo preparado por tu coach.</div>`:''}`;
+  <div class="stitle">Calendario Q${q} · 14 días</div>
+  <div class="cal-container">${calHtml}</div>
+  <div id="cal-detail" class="cal-detail">${renderCalDetail(q,selDi)}</div>
+  ${!hasPlan?`<div style="padding:12px 14px;background:rgba(241,161,53,.07);border:1px solid rgba(241,161,53,.25);border-radius:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);line-height:1.7;margin-top:8px">⏳ Tu plan de Quincena 1 está siendo preparado por tu coach.</div>`:''}`;
+}
+
+// ── CALENDAR FUNCTIONS ────────────────────────────────────
+function calSelectDay(di){
+  _calSelectedDay=di;
+  view('dashboard');
+}
+
+function toggleCalEx(q,di,key){
+  const log=loadDayLog(q,di);
+  if(!log.calDone) log.calDone={};
+  log.calDone[key]=!log.calDone[key];
+  saveDayLog(q,di,log);
+  _calSelectedDay=di;
+  view('dashboard');
+}
+
+function setCalMealOpt(q,di,mealKey,optIdx){
+  const log=loadDayLog(q,di);
+  if(!log.mealOpts) log.mealOpts={};
+  log.mealOpts[mealKey]=optIdx;
+  saveDayLog(q,di,log);
+  _calSelectedDay=di;
+  view('dashboard');
+}
+
+function renderCalDetail(q,di){
+  const wd=di%7;
+  const type=DAYTYPES[wd];
+  const label=DAYLABELS[wd];
+  const log=loadDayLog(q,di);
+  const fullDayNames=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const typeIcons={strength:'🏋️',running:'🏃',rest:'😴'};
+
+  let html=`<div class="cal-detail-hdr">
+    <span style="font-size:26px">${typeIcons[type]||'📅'}</span>
+    <div>
+      <div class="cal-detail-title">Día ${di+1} · ${fullDayNames[wd]}</div>
+      <div class="cal-detail-sub">${label} · Q${q} · ${getPhase(q)}</div>
+    </div>
+  </div>`;
+
+  // ─ ENTRENAMIENTO ─
+  if(type==='strength'){
+    const isA=wd===0;
+    const customSt=getPlanStrengthForDay(di);
+    html+=`<div class="stitle" style="margin:0 0 9px">Ejercicios del día</div>`;
+    if(customSt){
+      const done=!!(log.calDone?.plan_strength);
+      html+=`<div class="cal-ex-row ${done?'done':''}">
+        <div class="cal-ex-check ${done?'ok':''}" onclick="toggleCalEx(${q},${di},'plan_strength')">${done?'✓':''}</div>
+        <div class="cal-ex-info">
+          <div class="cal-ex-name">${esc(customSt.title)}</div>
+          <div class="cal-ex-meta">Plan personalizado — ver MI PLAN para el detalle</div>
+        </div>
+      </div>`;
+    } else {
+      const {exList}=getStrengthIntervals(isA?'A':'B',q);
+      html+=exList.map(ex=>{
+        const done=!!(log.calDone?.[ex.key]);
+        const prev=getPrevWeight(ex.key);
+        const target=prev>0?(prev+(ex.prog==='upper'?2.5:5)):null;
+        const ytUrl=`https://www.youtube.com/results?search_query=${YT_LINKS[ex.key]||encodeURIComponent(ex.name)}`;
+        return `<div class="cal-ex-row ${done?'done':''}">
+          <div class="cal-ex-check ${done?'ok':''}" onclick="toggleCalEx(${q},${di},'${ex.key}')">${done?'✓':''}</div>
+          <div class="cal-ex-info">
+            <div class="cal-ex-name">${ex.name}</div>
+            <div class="cal-ex-meta">${ex.sets}×${ex.reps} · ${ex.rir} · tempo ${ex.tempo}${target?' · → '+target+'kg':''}</div>
+          </div>
+          <a class="cal-ex-vid" href="${ytUrl}" target="_blank" rel="noopener">📺 Video</a>
+        </div>`;
+      }).join('');
+    }
+  } else if(type==='running'){
+    const rs=getPlanRunningSessionForDay(di)||getRunSession(wd,q);
+    html+=`<div class="stitle" style="margin:0 0 9px">Sesión de running</div>`;
+    if(rs){
+      const done=!!(log.calDone?.run);
+      html+=`<div style="background:#070e1c;border-radius:9px;border:1px solid var(--border);padding:12px;margin-bottom:9px">
+        <pre style="white-space:pre-wrap;color:var(--accent);line-height:2;font-size:11px;font-family:'DM Mono',monospace">${esc(rs.fmt)}</pre>
+      </div>
+      <div class="cal-ex-row ${done?'done':''}">
+        <div class="cal-ex-check ${done?'ok':''}" onclick="toggleCalEx(${q},${di},'run')">${done?'✓':''}</div>
+        <div class="cal-ex-info">
+          <div class="cal-ex-name">Marcar sesión completada</div>
+          <div class="cal-ex-meta">💡 ${esc(rs.goal||'')}</div>
+        </div>
+      </div>`;
+    }
+  } else {
+    html+=`<div style="text-align:center;padding:14px;background:var(--surface2);border-radius:11px;border:1px solid var(--border);margin-bottom:12px">
+      <div style="font-size:28px;margin-bottom:6px">🌿</div>
+      <div style="font-size:13px;font-weight:800;margin-bottom:4px">Día de recuperación activa</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">Movilidad suave · Foam roller 10min · Paseo tranquilo<br>La recuperación es parte del entrenamiento. Sin culpa.</div>
+    </div>`;
+  }
+
+  // ─ NUTRICIÓN ─
+  const N=getNutrition();
+  const isRest=type==='rest';
+  const nutr=isRest?N.rest:N.training;
+  html+=`<div class="stitle" style="margin:14px 0 9px">🥗 Nutrición · elige tu opción</div>
+  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);padding:6px 8px;background:var(--surface2);border-radius:7px;border-left:2px solid var(--accent3);margin-bottom:10px;line-height:1.7">${nutr.timing}</div>`;
+
+  html+=nutr.meals.map(meal=>{
+    const selOpt=log.mealOpts?.[meal.key]??0;
+    const opt=meal.options[selOpt];
+    return `<div class="cal-meal-row">
+      <div class="cal-meal-name">${meal.name}</div>
+      <div class="cal-meal-opts">
+        ${meal.options.map((o,i)=>`<button class="cal-meal-opt ${i===selOpt?'sel':''}" onclick="setCalMealOpt(${q},${di},'${meal.key}',${i})">${String.fromCharCode(65+i)}</button>`).join('')}
+      </div>
+    </div>
+    <div class="cal-meal-detail">
+      <div class="cal-meal-detail-macros">${opt.label} · ${opt.kcal} kcal · ${opt.p}g P · ${opt.hc}g HC</div>
+      ${opt.items.map(it=>`<div class="cal-meal-detail-item">
+        <span>${it.f}${it.note?` <span style="color:var(--accent3);font-size:8px">· ${it.note}</span>`:''}</span>
+        <span class="cal-meal-detail-amt">${it.a}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  return html;
 }
 
 // ── SUPPLEMENTS ───────────────────────────────────────────
@@ -951,15 +1143,17 @@ function renderTraining(q){
   ${exList.map(ex=>{
     const prev=getPrevWeight(ex.key);
     const target=prev>0?(prev+(ex.prog==='upper'?2.5:5)):null;
+    const ytUrl=`https://www.youtube.com/results?search_query=${YT_LINKS[ex.key]||encodeURIComponent(ex.name)}`;
     return `<div style="padding:9px 11px;border-radius:9px;background:var(--surface2);margin-bottom:6px;border:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="flex:1">
           <div style="font-size:12px;font-weight:700">${ex.name}</div>
           <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">${ex.sets}×${ex.reps} · tempo ${ex.tempo} · descanso ${ex.rest}</div>
         </div>
-        <div style="display:flex;gap:6px;align-items:center">
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
           <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent3);background:rgba(241,161,53,.1);padding:2px 7px;border-radius:5px">${ex.rir}</span>
           <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2)">${target?'→ '+target+'kg':'libre'}</span>
+          <a href="${ytUrl}" target="_blank" rel="noopener" class="cal-ex-vid">📺 Video</a>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px">
@@ -1133,18 +1327,37 @@ function selectMealOpt(btn,mealKey,idx){
 }
 
 // ── PLAN QUINCENAL ────────────────────────────────────────
+const Q_DESCRIPTIONS={
+  1:{title:'Q1 · Fundamentos y adaptación',text:`Esta primera quincena está diseñada para sentar las bases sólidas sobre las que se construirá todo el programa. El objetivo principal es la adaptación neuromuscular y técnica: aprender los patrones de movimiento correctos antes de añadir carga. En running, priorizamos el volumen aeróbico suave para desarrollar la base cardiovascular sin riesgo de lesión.\n\nQué conseguirás: dominar la técnica de los ejercicios principales, establecer los ritmos de referencia, y crear el hábito del entrenamiento estructurado. La adherencia al plan es más importante que la intensidad.`},
+  2:{title:'Q2 · Consolidación de la base',text:`Con la técnica asentada, en esta quincena empezamos a testar los límites de carga de forma controlada. Si las sesiones anteriores fueron limpias, introducimos las primeras progresiones de peso. En running, aumentamos ligeramente el volumen de las tiradas largas.\n\nQué conseguirás: primeras evidencias de progresión de carga, mayor eficiencia en los patrones de movimiento, y una base aeróbica más robusta. Empieza a registrar bien tus pesos para que el algoritmo funcione.`},
+  3:{title:'Q3 · Inicio del volumen',text:`Entramos en la fase de volumen. Añadimos una serie adicional en los ejercicios compuestos principales (de 3 a 4 series). El estímulo de entrenamiento aumenta de forma significativa. Es normal sentir más fatiga acumulada — es parte del proceso.\n\nQué conseguirás: mayor volumen de trabajo muscular, inicio de la sobrecarga progresiva activa, y un salto notable en la capacidad de trabajo. Asegura el sueño y la proteína — son clave en esta fase.`},
+  4:{title:'Q4 · Pico de volumen',text:`El mayor volumen de entrenamiento de todo el programa. Las cargas están en progresión y el cuerpo ya está adaptado para soportar este estímulo. En running, la tirada larga llega a los 65 minutos. Es la quincena más exigente físicamente.\n\nQué conseguirás: máximo estímulo de hipertrofia y resistencia, grandes progresos en composición corporal, y la base para la transición hacia la intensidad. Aquí se construye el músculo que luego se afina.`},
+  5:{title:'Q5 · Transición a ritmo',text:`Reducimos ligeramente el volumen y empezamos a elevar la intensidad. En running, los intervalos se alargan a 800m y el tempo sube. En fuerza, el RIR se ajusta para mayor intensidad relativa. El cuerpo empieza a transformarse en rendimiento puro.\n\nQué conseguirás: mejora notable del ritmo de carrera, mayor potencia muscular, y una composición corporal que empieza a acercarse al objetivo final. La nutrición pre-entreno es especialmente crítica esta quincena.`},
+  6:{title:'Q6 · Optimización del rendimiento',text:`Estás cerca del objetivo. Los ritmos de entrenamiento se aproximan al ritmo de carrera objetivo. El cuerpo está entrenado, adaptado y en forma. En fuerza, mantenemos cargas altas con volumen controlado para no acumular fatiga excesiva.\n\nQué conseguirás: ritmos próximos al objetivo, alta eficiencia metabólica, y la confianza de sentirte en la mejor forma de tu vida. Cuida especialmente la recuperación y el sueño.`},
+  7:{title:'Q7 · Pico de forma y simulacro',text:`La quincena de mayor intensidad. Los intervalos llegan a 1200m. Realizamos al menos una sesión simulacro de carrera para testear el ritmo objetivo en condiciones reales. En fuerza, mantenemos el estímulo sin arriesgar recuperación.\n\nQué conseguirás: la mejor forma física del programa, confirmación del ritmo objetivo, y la preparación mental para el día de la carrera.`},
+  8:{title:'Q8 · TAPER + Carrera',text:`Ha llegado el momento. Esta quincena es de reducción de volumen y recuperación activa (taper). Los últimos 7 días antes de la carrera, el volumen baja drásticamente para llegar fresco y con las piernas cargadas de glucógeno.\n\nQué conseguirás: llegar al día de la carrera en las mejores condiciones posibles. Todo el trabajo está hecho — ahora solo hay que ejecutar el plan de carrera con confianza y disfrutar del resultado.`},
+};
+
 function renderPlan(q){
+  const qDesc=Q_DESCRIPTIONS[q]||Q_DESCRIPTIONS[1];
   return `
-  <div class="ph"><h1>Plan quincenal · 8 quincenas</h1><p>Ciclo DOCE: revisión cada 14 días · 4 fases · 16 semanas</p></div>
+  <div class="ph"><h1>Plan quincenal · 8 quincenas</h1><p>Revisión cada 14 días · 4 fases · 16 semanas</p></div>
+
+  <div style="background:linear-gradient(135deg,rgba(200,241,53,.08),rgba(91,156,246,.05));border:1px solid rgba(200,241,53,.25);border-radius:14px;padding:18px;margin-bottom:18px">
+    <div style="font-size:15px;font-weight:800;margin-bottom:4px;color:var(--accent)">${qDesc.title}</div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:2;white-space:pre-line">${qDesc.text}</div>
+  </div>
+
   ${[
-    {c:'var(--accent2)',t:'FASE BASE · Q1–Q2 (días 1–28)',d:'Easy 6:45/km · 6×400 @ 5:20 · Tirada 50min · Fuerza 3 series RIR 3 · Adaptación técnica'},
-    {c:'var(--accent3)',t:'FASE VOLUMEN · Q3–Q4 (días 29–56)',d:'Easy 6:30/km · 8×400 @ 5:10 · Tirada 65min · +1 serie compuestos · Sobrecarga activa'},
-    {c:'var(--accent)',t:'FASE RITMO · Q5–Q6 (días 57–84)',d:'Tempo 5:30/km · 6×800 @ 5:00 · Tirada 75min · Intensidad alta · Acercamiento objetivo'},
-    {c:'#f1356a',t:'FASE ESPECÍFICO · Q7–Q8 (días 85–112)',d:'Tempo 5:20 · 4×1200 @ 4:55 · Q7 pico · Q8 TAPER semana previa + Carrera'},
+    {c:'var(--accent2)',t:'FASE BASE · Q1–Q2 (días 1–28)',d:'Easy 6:45/km · 6×400 @ 5:20 · Tirada 50min · Fuerza 3 series RIR 3 · Adaptación técnica y neuromotora'},
+    {c:'var(--accent3)',t:'FASE VOLUMEN · Q3–Q4 (días 29–56)',d:'Easy 6:30/km · 8×400 @ 5:10 · Tirada 65min · 4 series compuestos · Máximo estímulo hipertrofia'},
+    {c:'var(--accent)',t:'FASE RITMO · Q5–Q6 (días 57–84)',d:'Tempo 5:30/km · 6×800 @ 5:00 · Tirada 75min · Alta intensidad · Optimización rendimiento'},
+    {c:'#f1356a',t:'FASE ESPECÍFICO · Q7–Q8 (días 85–112)',d:'Tempo 5:20/km · 4×1200 @ 4:55 · Q7 Pico de forma · Q8 TAPER + Carrera objetivo'},
   ].map(ph=>`<div style="background:var(--surface2);border-radius:11px;padding:12px 14px;margin-bottom:9px;border-left:3px solid ${ph.c}">
     <div style="font-size:12px;font-weight:800;margin-bottom:5px">${ph.t}</div>
     <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">${ph.d}</div>
   </div>`).join('')}
+
   <div class="stitle">Quincena a quincena</div>
   ${Array.from({length:8},(_,i)=>i+1).map(qi=>{
     const p=getPaces(qi);const cur=qi===q;
@@ -1154,7 +1367,7 @@ function renderPlan(q){
       <span style="color:var(--muted)">${qi===8?'🏁 TAPER + CARRERA':p.easy+' · '+p.interval+'/km'}</span>
     </div>`;
   }).join('')}
-  <div class="alert" style="margin-top:14px">📊 REVISIÓN QUINCENAL: Al final de cada quincena genera el Reporte y envíaselo a tu coach con fotos + CSV Intervals. CLOE ajusta la quincena siguiente según el algoritmo DOCE (delta peso, adherencia, progresión cargas).</div>`;
+  <div class="alert" style="margin-top:14px">📊 REVISIÓN QUINCENAL: Al final de cada quincena genera el Reporte desde el menú lateral y envíaselo a tu coach con fotos + CSV Intervals. C.L.O.E. ajustará la quincena siguiente según delta de peso, adherencia y progresión de cargas.</div>`;
 }
 
 // ── MI PLAN PARSER & RENDERERS ───────────────────────────
@@ -1306,10 +1519,69 @@ function planGoals(objText,fechasText){
 
 function renderMyPlan(q){
   const planText=getPlanText();
-  if(!planText) return `
-  <div class="ph"><h1>Mi plan · Q${q}</h1><p>Plan personalizado por tu coach</p></div>
-  <div style="padding:24px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;line-height:2">⏳ Tu plan de Quincena ${q} está siendo preparado por tu coach.</div>`;
   _blkId=0;
+
+  // ── SECCIÓN GUÍA Y RECOMENDACIONES (siempre visible) ──
+  const guiaHtml=`
+  <div class="stitle" style="margin-top:8px">📖 Cómo usar tu plan</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:14px;margin-bottom:18px">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;line-height:2;color:var(--text)">
+      <div style="margin-bottom:10px;color:var(--accent);font-weight:500">Tu plan quincenal tiene 6 componentes clave:</div>
+      <div style="padding:5px 0;border-bottom:1px solid rgba(43,52,72,.3)">
+        <span style="color:var(--accent2)">💊 SUPLEMENTOS</span> — Sigue el protocolo al milímetro. El orden y timing son deliberados: en ayunas activan el metabolismo, antes del entreno potencian el rendimiento, antes de dormir optimizan la recuperación muscular.
+      </div>
+      <div style="padding:5px 0;border-bottom:1px solid rgba(43,52,72,.3)">
+        <span style="color:var(--accent3)">🏋️ ENTRENAMIENTO FUERZA</span> — El RIR (Repeticiones en Reserva) es el parámetro más importante. RIR 3 = podrías hacer 3 reps más. RIR 1 = casi al fallo. Controla siempre el tempo (excéntrica-pausa-concéntrica). La carga aumenta cuando completas todas las series con el RIR indicado.
+      </div>
+      <div style="padding:5px 0;border-bottom:1px solid rgba(43,52,72,.3)">
+        <span style="color:var(--accent)">🏃 RUNNING</span> — Los ritmos son absolutos (min/km), no por zonas de FC. El rodaje fácil debe sentirse conversacional — si no puedes hablar, vas demasiado rápido. Los intervalos son esfuerzo máximo controlado.
+      </div>
+      <div style="padding:5px 0;border-bottom:1px solid rgba(43,52,72,.3)">
+        <span style="color:var(--accent4)">🥗 NUTRICIÓN</span> — Regla del 80/20: sé perfecto el 80% del tiempo, el 20% puedes tener margen. Pesa los filetes en CRUDO. Come cada 3-4h. La proteína es innegociable — sin ella, pierdes músculo.
+      </div>
+      <div style="padding:5px 0;border-bottom:1px solid rgba(43,52,72,.3)">
+        <span style="color:#f1356a">😴 DESCANSO</span> — El músculo crece mientras duermes, no mientras entrenas. 7-9h de sueño es tan importante como el entreno. Los días de descanso son parte del plan, no un fracaso.
+      </div>
+      <div style="padding:5px 0">
+        <span style="color:var(--muted)">📊 SEGUIMIENTO</span> — Registra tus pesos en el Día Activo. Al final de la quincena, genera el Reporte y envíalo con fotos (frente, lateral, espalda) + CSV de Intervals.icu. C.L.O.E. ajusta el siguiente Q basándose en estos datos.
+      </div>
+    </div>
+  </div>
+
+  <div class="stitle">⚡ Principios clave del programa</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
+    ${[
+      {ic:'💪',t:'Sobrecarga progresiva',d:'Aumenta carga cuando cumples RIR objetivo. +2.5kg tren superior / +5kg inferior.'},
+      {ic:'🔄',t:'Periodización por quincena',d:'Cada 14 días C.L.O.E. revisa y ajusta el plan. No existe programa sin datos.'},
+      {ic:'🥩',t:'Proteína primero',d:'1.8-2.0g por kg de peso corporal diarios. Sin proteína no hay músculo.'},
+      {ic:'💧',t:'Hidratación activa',d:'3L de agua mineral al día. El rendimiento cae con solo un 2% de deshidratación.'},
+      {ic:'🌙',t:'Sueño como entrenamiento',d:'La hormona de crecimiento se libera en la fase 3 del sueño. Prioriza las 7-9h.'},
+      {ic:'📈',t:'Paciencia y consistencia',d:'Los resultados visibles aparecen en la Q3-Q4. El proceso es el resultado.'},
+    ].map(item=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:11px 12px">
+      <div style="font-size:18px;margin-bottom:4px">${item.ic}</div>
+      <div style="font-size:11px;font-weight:800;margin-bottom:3px">${item.t}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7">${item.d}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="stitle">⚠️ Errores frecuentes a evitar</div>
+  <div style="background:rgba(241,161,53,.05);border:1px solid rgba(241,161,53,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px">
+    ${[
+      'Entrenar sin dormir bien — el entreno sin recuperación genera cortisol, no músculo.',
+      'Saltarse la proteína post-entreno — la ventana anabólica es real en las 2h post-entreno.',
+      'Ir al fallo siempre — el RIR es preciso. El fallo continuo genera lesiones y fatiga excesiva.',
+      'Comer "clean" sin contar macros — puede comerse sano y con déficit de proteína.',
+      'Cambiar el plan a mitad de quincena — confía en el proceso y los datos del reporte.',
+      'Ignorar los días de descanso — el cuerpo necesita recuperarse para crecer.',
+      'Correr intervalos demasiado rápido en la base — construye antes de destruir.',
+    ].map(e=>`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);padding:5px 0;border-bottom:1px solid rgba(241,161,53,.1);display:flex;gap:8px;line-height:1.7"><span>⚠</span><span>${e}</span></div>`).join('')}
+  </div>`;
+
+  if(!planText) return `
+  <div class="ph"><h1>Mi plan · Q${q}</h1><p>${getPhase(q)} · Plan personalizado C.L.O.E.</p></div>
+  <div style="padding:16px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;line-height:2;background:var(--surface2);border-radius:12px;border:1px solid var(--border);margin-bottom:18px">⏳ Tu plan de Quincena ${q} está siendo preparado por tu coach.<br>Mientras tanto, consulta la guía de uso y principios del programa.</div>
+  ${guiaHtml}`;
+
   const s=parsePlanStructured(planText);
   const fase=s.fase||getPhase(q);
   const adjItems=(s.E.match(/·[^\n]+/g)||[]).filter(l=>l.trim().length>5);
@@ -1318,8 +1590,8 @@ function renderMyPlan(q){
   <div class="ph"><h1>Mi plan · Q${q}</h1><p>${esc(fase)} · Plan personalizado C.L.O.E.</p></div>
 
   ${s.macros?`<div class="plan-hdr">
-    <div class="plan-hdr-title">C.L.O.E. · Quincena ${q}</div>
-    <div class="plan-hdr-sub">${esc(fase)} · ${s.macros.kcal} kcal/día</div>
+    <div class="plan-hdr-title">C.L.O.E. · Quincena ${q} · ${esc(fase)}</div>
+    <div class="plan-hdr-sub">${s.macros.kcal} kcal/día · Plan activo</div>
     <div class="plan-macros">
       <div class="plan-macro"><div class="plan-macro-v" style="color:var(--accent2)">${s.macros.kcal}</div><div class="plan-macro-l">kcal</div></div>
       <div class="plan-macro"><div class="plan-macro-v" style="color:var(--accent)">${s.macros.p}g</div><div class="plan-macro-l">proteína</div></div>
@@ -1328,36 +1600,40 @@ function renderMyPlan(q){
     </div>
   </div>`:''}
 
-  <div class="stitle" style="margin-top:24px">💊 Suplementos</div>
+  <div class="stitle" style="margin-top:20px">💊 Suplementos</div>
   <div style="margin-bottom:18px">${planSupps(s.A)}</div>
 
   <div class="stitle">🏋️ Entrenamiento</div>
   <div style="margin-bottom:18px">${planBlocks(s.B,true)}</div>
 
-  <div class="stitle">🥗 Nutrición</div>
+  <div class="stitle">🥗 Nutrición · Tomas diarias</div>
   <div style="margin-bottom:18px">${planTomas(s.C)}</div>
 
-  <div class="stitle">🎯 Objetivos</div>
+  <div class="stitle">🎯 Objetivos Q${q}</div>
   <div style="margin-bottom:18px">${planGoals(s.D,s.F)}</div>
 
   ${hasAjustes?`
-  <div class="stitle">📈 Ajustes Q${q}</div>
+  <div class="stitle">📈 Ajustes específicos Q${q}</div>
   <div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:18px">
     ${adjItems.length?adjItems.map(l=>`<div class="plan-adj">${esc(l)}</div>`).join(''):`<div class="plan-txt">${esc(s.E)}</div>`}
   </div>`:''}
 
-  <div style="margin-top:14px">
-    <button class="btn sec" style="font-size:10px" onclick="copyText(this,${JSON.stringify(planText).replace(/"/g,'&quot;')})">📋 Copiar plan completo</button>
+  ${guiaHtml}
+
+  <div style="margin-top:8px">
+    <button class="btn sec" style="font-size:10px" onclick="copyText(this,${JSON.stringify(planText).replace(/"/g,'&quot;')})">📋 Copiar plan completo para IA</button>
   </div>`;
 }
 
 // ── REPORT ────────────────────────────────────────────────
 function renderReport(q){
   return `
-  <div class="ph"><h1>Reporte quincenal · Q${q}</h1><p>Envía a tu coach cada 14 días · Algoritmo ajuste DOCE</p></div>
-  <div class="alert">Los logs diarios del móvil se incluyen automáticamente. Rellena los datos adicionales y genera el reporte.</div>
+  <div class="ph"><h1>Reporte quincenal · Q${q}</h1><p>Envía a tu coach cada 14 días con fotos + datos completos</p></div>
+  <div class="alert">Los logs diarios del Día Activo se incluyen automáticamente. Rellena todos los datos y genera el reporte para enviárselo a tu coach.</div>
+
+  <div class="stitle">Métricas generales</div>
   <div class="g2">
-    <div><label>Peso media esta quincena (kg)</label><input type="number" id="r-w" placeholder="72.5" step="0.1"></div>
+    <div><label>Peso medio esta quincena (kg)</label><input type="number" id="r-w" placeholder="72.5" step="0.1"></div>
     <div><label>Peso quincena anterior (kg)</label><input type="number" id="r-wp" placeholder="73.1" step="0.1"></div>
     <div><label>Cintura (cm)</label><input type="number" id="r-c" placeholder="88"></div>
     <div><label>Energía media (1-10)</label><input type="number" id="r-e" placeholder="7" min="1" max="10"></div>
@@ -1366,15 +1642,36 @@ function renderReport(q){
     <div><label>Adherencia entreno (%)</label><input type="number" id="r-a" placeholder="85"></div>
     <div><label>Adherencia nutrición (%)</label><input type="number" id="r-na" placeholder="80"></div>
   </div>
+
+  <div class="stitle" style="margin-top:16px">⚖️ Datos báscula inteligente (medición final Q${q})</div>
+  <div style="background:rgba(91,156,246,.05);border:1px solid rgba(91,156,246,.2);border-radius:10px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:11px;line-height:1.7">
+    Introduce los datos que aparecen en tu báscula inteligente. Son el input más valioso para que C.L.O.E. ajuste tu plan con precisión.
+  </div>
+  <div class="g2">
+    <div><label>Peso báscula (kg)</label><input type="number" id="sc-peso" placeholder="78.00" step="0.01"></div>
+    <div><label>IMC / BMI</label><input type="number" id="sc-bmi" placeholder="24.1" step="0.1"></div>
+    <div><label>Grasa corporal (%)</label><input type="number" id="sc-fat" placeholder="14.2" step="0.1"></div>
+    <div><label>Grasa subcutánea (%)</label><input type="number" id="sc-subfat" placeholder="12.2" step="0.1"></div>
+    <div><label>Grasa visceral (índice)</label><input type="number" id="sc-visceral" placeholder="6" step="1"></div>
+    <div><label>Agua corporal (%)</label><input type="number" id="sc-water" placeholder="61.9" step="0.1"></div>
+    <div><label>Músculo esquelético (%)</label><input type="number" id="sc-muscle" placeholder="48.9" step="0.1"></div>
+    <div><label>Masa muscular (kg)</label><input type="number" id="sc-musclemass" placeholder="63.60" step="0.01"></div>
+    <div><label>Masa ósea (kg)</label><input type="number" id="sc-bone" placeholder="3.35" step="0.01"></div>
+    <div><label>Proteína corporal (%)</label><input type="number" id="sc-protein" placeholder="19.6" step="0.1"></div>
+    <div><label>BMR (Kcal)</label><input type="number" id="sc-bmr" placeholder="1815" step="1"></div>
+    <div><label>Edad metabólica</label><input type="number" id="sc-metage" placeholder="45" step="1"></div>
+  </div>
+
+  <div class="stitle" style="margin-top:16px">Datos de entrenamiento</div>
   <label>CSV Intervals.icu (pega aquí)</label>
   <textarea id="r-csv" rows="3" placeholder="Distancia total, TSS, ritmos medios, sesiones completadas..."></textarea>
   <label>Observaciones libres</label>
-  <textarea id="r-n" rows="2" placeholder="Lesiones, contexto vital, fatiga, bloqueos, éxitos..."></textarea>
+  <textarea id="r-n" rows="3" placeholder="Lesiones, contexto vital, fatiga, bloqueos, éxitos, cómo te has sentido..."></textarea>
   <div style="display:flex;gap:8px;margin-top:11px">
-    <button class="btn" onclick="genReport(${q})">📋 Generar reporte</button>
+    <button class="btn" onclick="genReport(${q})">📋 Generar reporte IA</button>
   </div>
   <div id="rep-out" style="display:none;margin-top:13px">
-    <div class="stitle">Reporte listo · Copia y envía a tu coach</div>
+    <div class="stitle">Reporte listo · Copia y pega en Claude / ChatGPT</div>
     <textarea class="report-area" id="rep-text" readonly></textarea>
     <button class="btn" id="rep-btn" style="margin-top:8px" onclick="copyReport()">📋 Copiar reporte</button>
   </div>`;
@@ -1416,12 +1713,30 @@ function genReport(q){
   const csv=document.getElementById('r-csv')?.value;
   const nv=document.getElementById('r-n')?.value;
 
-  // Day logs
+  // Datos báscula
+  const sc={
+    peso:document.getElementById('sc-peso')?.value,
+    bmi:document.getElementById('sc-bmi')?.value,
+    fat:document.getElementById('sc-fat')?.value,
+    subfat:document.getElementById('sc-subfat')?.value,
+    visceral:document.getElementById('sc-visceral')?.value,
+    water:document.getElementById('sc-water')?.value,
+    muscle:document.getElementById('sc-muscle')?.value,
+    musclemass:document.getElementById('sc-musclemass')?.value,
+    bone:document.getElementById('sc-bone')?.value,
+    protein:document.getElementById('sc-protein')?.value,
+    bmr:document.getElementById('sc-bmr')?.value,
+    metage:document.getElementById('sc-metage')?.value,
+  };
+
+  // Day logs — 14 días
   let daysSummary='';
-  for(let d=0;d<7;d++){
-    const log=loadDayLog(q,d);const type=DAYTYPES[d];const parts=[];
+  const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  for(let d=0;d<14;d++){
+    const wd=d%7;
+    const log=loadDayLog(q,d);const type=DAYTYPES[wd];const parts=[];
     if(type==='strength'&&log.sets){
-      const {exList}=getStrengthIntervals(d===0?'A':'B',q);
+      const {exList}=getStrengthIntervals(wd===0?'A':'B',q);
       exList.forEach(ex=>{
         const sets=(log.sets[ex.key]||[]).filter(s=>s&&s.kg);
         if(sets.length){
@@ -1433,35 +1748,49 @@ function genReport(q){
     if(type==='running'&&log.running?.pace) parts.push(`Running: ${log.running.pace}/km · ${log.running.dist||'?'}km · ${log.running.time||'?'}min · RPE ${log.running.feel||'?'}/10`);
     if(log.meals){const mc=Object.values(log.meals).filter(Boolean).length;if(mc>0) parts.push(`Nutrición: ${mc}/6 tomas`);}
     if(log.obs) parts.push(`Obs: ${log.obs}`);
-    if(parts.length) daysSummary+=`\n${DAYS[d]} (${DAYLABELS[d]})\n${parts.map(p=>'  · '+p).join('\n')}\n`;
+    if(parts.length) daysSummary+=`\nDía ${d+1} · ${dayNames[wd]} (${DAYLABELS[wd]})\n${parts.map(p=>'  · '+p).join('\n')}\n`;
   }
 
   const deltaP=wv&&wpv?(parseFloat(wv)-parseFloat(wpv)).toFixed(1):'n/d';
+  const hasSc=Object.values(sc).some(Boolean);
 
   const text=
 `═══════════════════════════════════════════════════════
 C.L.O.E. COACH · REPORTE QUINCENAL Q${q}
 Usuario: ${profile?.full_name||'—'} · ${new Date().toLocaleDateString('es-ES')}
+Objetivo: ${profile?.goal||'—'} · Edad: ${profile?.age||'—'} · Peso inicial: ${profile?.weight_kg||'—'}kg
 ═══════════════════════════════════════════════════════
 
-PERFIL
-Objetivo: ${profile?.goal||'—'} · Q${q}/8 · ${getPhase(q)}
-Edad: ${profile?.age||'—'} · Peso inicial: ${profile?.weight_kg||'—'}kg
+MÉTRICAS GENERALES Q${q}
+Peso medio Q${q}:          ${wv||'n/d'} kg
+Peso medio Q${q-1}:        ${wpv||'n/d'} kg
+Delta peso:               ${deltaP} kg (objetivo recomposición: ±0.2kg)
+Cintura:                  ${cv||'n/d'} cm
+Energía media (1-10):     ${ev||'n/d'}
+Hambre media (1-10):      ${hv||'n/d'}
+Sueño medio:              ${sv||'n/d'} h
+Adherencia entreno:       ${av||'n/d'} %
+Adherencia nutrición:     ${nav||'n/d'} %
+${hasSc?`
+BÁSCULA INTELIGENTE (medición final Q${q})
+Peso:                     ${sc.peso||'n/d'} kg
+BMI:                      ${sc.bmi||'n/d'}
+Grasa corporal:           ${sc.fat||'n/d'} %
+Grasa subcutánea:         ${sc.subfat||'n/d'} %
+Grasa visceral:           ${sc.visceral||'n/d'} (índice)
+Agua corporal:            ${sc.water||'n/d'} %
+Músculo esquelético:      ${sc.muscle||'n/d'} %
+Masa muscular:            ${sc.musclemass||'n/d'} kg
+Masa ósea:                ${sc.bone||'n/d'} kg
+Proteína corporal:        ${sc.protein||'n/d'} %
+BMR:                      ${sc.bmr||'n/d'} Kcal
+Edad metabólica:          ${sc.metage||'n/d'} años`:''}
 
-MÉTRICAS Q${q} (algoritmo ajuste DOCE)
-Peso medio Q${q}:       ${wv||'n/d'} kg
-Peso medio Q${q-1}:     ${wpv||'n/d'} kg
-Delta peso:            ${deltaP} kg (obj. recomposición: ±0.2kg)
-Cintura:               ${cv||'n/d'} cm
-Energía media (1-10):  ${ev||'n/d'}
-Hambre media (1-10):   ${hv||'n/d'}
-Sueño medio:           ${sv||'n/d'} h
-Adherencia entreno:    ${av||'n/d'} %
-Adherencia nutrición:  ${nav||'n/d'} %
-Observaciones:         ${nv||'—'}
+OBSERVACIONES
+${nv||'—'}
 
-LOG DIARIO Q${q} (registro app móvil)
-${daysSummary||'  Sin datos registrados en app móvil'}
+LOG DIARIO Q${q} (14 días)
+${daysSummary||'  Sin datos registrados en el Día Activo'}
 
 CSV INTERVALS.ICU
 ${csv||'(no proporcionado)'}
@@ -1469,57 +1798,53 @@ ${csv||'(no proporcionado)'}
 FOTOS: [ADJUNTAR FRENTE · LATERAL · ESPALDA]
 
 ═══════════════════════════════════════════════════════
-INSTRUCCIÓN C.L.O.E. COACH · ALGORITMO DOCE Q${q+1}
+INSTRUCCIÓN C.L.O.E. · ANÁLISIS Y PLAN Q${q+1}
 ═══════════════════════════════════════════════════════
 
-Actúa como C.L.O.E. COACH basándote en el Informe
-Maestro Programa DOCE. Aplica el algoritmo quincenal:
+Actúa como C.L.O.E. COACH (Crush Limits Or Explode).
+Analiza el reporte completo y genera el plan Q${q+1}.
 
 ANÁLISIS OBLIGATORIO:
-1. RENDIMIENTO FUERZA: progresión pesos, RIR real vs objetivo, tempo, volumen
-2. RENDIMIENTO RUNNING: ritmos logrados vs objetivo, TSS, distribución carga
-3. COMPOSICIÓN CORPORAL: delta peso ${deltaP}kg vs objetivo · cintura · fotos
-4. RECUPERACIÓN: sueño ${sv||'?'}h · energía ${ev||'?'}/10 · señales fatiga
-5. ALERTAS MÉDICAS: lesión potencial, sobreentrenamiento, déficit extremo
+1. COMPOSICIÓN CORPORAL: delta peso ${deltaP}kg · grasa corporal ${sc.fat||'?'}% · masa muscular ${sc.musclemass||'?'}kg · grasa visceral ${sc.visceral||'?'} · edad metabólica ${sc.metage||'?'} · tendencia vs Q${q-1}
+2. RENDIMIENTO FUERZA: progresión pesos, RIR real vs objetivo, tempo, adherencia, fatiga
+3. RENDIMIENTO RUNNING: ritmos logrados vs objetivo, TSS, distribución carga semanal
+4. RECUPERACIÓN: sueño ${sv||'?'}h · energía ${ev||'?'}/10 · señales de sobreentrenamiento o fatiga
+5. HIDRATACIÓN Y METABOLISMO: agua corporal ${sc.water||'?'}% · BMR ${sc.bmr||'?'} kcal · eficiencia metabólica
+6. ALERTAS: lesión potencial, sobreentrenamiento, déficit calórico excesivo, señales de alarma
 
-AJUSTE NUTRICIONAL (algoritmo DOCE):
-- Si adherencia < 80%: mantener calorías, trabajar adherencia
-- Si delta peso > objetivo: reducir 200-300 kcal
-- Si delta peso ≤ objetivo: mantener
-- Rebalancear macros si procede: P=1.8-2.0g/kg · G=0.7-1.2g/kg · HC=resto
-- Ajustar HC pre-entreno si energía baja
+AJUSTE NUTRICIONAL:
+- Si adherencia < 80%: mantener calorías, trabajar adherencia primero
+- Si delta peso > objetivo (+): reducir 150-200 kcal en HC
+- Si grasa visceral ≥ 10: priorizar déficit y aumentar cardio suave
+- Si masa muscular baja (<62kg en este perfil): aumentar proteína 10-15%
+- Si BMR bajo vs peso: revisar adherencia y déficit calórico
+- Rebalancear: P=1.8-2.0g/kg · G=0.7-1.0g/kg · HC=resto
 
-AJUSTE ENTRENAMIENTO (DOCE):
-- Si progresión cargas consistente: +2.5kg superior / +5kg inferior
-- Si estancamiento ≥ 2 quincenas: cambiar patrón/rango
-- Si fatiga alta: semana descarga en Q${q+1}
-- Si dolor articular: sustituir ejercicio
+AJUSTE ENTRENAMIENTO:
+- Progresión fuerza consistente → +2.5kg tren superior / +5kg inferior
+- Estancamiento ≥ 2Q → cambiar patrón o rango de reps
+- Fatiga alta o energía <6 → añadir semana de descarga
+- Músculo esquelético <49% → aumentar volumen fuerza
 
-GENERA QUINCENA Q${q+1} COMPLETA:
-A. FUERZA DÍA A + DÍA B — formato Intervals.icu:
-   "Warmup\n5m Movilidad\n\nMain set\n[ejercicio]: [series]×[reps] @ [kg]kg tempo [X-X-X-X] [RIR] descanso [Xs]\n...\nCooldown\n5m Estiramientos"
-
-B. RUNNING — 3 sesiones formato Intervals.icu:
-   Intervalos (Martes), Tempo (Viernes), Tirada larga (Sábado)
-
-C. SUPLEMENTOS — ajuste si procede según análisis
-
-D. NUTRICIÓN — menús 6 tomas con opciones intercambiables
-   Kcal ajustadas · macros recalculados · regla 80/20
-
-E. OBJETIVOS Q${q+1}:
-   Pasos · sueño · adherencia entreno · adherencia nutrición · foco
-
-Sin teoría. Directo. Justifica cada ajuste en 1 línea.
+GENERA Q${q+1} COMPLETO (sin teoría, directo, justifica en 1 línea cada ajuste):
+A. SUPLEMENTOS — ajuste si procede
+B. FUERZA DÍA A + DÍA B — formato Intervals.icu
+C. RUNNING — Intervalos, Tempo y Tirada larga en formato Intervals.icu
+D. NUTRICIÓN — 6 tomas con 3 opciones intercambiables, kcal y macros ajustados
+E. OBJETIVOS Q${q+1}: pasos · sueño · adherencia · foco · métricas objetivo báscula
+F. FECHAS: inicio, pesaje, fotos, envío reporte
 ═══════════════════════════════════════════════════════`;
 
   document.getElementById('rep-text').value=text;
   document.getElementById('rep-out').style.display='block';
+  document.getElementById('rep-out').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ── MOBILE VIEW ───────────────────────────────────────────
 function openMobile(){
-  mobDayIdx=todayPlanIdx();
+  const wNum=profile?.week||1;
+  const weekInQ=(wNum-1)%2; // 0 o 1
+  mobDayIdx=weekInQ*7+todayPlanIdx(); // 0-13
   document.getElementById('mob-overlay').classList.add('open');
   renderMobileDayBar();
   renderMobileDay();
@@ -1527,22 +1852,28 @@ function openMobile(){
 function closeMobile(){ document.getElementById('mob-overlay').classList.remove('open'); }
 
 function renderMobileDayBar(){
-  document.getElementById('mob-day-bar').innerHTML=DAYS.map((d,i)=>`
-    <button class="mob-day-btn ${i===mobDayIdx?'on':''}" onclick="setMobDay(${i})">${d}<br><span style="font-size:8px">${DAYLABELS[i]}</span></button>`).join('');
+  const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  document.getElementById('mob-day-bar').innerHTML=Array.from({length:14},(_,i)=>{
+    const wd=i%7;
+    const shortLabel=DAYLABELS[wd].split(' ')[0];
+    return `<button class="mob-day-btn ${i===mobDayIdx?'on':''}" onclick="setMobDay(${i})">Día ${i+1}<br><span style="font-size:8px">${dayNames[wd]} · ${shortLabel}</span></button>`;
+  }).join('');
 }
 function setMobDay(i){ mobDayIdx=i; renderMobileDayBar(); renderMobileDay(); }
 
 function renderMobileDay(){
   const w=profile?.week||1;
   const q=getQuincena(w);
-  const d=mobDayIdx;
-  const type=DAYTYPES[d];
+  const d=mobDayIdx; // 0-13
+  const wd=d%7;     // 0-6 día de semana
+  const type=DAYTYPES[wd];
   const log=loadDayLog(q,d);
   const planNut=profile?._planNutrition;
   const N=getNutrition();
   const isRest=type==='rest';
   const nutr=planNut?{...(isRest?(planNut.rest||planNut.training):planNut.training),meals:planNut.meals}:isRest?N.rest:N.training;
-  document.getElementById('mob-date-label').textContent=`${DAYS[d]} · ${DAYLABELS[d]} · Q${q}`;
+  const dayNamesLong=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  document.getElementById('mob-date-label').textContent=`Día ${d+1} · ${dayNamesLong[wd]} · ${DAYLABELS[wd]} · Q${q}`;
 
   let html='';
 
@@ -1555,6 +1886,7 @@ function renderMobileDay(){
     {key:'preCena',title:'🌙 Antes cena'},
     {key:'acostarse',title:'😴 Antes dormir'},
   ];
+  // (wd usado para getStrengthIntervals y getRunSession)
   html+=`<div class="mob-section">
     <div class="mob-section-title">💊 Suplementos del día</div>
     ${suppSections.map(sec=>{
@@ -1587,9 +1919,9 @@ function renderMobileDay(){
       </div>
     </div>`;
     }else{
-    const {exList,fmt}=getStrengthIntervals(d===0?'A':'B',q);
+    const {exList,fmt}=getStrengthIntervals(wd===0?'A':'B',q);
     html+=`<div class="mob-section">
-      <div class="mob-section-title">🏋️ Fuerza Día ${d===0?'A':'B'}</div>
+      <div class="mob-section-title">🏋️ Fuerza Día ${wd===0?'A':'B'} · Día ${d+1}</div>
       <div class="mob-intervals">
         <button class="mob-copy" onclick="copyText(this,${JSON.stringify(fmt).replace(/"/g,'&quot;')})">📋</button>
         <pre>${fmt}</pre>
@@ -1610,9 +1942,13 @@ function renderMobileDay(){
             <button class="mob-set-done ${sv.done?'ok':''}" id="ms_${ex.key}_${si}_done" onclick="toggleSetDone('${ex.key}',${si})">✓</button>
           </div>`;
         }
+        const ytUrl=`https://www.youtube.com/results?search_query=${YT_LINKS[ex.key]||encodeURIComponent(ex.name)}`;
         return `<div class="mob-ex">
-          <div class="mob-ex-name">${ex.name}<span class="mob-ex-rir">${ex.rir} · tempo ${ex.tempo}</span></div>
-          <div class="mob-ex-meta">${ex.sets}×${ex.reps} · descanso ${ex.rest} · ${ex.muscle||''}</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
+            <div class="mob-ex-name">${ex.name}<span class="mob-ex-rir">${ex.rir} · tempo ${ex.tempo}</span></div>
+            <a href="${ytUrl}" target="_blank" rel="noopener" class="cal-ex-vid" style="font-size:9px;padding:3px 7px;margin-top:1px;flex-shrink:0">📺 Video</a>
+          </div>
+          <div class="mob-ex-meta">${ex.sets}×${ex.reps} · descanso ${ex.rest}</div>
           <div class="mob-sets">${sHtml}</div>
           <div class="mob-prog-hint">${target?`→ Objetivo: ${target}kg (era ${prev}kg)`:'Primera quincena — elige peso cómodo con buena técnica'}</div>
         </div>`;
@@ -1623,7 +1959,7 @@ function renderMobileDay(){
 
   // ── RUNNING ──
   if(type==='running'){
-    const rs=getPlanRunningSessionForDay(d)||getRunSession(d,q);
+    const rs=getPlanRunningSessionForDay(d)||getRunSession(wd,q);
     if(rs){
       const rl=log.running||{};
       html+=`<div class="mob-section">
@@ -1713,6 +2049,28 @@ function renderMobileDay(){
     <textarea class="mob-obs-ta" id="mob-obs" placeholder="Cómo te has sentido, dolores, energía, notas para tu coach...">${log.obs||''}</textarea>
   </div>`;
 
+  // ── CHECKLIST DEL DÍA ──
+  const chkItems=[
+    {k:'steps',t:'Pasos 8.000+',s:'Objetivo NEAT diario — activa el metabolismo'},
+    {k:'sleep',t:'Sueño 7h+',s:'Recuperación y composición corporal'},
+    {k:'nutr',t:'Nutrición 80/20',s:'Al menos 5 de 6 tomas según tu plan'},
+    {k:'workout',t:'Entreno completado',s:'Fuerza o running según plan del día'},
+    {k:'supps',t:'Suplementos protocolo',s:'Ayuno + pre-desayuno + pre-cena + acostarse'},
+    {k:'hydro',t:'Hidratación 3L',s:'Agua mineral — rendimiento y recuperación'},
+    {k:'mob',t:'Movilidad / foam roller',s:'5-10 min tras el entreno o antes de dormir'},
+  ];
+  html+=`<div class="mob-section">
+    <div class="mob-section-title">✅ Checklist día ${d+1}</div>
+    ${chkItems.map(item=>{
+      const fullKey=`q${q}_d${d}_${item.k}`;
+      const done=!!checklist[fullKey];
+      return `<div class="chk ${done?'done':''}" onclick="toggleMobChk(${q},${d},'${item.k}')">
+        <div class="chkbox">${done?'✓':''}</div>
+        <div><div class="chkt">${item.t}</div><div class="chks">${item.s}</div></div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
   document.getElementById('mob-body').innerHTML=html;
   updateMobStatus(q,d);
 }
@@ -1763,7 +2121,7 @@ function selectMobMealOpt(key,idx){
   tabs.forEach((t,i)=>t.classList.toggle('sel',i===idx));
   // update content
   const N=getNutrition();
-  const isRest=DAYTYPES[mobDayIdx]==='rest';
+  const isRest=DAYTYPES[mobDayIdx%7]==='rest';
   const nutr=isRest?(N.rest||N.training):N.training;
   const meal=nutr.meals.find(m=>m.key===key);
   if(!meal||!meal.options) return;
@@ -1792,7 +2150,8 @@ function markMeal(key){
 function saveDayData(){
   const w=profile?.week||1; const q=getQuincena(w);
   const log=loadDayLog(q,mobDayIdx);
-  const type=DAYTYPES[mobDayIdx];
+  const wd=mobDayIdx%7;
+  const type=DAYTYPES[wd];
   // collect set data
   if(type==='strength'){
     if(getPlanStrengthForDay(mobDayIdx)){
@@ -1800,10 +2159,10 @@ function saveDayData(){
       saveDayLog(q,mobDayIdx,log);
       updateMobStatus(q,mobDayIdx);
       const btn=document.querySelector('.mob-save-btn');
-      if(btn){btn.textContent='âœ… Guardado';setTimeout(()=>btn.textContent='ðŸ’¾ Guardar dÃ­a',2000);}
+      if(btn){btn.textContent='Guardado';setTimeout(()=>btn.textContent='Guardar dia',2000);}
       return;
     }
-    const {exList}=getStrengthIntervals(mobDayIdx===0?'A':'B',q);
+    const {exList}=getStrengthIntervals(wd===0?'A':'B',q);
     if(!log.sets) log.sets={};
     exList.forEach(ex=>{
       if(!log.sets[ex.key]) log.sets[ex.key]=[];
@@ -1835,11 +2194,12 @@ function saveDayData(){
 }
 
 function updateMobStatus(q,d){
-  const log=loadDayLog(q,d);const type=DAYTYPES[d];const parts=[];
+  const wd=d%7;
+  const log=loadDayLog(q,d);const type=DAYTYPES[wd];const parts=[];
   if(type==='strength'&&getPlanStrengthForDay(d)){
     parts.push('fuerza MI PLAN');
   }else if(type==='strength'&&log.sets){
-    const {exList}=getStrengthIntervals(d===0?'A':'B',q);
+    const {exList}=getStrengthIntervals(wd===0?'A':'B',q);
     const done=exList.reduce((acc,ex)=>acc+(log.sets[ex.key]||[]).filter(s=>s&&s.done).length,0);
     const total=exList.reduce((acc,ex)=>acc+ex.sets,0);
     if(done>0) parts.push(`${done}/${total} series`);
@@ -1849,6 +2209,13 @@ function updateMobStatus(q,d){
   if(log.supps){const sc=Object.values(log.supps).filter(Boolean).length;if(sc>0) parts.push(`${sc} supps`);}
   if(log.obs) parts.push('obs ✓');
   document.getElementById('mob-status-text').textContent=parts.join(' · ')||'sin datos';
+}
+
+function toggleMobChk(q,d,key){
+  const fullKey=`q${q}_d${d}_${key}`;
+  checklist[fullKey]=!checklist[fullKey];
+  localStorage.setItem('cloe_chk_'+profile.id,JSON.stringify(checklist));
+  renderMobileDay();
 }
 
 // ── UTILS ─────────────────────────────────────────────────
