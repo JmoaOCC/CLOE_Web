@@ -295,6 +295,11 @@ function getPaces(q){
   return         {easy:'6:00',tempo:'5:20',interval:'4:55'};
 }
 
+function getCurrentPaces(q){
+  if(profile?._paces?.easy) return profile._paces;
+  return getPaces(q);
+}
+
 // ── SUPLEMENTOS (protocolo DOCE / Sandra Lomas) ──────────
 const SUPPLEMENTS={
   ayuno:[
@@ -623,27 +628,102 @@ function saveDayLog(q,dayIdx,data){ localStorage.setItem(storageKey(q,dayIdx),JS
 function getPrevWeight(key){ return parseFloat(localStorage.getItem(`cloe_pw_${profile?.id}_${key}`)||'0'); }
 function setPrevWeight(key,val){ localStorage.setItem(`cloe_pw_${profile?.id}_${key}`,val); }
 
+// ── PLAN RUNTIME PARSERS ──────────────────────────────────
+function parsePlanSchedule(text){
+  if(!text) return null;
+  const dm={'lunes':0,'martes':1,'miércoles':2,'miercoles':2,'jueves':3,'viernes':4,'sábado':5,'sabado':5,'domingo':6};
+  const sched=Array(7).fill(null);let found=0;
+  text.split('\n').forEach(line=>{
+    const m=line.match(/^\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+):\s+(\S[^\n]*)/);
+    if(!m) return;
+    const k=m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const idx=dm[k];if(idx===undefined) return;
+    const val=m[2].trim();
+    const type=val.match(/^DESCANSO/i)?'rest':val.match(/FUERZA|GYM/i)?'strength':val.match(/RUNNING|CARDIO|ANDAR/i)?'running':null;
+    if(type){sched[idx]={label:val.split(/[·—]/)[0].trim().toUpperCase(),type};found++;}
+  });
+  return found>=5?sched:null;
+}
+function parsePlanPaces(text){
+  if(!text) return null;
+  const easyM=text.match(/Easy[^:\n]*:\s*([\d]{1,2}:[\d]{2})\/km/i)||text.match(/conversacional[^:\n]*:\s*([\d]{1,2}:[\d]{2})\/km/i);
+  const tempoM=text.match(/Rodaje suave[^:\n]*:\s*([\d]{1,2}:[\d]{2})\/km/i);
+  if(!easyM) return null;
+  return{easy:easyM[1],tempo:tempoM?tempoM[1]:null,interval:null};
+}
+function extractPlanRunningSessions(text){
+  if(!text) return {};
+  const sessions={};const seen=new Set();
+  const rx=/─{5,}\s*\n([^\n─]+)\n─{5,}\s*\n([\s\S]*?)(?=─{5,}|$)/gi;
+  let m;
+  while((m=rx.exec(text))!==null){
+    const title=m[1].trim().toUpperCase();const content=m[2].trim();
+    if(title.match(/FUERZA|DESCANSO/i)||title.match(/SEMANA\s+\d/i)) continue;
+    if(!content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+/i)) continue;
+    const key=title.match(/INTERVAL/i)?'intervals':title.match(/TEMPO/i)?'tempo':title.match(/TIRADA|LARGA/i)?'long':'cardio';
+    if(!seen.has(key)){seen.add(key);sessions[key]=content;}
+  }
+  return sessions;
+}
+function extractPlanStrengthDays(text){
+  if(!text) return [];
+  const days=[];const seenKeys=new Set();
+  const rx=/─{5,}\s*\n([^\n─]*FUERZA[^\n─]*)\n─{5,}\s*\n([\s\S]*?)(?=─{5,}|$)/gi;
+  let m;
+  while((m=rx.exec(text))!==null){
+    const title=m[1].trim();const content=m[2].trim();
+    const km=title.match(/FUERZA\s+([ABCD])\b/i);
+    const key=km?km[1].toUpperCase():'D'+(days.length+1);
+    if(seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    days.push({title,content,key});
+  }
+  return days;
+}
+
 // ── INIT ─────────────────────────────────────────────────
 (async()=>{
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session){window.location.href='login.html';return;}
-  const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
-  if(error||!data){window.location.href='login.html';return;}
-  if(data.role==='admin'){window.location.href='admin.html';return;}
-  profile=data;
-  const saved=localStorage.getItem('cloe_chk_'+profile.id);
-  if(saved) checklist=JSON.parse(saved);
-  const w=profile.week||1;
-  const q=getQuincena(w);
-  document.getElementById('sb-name').textContent=profile.full_name||'—';
-  document.getElementById('sb-goal').textContent=profile.goal||'—';
-  document.getElementById('sb-week').textContent=`Q${q}`;
-  document.getElementById('sb-day').textContent=((w-1)%2)*7+1;
-  document.getElementById('sb-phase').textContent=getPhase(q);
-  document.getElementById('loading-screen').style.display='none';
-  document.getElementById('app-shell').style.display='grid';
-  mobDayIdx=todayPlanIdx();
-  view('dashboard');
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){window.location.href='login.html';return;}
+    const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
+    if(error||!data){window.location.href='login.html';return;}
+    if(data.role==='admin'){window.location.href='admin.html';return;}
+    if(data.status==='inactive'){await sb.auth.signOut();window.location.href='login.html';return;}
+    if(data.onboarding_completed!==true){window.location.href='onboarding.html';return;}
+    profile=data;
+    const saved=localStorage.getItem('cloe_chk_'+profile.id);
+    if(saved) checklist=JSON.parse(saved);
+
+    // Parse plan structure at runtime
+    const planText=profile.current_plan||profile.quincena1_plan;
+    if(planText){
+      const sched=parsePlanSchedule(planText);
+      if(sched) sched.forEach((day,i)=>{if(day){DAYLABELS[i]=day.label;DAYTYPES[i]=day.type;}});
+      profile._paces=parsePlanPaces(planText);
+      if(!profile.plan_running||profile.plan_running==='null'||profile.plan_running==='{}'){
+        const rs=extractPlanRunningSessions(planText);
+        if(Object.keys(rs).length) profile.plan_running=JSON.stringify(rs);
+      }
+      const sd=extractPlanStrengthDays(planText);
+      if(sd.length) profile._strengthDays=sd;
+    }
+
+    const w=profile.week||1;
+    const q=getQuincena(w);
+    document.getElementById('sb-name').textContent=profile.full_name||'—';
+    document.getElementById('sb-goal').textContent=profile.goal||'—';
+    document.getElementById('sb-week').textContent=`Q${q}`;
+    document.getElementById('sb-day').textContent=((w-1)%2)*7+1;
+    document.getElementById('sb-phase').textContent=getPhase(q);
+    document.getElementById('loading-screen').style.display='none';
+    document.getElementById('app-shell').style.display='grid';
+    mobDayIdx=todayPlanIdx();
+    view('dashboard');
+  }catch(e){
+    console.error('Init error:',e);
+    document.getElementById('loading-screen').textContent='Error al cargar. Recarga la página o vuelve a iniciar sesión.';
+  }
 })();
 
 // ── VIEW ROUTER ───────────────────────────────────────────
@@ -673,7 +753,7 @@ function renderView(){
 
 // ── DASHBOARD ─────────────────────────────────────────────
 function renderDashboard(q,w){
-  const p=getPaces(q);
+  const p=getCurrentPaces(q);
   const today=new Date().toISOString().slice(0,10);
   const checks=Object.keys(checklist).filter(k=>k.startsWith(`q${q}_${today}_`)&&checklist[k]).length;
   const hasPlan=!!(profile?.current_plan||profile?.week1_plan);
@@ -732,6 +812,22 @@ function renderSupplements(q){
 
 // ── TRAINING (formato Intervals) ──────────────────────────
 function renderTraining(q){
+  const sd=profile?._strengthDays;
+  if(sd&&sd.length>0){
+    const sel=Math.min(trainingTab,sd.length-1);
+    const day=sd[sel];
+    return `
+    <div class="ph"><h1>Fuerza · Q${q}</h1><p>Plan personalizado · ${esc(day.title)}</p></div>
+    <div class="day-tabs">
+      ${sd.map((d,i)=>`<div class="day-tab ${i===sel?'active':''}" onclick="trainingTab=${i};view('training')">Fuerza ${esc(d.key)}</div>`).join('')}
+    </div>
+    <div class="intervals-block">
+      <button class="copy-btn" onclick="copyText(this,${JSON.stringify(day.content).replace(/"/g,'&quot;')})">📋 Copiar</button>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">Plan personalizado — ${esc(day.title)}</div>
+      <pre>${esc(day.content)}</pre>
+    </div>
+    <div class="session-goal">💡 Tempo: excéntrica-pausa abajo-concéntrica-pausa arriba. Ej: 3-1-1-0 = bajar 3s · 1s pausa · subir 1s · sin pausa arriba. Controla cada repetición.</div>`;
+  }
   const sel=trainingTab;
   const {exList,fmt}=getStrengthIntervals(sel===0?'A':'B',q);
   return `
@@ -774,6 +870,38 @@ function renderTraining(q){
 
 // ── RUNNING ───────────────────────────────────────────────
 function renderRunning(q){
+  const p=getCurrentPaces(q);
+  // Try custom plan sessions first
+  let planSessions=null;
+  try{
+    const pr=typeof profile?.plan_running==='string'?JSON.parse(profile.plan_running):profile?.plan_running;
+    if(pr&&typeof pr==='object'&&Object.keys(pr).length>0) planSessions=pr;
+  }catch(e){}
+  if(planSessions){
+    const TAB_LABELS={intervals:'Intervalos',tempo:'Tempo',long:'Tirada Larga',cardio:'Cardio Suave'};
+    const keys=Object.keys(planSessions);
+    const sel=Math.min(runningTab,keys.length-1);
+    const key=keys[sel];
+    const content=planSessions[key];
+    const label=TAB_LABELS[key]||key.toUpperCase();
+    return `
+    <div class="ph"><h1>Running · Q${q}</h1><p>Plan personalizado · Ritmo easy ${p.easy}/km</p></div>
+    <div class="day-tabs">
+      ${keys.map((k,i)=>`<div class="day-tab ${i===sel?'active':''}" onclick="runningTab=${i};view('running')">${TAB_LABELS[k]||k.toUpperCase()}</div>`).join('')}
+    </div>
+    <div class="intervals-block">
+      <button class="copy-btn" onclick="copyText(this,${JSON.stringify(content).replace(/"/g,'&quot;')})">📋 Copiar</button>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">Plan personalizado — ${label}</div>
+      <pre>${esc(content)}</pre>
+    </div>
+    <div class="stitle">Ritmos actuales · Q${q}</div>
+    <div class="plan-row" style="border:1px solid var(--accent)">
+      <span style="color:var(--accent)">Q${q}</span>
+      <span style="color:var(--muted)">${getPhase(q)}</span>
+      <span style="color:var(--muted)">Easy ${p.easy}${p.tempo?' · Tempo '+p.tempo:''}${p.interval?' · Int '+p.interval:''}</span>
+    </div>`;
+  }
+  // Generic sessions
   const sessions=[runIntervals(q),runTempo(q),runLong(q)];
   const sel=runningTab;
   const s=sessions[sel];
