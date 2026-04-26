@@ -1328,23 +1328,22 @@ function renderMyPlan(q){
     </div>
   </div>`:''}
 
-  <div class="myplan-tabs" id="plan-tabs">
-    <div class="myplan-tab active" onclick="switchPlanTab('sups',this)">💊 Sups</div>
-    <div class="myplan-tab" onclick="switchPlanTab('train',this)">🏋️ Entreno</div>
-    <div class="myplan-tab" onclick="switchPlanTab('nutri',this)">🥗 Nutrición</div>
-    <div class="myplan-tab" onclick="switchPlanTab('goals',this)">🎯 Objetivos</div>
-    ${hasAjustes?'<div class="myplan-tab" onclick="switchPlanTab(\'adj\',this)">📈 Ajustes</div>':''}
-  </div>
+  <div class="stitle" style="margin-top:24px">💊 Suplementos</div>
+  <div style="margin-bottom:18px">${planSupps(s.A)}</div>
 
-  <div class="myplan-pane on" id="pane-sups">${planSupps(s.A)}</div>
-  <div class="myplan-pane" id="pane-train">${planBlocks(s.B,true)}</div>
-  <div class="myplan-pane" id="pane-nutri">${planTomas(s.C)}</div>
-  <div class="myplan-pane" id="pane-goals">${planGoals(s.D,s.F)}</div>
-  ${hasAjustes?`<div class="myplan-pane" id="pane-adj">
-    <div class="stitle">Ajustes Q${q}</div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px">
-      ${adjItems.length?adjItems.map(l=>`<div class="plan-adj">${esc(l)}</div>`).join(''):`<div class="plan-txt">${esc(s.E)}</div>`}
-    </div>
+  <div class="stitle">🏋️ Entrenamiento</div>
+  <div style="margin-bottom:18px">${planBlocks(s.B,true)}</div>
+
+  <div class="stitle">🥗 Nutrición</div>
+  <div style="margin-bottom:18px">${planTomas(s.C)}</div>
+
+  <div class="stitle">🎯 Objetivos</div>
+  <div style="margin-bottom:18px">${planGoals(s.D,s.F)}</div>
+
+  ${hasAjustes?`
+  <div class="stitle">📈 Ajustes Q${q}</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:18px">
+    ${adjItems.length?adjItems.map(l=>`<div class="plan-adj">${esc(l)}</div>`).join(''):`<div class="plan-txt">${esc(s.E)}</div>`}
   </div>`:''}
 
   <div style="margin-top:14px">
