@@ -331,6 +331,33 @@ const DAYS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const DAYLABELS=['FUERZA A','INTERVALOS','DESCANSO','FUERZA B','TEMPO','TIRADA LARGA','DESCANSO'];
 const DAYTYPES=['strength','running','rest','strength','running','running','rest'];
 function todayPlanIdx(){ const d=new Date().getDay(); return d===0?6:d-1; }
+function localDateOnly(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+function parseLocalDate(s){
+  if(!s) return null;
+  const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return null;
+  return new Date(+m[1],+m[2]-1,+m[3]);
+}
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function diffDays(a,b){ return Math.floor((localDateOnly(a)-localDateOnly(b))/86400000); }
+function mondayOf(d){ const x=localDateOnly(d); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function fmtShortDate(d){ return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit'}); }
+function getPlanStartDate(){ return parseLocalDate(profile?.onboarding_data?.plan_start_date); }
+function getTimelineInfo(){
+  const start=getPlanStartDate();
+  const today=localDateOnly(new Date());
+  if(!start){
+    const w=profile?.week||1;
+    return {start:null,today,q:getQuincena(w),week:w,dayOffset:((w-1)%2)*7+todayPlanIdx(),beforeStart:false,qStart:null};
+  }
+  const offset=diffDays(today,start);
+  const beforeStart=offset<0;
+  const q=beforeStart?1:Math.min(TOTAL_QUINCENAS,Math.floor(offset/14)+1);
+  const week=beforeStart?1:Math.min(TOTAL_QUINCENAS*2,Math.floor(offset/7)+1);
+  const dayOffset=beforeStart?offset:offset%14;
+  const qStart=beforeStart?start:addDays(start,(q-1)*14);
+  return {start,today,q,week,dayOffset,beforeStart,qStart};
+}
 
 // ── RITMOS POR QUINCENA ───────────────────────────────────
 function getPaces(q){
@@ -842,16 +869,17 @@ function extractPlanStrengthDays(text){
       if(sd.length) profile._strengthDays=sd;
     }
 
-    const w=profile.week||1;
-    const q=getQuincena(w);
+    const timeline=getTimelineInfo();
+    const w=timeline.week||profile.week||1;
+    const q=timeline.q||getQuincena(w);
     document.getElementById('sb-name').textContent=profile.full_name||'—';
     document.getElementById('sb-goal').textContent=profile.goal||'—';
     document.getElementById('sb-week').textContent=`Q${q}`;
-    document.getElementById('sb-day').textContent=((w-1)%2)*7+1;
+    document.getElementById('sb-day').textContent=timeline.dayOffset>=0?timeline.dayOffset+1:'PRE';
     document.getElementById('sb-phase').textContent=getPhase(q);
     document.getElementById('loading-screen').style.display='none';
     document.getElementById('app-shell').style.display='grid';
-    mobDayIdx=todayPlanIdx();
+    mobDayIdx=timeline.dayOffset>=0?timeline.dayOffset:0;
     view('dashboard');
   }catch(e){
     console.error('Init error:',e);
@@ -868,8 +896,9 @@ function view(v){
   document.getElementById('main').innerHTML=renderView();
 }
 function renderView(){
-  const w=profile?.week||1;
-  const q=getQuincena(w);
+  const timeline=getTimelineInfo();
+  const w=timeline.week||profile?.week||1;
+  const q=timeline.q||getQuincena(w);
   switch(currentView){
     case 'dashboard':    return renderDashboard(q,w);
     case 'training':     return renderTraining(q);
@@ -886,10 +915,10 @@ function renderView(){
 
 // ── DASHBOARD ─────────────────────────────────────────────
 function renderDashboard(q,w){
+  const timeline=getTimelineInfo();
+  q=timeline.q||q;
   const p=getCurrentPaces(q);
-  const wNum=profile?.week||1;
-  const weekInQ=(wNum-1)%2; // 0 o 1 → semana 1 o 2 de la Q
-  const todayDi=weekInQ*7+todayPlanIdx(); // 0-13
+  const todayDi=timeline.dayOffset;
   if(_calSelectedDay===null) _calSelectedDay=todayDi;
   const selDi=_calSelectedDay;
 
@@ -898,23 +927,31 @@ function renderDashboard(q,w){
   const hasPlan=!!getPlanText();
 
   let calHtml='';
-  for(let week=0;week<2;week++){
-    calHtml+=`<div class="cal-week-label">SEMANA ${week+1}</div><div class="cal-row">`;
+  const qStart=timeline.qStart||mondayOf(new Date());
+  const calStart=timeline.beforeStart?mondayOf(timeline.today):mondayOf(qStart);
+  const calEnd=addDays(qStart,13);
+  const totalWeeks=Math.ceil((diffDays(calEnd,calStart)+1)/7);
+  for(let week=0;week<totalWeeks;week++){
+    const weekStart=addDays(calStart,week*7);
+    const relWeek=Math.floor(diffDays(weekStart,qStart)/7)+1;
+    const weekLabel=relWeek<1?`PRE-Q1 · ${fmtShortDate(weekStart)}`:`SEMANA ${relWeek} · ${fmtShortDate(weekStart)}`;
+    calHtml+=`<div class="cal-week-label">${weekLabel}</div><div class="cal-row">`;
     for(let wd=0;wd<7;wd++){
-      const di=week*7+wd;
+      const cellDate=addDays(weekStart,wd);
+      const di=diffDays(cellDate,qStart);
       const type=DAYTYPES[wd];
-      const log=loadDayLog(q,di);
-      const isToday=di===todayDi;
+      const log=di>=0&&di<14?loadDayLog(q,di):{};
+      const isToday=diffDays(cellDate,timeline.today)===0;
       const isSel=di===selDi;
       const icon=typeIcons[type]||'📅';
       const shortLabel=DAYLABELS[wd].split(' ')[0];
-      const allExDone=Object.keys(log.calDone||{}).length>0&&Object.values(log.calDone||{}).every(Boolean);
+      const allExDone=false;
       calHtml+=`<div class="cal-cell ${isToday?'today':''} ${isSel?'selected':''}" onclick="calSelectDay(${di})">
         ${allExDone?'<div class="cal-cell-done">✓</div>':''}
         <div class="cal-cell-day">${dayNames[wd]}</div>
-        <div class="cal-cell-num">${di+1}</div>
+        <div class="cal-cell-num">${di>=0&&di<14?di+1:fmtShortDate(cellDate)}</div>
         <div class="cal-cell-icon">${icon}</div>
-        <div class="cal-cell-type">${shortLabel}</div>
+        <div class="cal-cell-type">${di<0?'PRE Q1':di>=14?'FUERA Q':shortLabel}</div>
       </div>`;
     }
     calHtml+='</div>';
@@ -926,7 +963,7 @@ function renderDashboard(q,w){
   <div class="cards">
     <div class="card"><div class="cl">Quincena</div><div class="cv a">Q${q}</div><div class="cs">${getPhase(q)} · 14 días</div></div>
     <div class="card"><div class="cl">Kcal objetivo</div><div class="cv b">${profile?.kcal||2475}</div><div class="cs">${profile?.protein||154}P · ${profile?.carbs||310}HC</div></div>
-    <div class="card"><div class="cl">Día activo</div><div class="cv o">Día ${todayDi+1}</div><div class="cs">${DAYLABELS[todayPlanIdx()]}</div></div>
+    <div class="card"><div class="cl">Día activo</div><div class="cv o">${todayDi>=0?`Día ${todayDi+1}`:'Pre Q1'}</div><div class="cs">${timeline.start?`Inicio Q1: ${fmtShortDate(timeline.start)}`:DAYLABELS[todayPlanIdx()]}</div></div>
     <div class="card"><div class="cl">Ritmo easy</div><div class="cv p">${p.easy}</div><div class="cs">/km · Q${q}</div></div>
   </div>
   <div class="stitle">Calendario Q${q} · 14 días</div>
@@ -960,6 +997,22 @@ function setCalMealOpt(q,di,mealKey,optIdx){
 }
 
 function renderCalDetail(q,di){
+  if(di<0||di>=14){
+    const start=getPlanStartDate();
+    const title=di<0?'Pre Q1':'Fuera de Q';
+    const msg=di<0?'Aún no ha empezado Q1':'Este día queda fuera de los 14 días de la quincena activa.';
+    return `<div class="cal-detail-hdr">
+      <span style="font-size:26px">📅</span>
+      <div>
+        <div class="cal-detail-title">${title}</div>
+        <div class="cal-detail-sub">El plan empieza el ${start?fmtShortDate(start):'día indicado'} · hoy queda resaltado en el calendario</div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:14px;background:var(--surface2);border-radius:11px;border:1px solid var(--border);margin-bottom:12px">
+      <div style="font-size:13px;font-weight:800;margin-bottom:4px">${msg}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">Puedes revisar Mi plan y preparar horarios, material y compras. El día activo pasará a Día 1 en la fecha de inicio.</div>
+    </div>`;
+  }
   const wd=di%7;
   const type=DAYTYPES[wd];
   const label=DAYLABELS[wd];
@@ -981,9 +1034,8 @@ function renderCalDetail(q,di){
     const customSt=getPlanStrengthForDay(di);
     html+=`<div class="stitle" style="margin:0 0 9px">Ejercicios del día</div>`;
     if(customSt){
-      const done=!!(log.calDone?.plan_strength);
-      html+=`<div class="cal-ex-row ${done?'done':''}">
-        <div class="cal-ex-check ${done?'ok':''}" onclick="toggleCalEx(${q},${di},'plan_strength')">${done?'✓':''}</div>
+      html+=`<div class="cal-ex-row">
+        <div class="cal-ex-check">•</div>
         <div class="cal-ex-info">
           <div class="cal-ex-name">${esc(customSt.title)}</div>
           <div class="cal-ex-meta">Plan personalizado — ver MI PLAN para el detalle</div>
@@ -992,12 +1044,11 @@ function renderCalDetail(q,di){
     } else {
       const {exList}=getStrengthIntervals(isA?'A':'B',q);
       html+=exList.map(ex=>{
-        const done=!!(log.calDone?.[ex.key]);
         const prev=getPrevWeight(ex.key);
         const target=prev>0?(prev+(ex.prog==='upper'?2.5:5)):null;
         const ytUrl=`https://www.youtube.com/results?search_query=${YT_LINKS[ex.key]||encodeURIComponent(ex.name)}`;
-        return `<div class="cal-ex-row ${done?'done':''}">
-          <div class="cal-ex-check ${done?'ok':''}" onclick="toggleCalEx(${q},${di},'${ex.key}')">${done?'✓':''}</div>
+        return `<div class="cal-ex-row">
+          <div class="cal-ex-check">•</div>
           <div class="cal-ex-info">
             <div class="cal-ex-name">${ex.name}</div>
             <div class="cal-ex-meta">${ex.sets}×${ex.reps} · ${ex.rir} · tempo ${ex.tempo}${target?' · → '+target+'kg':''}</div>
@@ -1010,14 +1061,13 @@ function renderCalDetail(q,di){
     const rs=getPlanRunningSessionForDay(di)||getRunSession(wd,q);
     html+=`<div class="stitle" style="margin:0 0 9px">Sesión de running</div>`;
     if(rs){
-      const done=!!(log.calDone?.run);
       html+=`<div style="background:#070e1c;border-radius:9px;border:1px solid var(--border);padding:12px;margin-bottom:9px">
         <pre style="white-space:pre-wrap;color:var(--accent);line-height:2;font-size:11px;font-family:'DM Mono',monospace">${esc(rs.fmt)}</pre>
       </div>
-      <div class="cal-ex-row ${done?'done':''}">
-        <div class="cal-ex-check ${done?'ok':''}" onclick="toggleCalEx(${q},${di},'run')">${done?'✓':''}</div>
+      <div class="cal-ex-row">
+        <div class="cal-ex-check">•</div>
         <div class="cal-ex-info">
-          <div class="cal-ex-name">Marcar sesión completada</div>
+          <div class="cal-ex-name">Sesión programada</div>
           <div class="cal-ex-meta">💡 ${esc(rs.goal||'')}</div>
         </div>
       </div>`;
@@ -1034,25 +1084,23 @@ function renderCalDetail(q,di){
   const N=getNutrition();
   const isRest=type==='rest';
   const nutr=isRest?N.rest:N.training;
-  html+=`<div class="stitle" style="margin:14px 0 9px">🥗 Nutrición · elige tu opción</div>
+  html+=`<div class="stitle" style="margin:14px 0 9px">🥗 Nutrición · opciones disponibles</div>
   <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);padding:6px 8px;background:var(--surface2);border-radius:7px;border-left:2px solid var(--accent3);margin-bottom:10px;line-height:1.7">${nutr.timing}</div>`;
 
   html+=nutr.meals.map(meal=>{
-    const selOpt=log.mealOpts?.[meal.key]??0;
-    const opt=meal.options[selOpt];
     return `<div class="cal-meal-row">
       <div class="cal-meal-name">${meal.name}</div>
       <div class="cal-meal-opts">
-        ${meal.options.map((o,i)=>`<button class="cal-meal-opt ${i===selOpt?'sel':''}" onclick="setCalMealOpt(${q},${di},'${meal.key}',${i})">${String.fromCharCode(65+i)}</button>`).join('')}
+        ${meal.options.map((o,i)=>`<button class="cal-meal-opt" type="button">${String.fromCharCode(65+i)}</button>`).join('')}
       </div>
     </div>
-    <div class="cal-meal-detail">
-      <div class="cal-meal-detail-macros">${opt.label} · ${opt.kcal} kcal · ${opt.p}g P · ${opt.hc}g HC</div>
+    ${meal.options.map((opt,i)=>`<div class="cal-meal-detail">
+      <div class="cal-meal-detail-macros">Opción ${String.fromCharCode(65+i)} · ${opt.label} · ${opt.kcal} kcal · ${opt.p}g P · ${opt.hc}g HC</div>
       ${opt.items.map(it=>`<div class="cal-meal-detail-item">
         <span>${it.f}${it.note?` <span style="color:var(--accent3);font-size:8px">· ${it.note}</span>`:''}</span>
         <span class="cal-meal-detail-amt">${it.a}</span>
       </div>`).join('')}
-    </div>`;
+    </div>`).join('')}`;
   }).join('');
 
   return html;
@@ -1408,7 +1456,7 @@ function togglePlanBlk(id){document.getElementById(id)?.classList.toggle('on');}
 
 function planBlocks(text,firstOpen){
   if(!text) return `<div class="plan-txt" style="color:var(--muted)">—</div>`;
-  const rx=/─{5,}\s*\n([^\n─]+)\n─{5,}\s*\n([\s\S]*?)(?=─{5,}|$)/g;
+  const rx=/(?:─|-){5,}\s*\n([^\n─-]+)\n(?:─|-){5,}\s*\n([\s\S]*?)(?=(?:─|-){5,}|$)/g;
   const blocks=[];let m;
   while((m=rx.exec(text))!==null) blocks.push({title:m[1].trim(),content:m[2].trim()});
   if(!blocks.length) return `<div class="plan-txt">${esc(text)}</div>`;
@@ -1433,7 +1481,7 @@ function planBlocks(text,firstOpen){
 
 function planSupps(text){
   if(!text) return `<div class="plan-txt" style="color:var(--muted)">—</div>`;
-  if((text.match(/─{5,}/g)||[]).length>=2) return planBlocks(text,true);
+  if((text.match(/(?:─|-){5,}/g)||[]).length>=2) return planBlocks(text,true);
   const lines=text.split('\n');
   const groups=[];let cur=null;
   lines.forEach(line=>{
@@ -1465,7 +1513,7 @@ function planTomas(text){
   if(!text) return `<div class="plan-txt" style="color:var(--muted)">—</div>`;
   const macroL=(text.match(/MACROS DÍA ENTRENO:[^\n]+/i)||[])[0]||'';
   const macroR=(text.match(/MACROS DÍA DESCANSO:[^\n]+/i)||[])[0]||'';
-  const rx=/─{5,}\s*\n(TOMA[^\n─]+)\n─{5,}\s*\n([\s\S]*?)(?=─{5,}|$)/gi;
+  const rx=/(?:─|-){5,}\s*\n(TOMA[^\n─-]+)\n(?:─|-){5,}\s*\n([\s\S]*?)(?=(?:─|-){5,}|$)/gi;
   const tomas=[];let m;
   while((m=rx.exec(text))!==null) tomas.push({label:m[1].trim(),content:m[2].trim()});
   if(!tomas.length) return `<div class="plan-txt">${esc(text)}</div>`;
@@ -1484,6 +1532,37 @@ function planTomas(text){
       <div class="plan-toma-body" id="${id}"><div class="plan-txt">${esc(t.content)}</div></div>
     </div>`;
   }).join('')}`;
+}
+
+function planBiweeklyCalendar(q){
+  const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const typeIcons={strength:'🏋️',running:'🏃',rest:'😴'};
+  let html='';
+  for(let week=0;week<2;week++){
+    html+=`<div class="cal-week-label">SEMANA ${week+1}</div><div class="cal-row">`;
+    for(let wd=0;wd<7;wd++){
+      const di=week*7+wd;
+      const type=DAYTYPES[wd];
+      const strength=getPlanStrengthForDay(di);
+      const run=getPlanRunningSessionForDay(di);
+      const title=strength?.title||run?.label||DAYLABELS[wd];
+      html+=`<div class="cal-cell" onclick="openMobile(${di})">
+        <div class="cal-cell-day">${dayNames[wd]}</div>
+        <div class="cal-cell-num">${di+1}</div>
+        <div class="cal-cell-icon">${typeIcons[type]||'📅'}</div>
+        <div class="cal-cell-type">${esc(String(title).split('·')[0]).slice(0,18)}</div>
+      </div>`;
+    }
+    html+='</div>';
+  }
+  return `<div class="cal-container">${html}</div>`;
+}
+
+function planCheatMealInfo(){
+  return `<div style="background:rgba(91,156,246,.06);border:1px solid rgba(91,156,246,.2);border-radius:11px;padding:11px 13px;margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.8">
+    <div style="color:var(--accent2);font-weight:500;margin-bottom:4px">Cheat meal semanal</div>
+    1 comida libre a la semana, no 1 día libre. Mantén proteína alta, evita llegar con hambre extrema y vuelve a la siguiente toma normal del plan. Si el plan no concreta cantidades o contexto, se marca como sin datos y no se inventa una dieta genérica.
+  </div>`;
 }
 
 function planGoals(objText,fechasText){
@@ -1604,13 +1683,11 @@ function renderMyPlan(q){
   <div style="margin-bottom:18px">${planSupps(s.A)}</div>
 
   <div class="stitle">🏋️ Entrenamiento</div>
+  <div style="margin-bottom:18px">${planBiweeklyCalendar(q)}</div>
   <div style="margin-bottom:18px">${planBlocks(s.B,true)}</div>
 
-  <div class="stitle">🥗 Nutrición · Tomas diarias</div>
-  <div style="margin-bottom:18px">${planTomas(s.C)}</div>
-
-  <div class="stitle">🎯 Objetivos Q${q}</div>
-  <div style="margin-bottom:18px">${planGoals(s.D,s.F)}</div>
+  <div class="stitle">🥗 Nutrición · Tomas diarias y opciones</div>
+  <div style="margin-bottom:18px">${planTomas(s.C)}${planCheatMealInfo()}</div>
 
   ${hasAjustes?`
   <div class="stitle">📈 Ajustes específicos Q${q}</div>
@@ -1803,6 +1880,7 @@ INSTRUCCIÓN C.L.O.E. · ANÁLISIS Y PLAN Q${q+1}
 
 Actúa como C.L.O.E. COACH (Crush Limits Or Explode).
 Analiza el reporte completo y genera el plan Q${q+1}.
+Si algún dato necesario no está en el reporte, escribe "SIN DATOS" en ese campo. No completes huecos con entrenos, dieta, ritmos o suplementos genéricos.
 
 ANÁLISIS OBLIGATORIO:
 1. COMPOSICIÓN CORPORAL: delta peso ${deltaP}kg · grasa corporal ${sc.fat||'?'}% · masa muscular ${sc.musclemass||'?'}kg · grasa visceral ${sc.visceral||'?'} · edad metabólica ${sc.metage||'?'} · tendencia vs Q${q-1}
@@ -1841,10 +1919,9 @@ F. FECHAS: inicio, pesaje, fotos, envío reporte
 }
 
 // ── MOBILE VIEW ───────────────────────────────────────────
-function openMobile(){
-  const wNum=profile?.week||1;
-  const weekInQ=(wNum-1)%2; // 0 o 1
-  mobDayIdx=weekInQ*7+todayPlanIdx(); // 0-13
+function openMobile(dayIdx){
+  const timeline=getTimelineInfo();
+  mobDayIdx=Number.isInteger(dayIdx)?dayIdx:(timeline.dayOffset>=0?timeline.dayOffset:0);
   document.getElementById('mob-overlay').classList.add('open');
   renderMobileDayBar();
   renderMobileDay();
@@ -1862,8 +1939,8 @@ function renderMobileDayBar(){
 function setMobDay(i){ mobDayIdx=i; renderMobileDayBar(); renderMobileDay(); }
 
 function renderMobileDay(){
-  const w=profile?.week||1;
-  const q=getQuincena(w);
+  const timeline=getTimelineInfo();
+  const q=timeline.q||getQuincena(profile?.week||1);
   const d=mobDayIdx; // 0-13
   const wd=d%7;     // 0-6 día de semana
   const type=DAYTYPES[wd];
@@ -1877,35 +1954,7 @@ function renderMobileDay(){
 
   let html='';
 
-  // ── SUPLEMENTOS (siempre presentes) ──
-  const suppSections=[
-    {key:'ayuno',title:'🌅 Al levantarte'},
-    {key:'preDesayuno',title:'🍳 Antes desayuno'},
-    ...(type==='strength'?[{key:'entreno_fuerza',title:'🏋️ Pre-fuerza'}]:[]),
-    ...(type==='running'?[{key:'entreno_running',title:'🏃 Pre-running'}]:[]),
-    {key:'preCena',title:'🌙 Antes cena'},
-    {key:'acostarse',title:'😴 Antes dormir'},
-  ];
-  // (wd usado para getStrengthIntervals y getRunSession)
-  html+=`<div class="mob-section">
-    <div class="mob-section-title">💊 Suplementos del día</div>
-    ${suppSections.map(sec=>{
-      const supps=SUPPLEMENTS[sec.key]||[];
-      return supps.map(s=>{
-        const key=`supp_${sec.key}_${s.name}`;
-        const done=!!(log.supps?.[key]);
-        return `<div class="mob-supp-row">
-          <span style="font-size:18px">${s.icon}</span>
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:700">${s.name}</div>
-            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent3)">${s.dose}</div>
-            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">${sec.title} · ${s.timing}</div>
-          </div>
-          <div class="mob-supp-done ${done?'ok':''}" onclick="toggleSupp('${key}',${q},${d})">${done?'✓':''}</div>
-        </div>`;
-      }).join('');
-    }).join('')}
-  </div>`;
+  // Día activo: los suplementos se consultan en MI PLAN.
 
   // ── FUERZA ──
   if(type==='strength'){
@@ -2049,27 +2098,7 @@ function renderMobileDay(){
     <textarea class="mob-obs-ta" id="mob-obs" placeholder="Cómo te has sentido, dolores, energía, notas para tu coach...">${log.obs||''}</textarea>
   </div>`;
 
-  // ── CHECKLIST DEL DÍA ──
-  const chkItems=[
-    {k:'steps',t:'Pasos 8.000+',s:'Objetivo NEAT diario — activa el metabolismo'},
-    {k:'sleep',t:'Sueño 7h+',s:'Recuperación y composición corporal'},
-    {k:'nutr',t:'Nutrición 80/20',s:'Al menos 5 de 6 tomas según tu plan'},
-    {k:'workout',t:'Entreno completado',s:'Fuerza o running según plan del día'},
-    {k:'supps',t:'Suplementos protocolo',s:'Ayuno + pre-desayuno + pre-cena + acostarse'},
-    {k:'hydro',t:'Hidratación 3L',s:'Agua mineral — rendimiento y recuperación'},
-    {k:'mob',t:'Movilidad / foam roller',s:'5-10 min tras el entreno o antes de dormir'},
-  ];
-  html+=`<div class="mob-section">
-    <div class="mob-section-title">✅ Checklist día ${d+1}</div>
-    ${chkItems.map(item=>{
-      const fullKey=`q${q}_d${d}_${item.k}`;
-      const done=!!checklist[fullKey];
-      return `<div class="chk ${done?'done':''}" onclick="toggleMobChk(${q},${d},'${item.k}')">
-        <div class="chkbox">${done?'✓':''}</div>
-        <div><div class="chkt">${item.t}</div><div class="chks">${item.s}</div></div>
-      </div>`;
-    }).join('')}
-  </div>`;
+  // Día activo: sin checklist diario en esta vista.
 
   document.getElementById('mob-body').innerHTML=html;
   updateMobStatus(q,d);
@@ -2086,7 +2115,7 @@ function toggleSupp(key,q,d){
 }
 
 function toggleSetDone(key,si){
-  const w=profile?.week||1; const q=getQuincena(w);
+  const timeline=getTimelineInfo(); const q=timeline.q||getQuincena(profile?.week||1);
   const log=loadDayLog(q,mobDayIdx);
   if(!log.sets) log.sets={};
   if(!log.sets[key]) log.sets[key]=[];
@@ -2111,7 +2140,7 @@ function toggleMobMeal(key){
 }
 
 function selectMobMealOpt(key,idx){
-  const w=profile?.week||1; const q=getQuincena(w);
+  const timeline=getTimelineInfo(); const q=timeline.q||getQuincena(profile?.week||1);
   const log=loadDayLog(q,mobDayIdx);
   if(!log.mealOpts) log.mealOpts={};
   log.mealOpts[key]=idx;
@@ -2134,7 +2163,7 @@ function selectMobMealOpt(key,idx){
 }
 
 function markMeal(key){
-  const w=profile?.week||1; const q=getQuincena(w);
+  const timeline=getTimelineInfo(); const q=timeline.q||getQuincena(profile?.week||1);
   const log=loadDayLog(q,mobDayIdx);
   if(!log.meals) log.meals={};
   log.meals[key]=!log.meals[key];
@@ -2148,7 +2177,7 @@ function markMeal(key){
 }
 
 function saveDayData(){
-  const w=profile?.week||1; const q=getQuincena(w);
+  const timeline=getTimelineInfo(); const q=timeline.q||getQuincena(profile?.week||1);
   const log=loadDayLog(q,mobDayIdx);
   const wd=mobDayIdx%7;
   const type=DAYTYPES[wd];

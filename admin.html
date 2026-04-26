@@ -445,7 +445,7 @@ async function waitForProfile(uid){
 async function createUser(){
   const name=document.getElementById('c-name').value.trim();
   const email=document.getElementById('c-email').value.trim();
-  const pass=document.getElementById('c-pass').value.trim();
+  let pass=document.getElementById('c-pass').value.trim();
   const age=parseInt(document.getElementById('c-age').value)||null;
   const sex=document.getElementById('c-sex').value;
   const weight=parseFloat(document.getElementById('c-weight').value)||null;
@@ -453,8 +453,9 @@ async function createUser(){
   const goal=document.getElementById('c-goal').value;
   const plan=document.getElementById('c-plan').value.trim();
 
-  if(!name||!email||!pass){toast('Nombre, email y contraseña son obligatorios.');return;}
-  if(pass.length<8){toast('La contraseña debe tener al menos 8 caracteres.');return;}
+  if(!name||!email){toast('Nombre y email son obligatorios.');return;}
+  if(!pass) pass='Cloe-'+Math.random().toString(36).slice(2,10)+'!';
+  if(pass.length<8){toast('La contraseña temporal debe tener al menos 8 caracteres.');return;}
   const {data:existingProfile,error:existingError}=await sb.from('profiles').select('id,email,status').eq('email',email).maybeSingle();
   if(existingError){toast('Error comprobando email existente: '+existingError.message);return;}
   if(existingProfile){

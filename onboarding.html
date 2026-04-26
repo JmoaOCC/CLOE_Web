@@ -26,7 +26,7 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .psub{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:28px;line-height:1.7}
 .field{margin-bottom:20px}
 .fl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;display:block;margin-bottom:7px}
-input[type=text],input[type=number],input[type=email],input[type=date],select,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:11px 14px;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border .2s}
+input[type=text],input[type=number],input[type=email],input[type=date],input[type=password],select,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:11px 14px;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border .2s}
 input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -367,6 +367,20 @@ input[type=range]{flex:1;accent-color:var(--accent)}
     <textarea id="context" rows="4" placeholder="Ej: trabajo en oficina, estrés alto, hijos pequeños, viajes, turnos, etc."></textarea>
   </div>
 
+  <div class="mcard" id="password-card-form" style="display:none">
+    <div class="mlbl">Contraseña para entrar después</div>
+    <div class="g2">
+      <div class="field">
+        <label class="fl">Contraseña</label>
+        <input id="new-password-form" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+      </div>
+      <div class="field">
+        <label class="fl">Repetir contraseña</label>
+        <input id="new-password-form-2" type="password" autocomplete="new-password" placeholder="Repite la contraseña">
+      </div>
+    </div>
+  </div>
+
   <div class="nav">
     <button class="btn sec" onclick="go(3)">Atrás</button>
     <button class="btn" onclick="generate()">Generar plan Quincena 1</button>
@@ -378,6 +392,19 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <div class="psub" id="result-sub">Copia este texto, pégalo en el chat del proyecto y C.L.O.E. generará el plan completo.</div>
 
   <div class="notice" id="res-summary"></div>
+  <div class="mcard" id="password-card" style="display:none">
+    <div class="mlbl">Crea tu contraseña de acceso</div>
+    <div class="g2">
+      <div class="field">
+        <label class="fl">Contraseña</label>
+        <input id="new-password" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+      </div>
+      <div class="field">
+        <label class="fl">Repetir contraseña</label>
+        <input id="new-password-2" type="password" autocomplete="new-password" placeholder="Repite la contraseña">
+      </div>
+    </div>
+  </div>
   <div class="info" id="save-status" style="display:none"></div>
   <div class="err" id="save-error" style="display:none"></div>
 
@@ -796,6 +823,7 @@ D. OBJETIVOS QUINCENA 1
 - Adherencia entreno / nutrición
 - Foco y mensaje motivador para la quincena 1
 
+Si falta un dato necesario para personalizar una parte, escribe "SIN DATOS" en ese campo. No inventes entrenos, dieta, ritmos ni suplementos genéricos.
 Sé directo. Sin teoría innecesaria.
 Justifica brevemente cada decisión de carga o volumen adaptada al nivel de ${payload.name}.
 ═══════════════════════════════════════════════════════`;
@@ -871,7 +899,25 @@ async function saveUserOnboarding(payload){
   if(result.error) throw result.error;
 }
 
+async function ensureUserPassword(){
+  if(!STATE.userMode) return;
+  const pass=document.getElementById('new-password-form')?.value||document.getElementById('new-password')?.value||'';
+  const pass2=document.getElementById('new-password-form-2')?.value||document.getElementById('new-password-2')?.value||'';
+  if(pass.length<8) throw new Error('Crea una contraseña de al menos 8 caracteres.');
+  if(pass!==pass2) throw new Error('Las contraseñas no coinciden.');
+  const {error}=await sb.auth.updateUser({password:pass});
+  if(error) throw error;
+}
+
 async function generate(){
+  if(STATE.userMode){
+    try{
+      await ensureUserPassword();
+    }catch(err){
+      alert(err.message||err);
+      return;
+    }
+  }
   const payload=collectPayload();
   const mac=calcMacros();
   const prompt=buildPrompt(payload,mac);
@@ -887,8 +933,8 @@ async function generate(){
     try{
       await saveUserOnboarding(payload);
       document.getElementById('continue-btn').style.display='inline-flex';
-      document.getElementById('result-sub').textContent='Tus datos se han guardado. Puedes copiar el prompt o continuar directamente a tu app.';
-      showSaveStatus('Tus datos iniciales se han guardado correctamente en Supabase.');
+      document.getElementById('result-sub').textContent='Tus datos y tu contraseña se han guardado. Puedes copiar el prompt o continuar directamente a tu app.';
+      showSaveStatus('Tus datos iniciales y tu contraseña se han guardado correctamente en Supabase.');
     }catch(err){
       showSaveError(`No se pudieron guardar tus datos en Supabase: ${err.message||err}`);
     }
@@ -969,6 +1015,7 @@ async function initUserMode(){
     STATE.userMode=true;
     applyProfileToForm(data);
     document.getElementById('user-mode-banner').style.display='block';
+    document.getElementById('password-card-form').style.display='block';
     document.getElementById('p1-title').textContent='Completa tu perfil inicial';
     document.getElementById('p1-sub').textContent='Es tu primera entrada. Guarda aquí tus datos iniciales antes de acceder a la app.';
   }catch(err){

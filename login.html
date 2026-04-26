@@ -25,6 +25,8 @@ input:focus{border-color:var(--accent)}
 .spin.show{display:block}
 .hint{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
 .hint button{background:none;border:none;color:var(--accent);font:inherit;cursor:pointer;padding:0}
+.notice{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);background:rgba(200,241,53,.08);border:1px solid rgba(200,241,53,.25);border-radius:8px;padding:10px 12px;margin-top:12px;line-height:1.6}
+.ft-toggle{background:none;border:none;color:var(--accent2);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;text-decoration:underline;margin-top:18px;display:block;text-align:center;width:100%}
 </style>
 </head>
 <body>
@@ -40,6 +42,16 @@ input:focus{border-color:var(--accent)}
     <div class="err" id="err"></div>
     <div class="spin" id="spin">Verificando acceso...</div>
     <div class="hint" id="hint">Acceso privado para usuarios y administrador.</div>
+  </div>
+  <button class="ft-toggle" onclick="toggleFirstTime()">Primera vez? Accede sin contrasena</button>
+  <div class="card" id="firsttime-card" style="display:none;margin-top:12px">
+    <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:14px;letter-spacing:.5px">PRIMER ACCESO - ENLACE POR EMAIL</div>
+    <label>Email (el mismo que te ha dado el coach)</label>
+    <input type="email" id="ft-email" placeholder="tu@email.com" autocomplete="email">
+    <button class="btn" id="ft-btn" onclick="sendMagicLink()" style="margin-top:14px">Enviar enlace de acceso</button>
+    <div class="err" id="ft-err"></div>
+    <div class="spin" id="ft-spin">Enviando enlace...</div>
+    <div class="notice" id="ft-ok" style="display:none">Enlace enviado a tu email. Haz clic en el enlace del email para acceder y completar tu perfil.</div>
   </div>
 </div>
 <script>
@@ -90,6 +102,31 @@ async function forceLogout(){
   document.getElementById('err').classList.remove('show');
 }
 document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+
+function toggleFirstTime(){
+  const c=document.getElementById('firsttime-card');
+  c.style.display=c.style.display==='none'?'block':'none';
+}
+
+async function sendMagicLink(){
+  const email=document.getElementById('ft-email').value.trim();
+  const btn=document.getElementById('ft-btn');
+  const ftErr=document.getElementById('ft-err');
+  const spin=document.getElementById('ft-spin');
+  ftErr.classList.remove('show');
+  document.getElementById('ft-ok').style.display='none';
+  if(!email){ftErr.textContent='Introduce tu email.';ftErr.classList.add('show');return;}
+  btn.disabled=true;spin.classList.add('show');
+  const redirectTo=window.location.href.replace(/\/[^/]*$/','/onboarding.html?firsttime=1');
+  const {error}=await sb.auth.signInWithOtp({
+    email,
+    options:{shouldCreateUser:false,emailRedirectTo:redirectTo}
+  });
+  spin.classList.remove('show');btn.disabled=false;
+  if(error){ftErr.textContent=error.message;ftErr.classList.add('show');return;}
+  document.getElementById('ft-ok').style.display='block';
+  btn.style.display='none';
+}
 </script>
 </body>
 </html>
