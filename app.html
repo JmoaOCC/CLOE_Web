@@ -2201,29 +2201,46 @@ function renderMobileDay(){
     ${nutr.meals.map(meal=>{
       const done=!!(log.meals?.[meal.key]);
       if(!meal.options||meal.options.length===0){
-        return `
-          <div class="cal-meal-row" style="${done?'border-color:var(--accent)':''}">
-            <div class="cal-meal-name">${esc(meal.name)}</div>
+        return `<div class="meal-block" style="${done?'border-color:var(--accent)':''}">
+          <div class="meal-header">
+            <div>
+              <div class="meal-name">${esc(meal.name)}</div>
+              <div class="meal-macros" style="font-size:9px;color:var(--muted)">${esc(meal.timing||'')}</div>
+            </div>
             <div class="mob-meal-check ${done?'done':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
           </div>
-          <div class="cal-meal-detail">
-            ${(meal.content||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>`<div class="cal-meal-detail-item"><span>${esc(l)}</span></div>`).join('')}
-          </div>`;
+          <div class="meal-option active" style="display:block">
+            ${(meal.content||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>`<div class="food-row"><div class="food-name">${esc(l)}</div></div>`).join('')}
+          </div>
+        </div>`;
       }
-      return `
-        <div class="cal-meal-row" style="${done?'border-color:var(--accent)':''}">
-          <div class="cal-meal-name">${esc(meal.name)}</div>
-          <div class="mob-meal-check ${done?'done':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
+      return `<div class="meal-block" style="${done?'border-color:var(--accent)':''}">
+        <div class="meal-header">
+          <div>
+            <div class="meal-name">${esc(meal.name)}</div>
+            <div class="meal-macros" style="font-size:9px;color:var(--muted)">${esc(meal.timing||'')}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="meal-kcal">~${meal.options[0].kcal||''} kcal</div>
+            <div class="mob-meal-check ${done?'done':''}" onclick="markMeal('${meal.key}')">${done?'✓':''}</div>
+          </div>
+        </div>
+        <div class="meal-option-tabs">
+          ${meal.options.map((opt,i)=>`<button class="meal-opt-btn ${i===0?'sel':''}" onclick="selectMealOpt(this,'${meal.key}',${i})">${opt.label}</button>`).join('')}
         </div>
         ${meal.options.map((opt,i)=>`
-          <div class="cal-meal-detail">
-            <div class="cal-meal-detail-macros">Opción ${String.fromCharCode(65+i)} · ${opt.label.replace(/^Opci[oó]n\s+[A-Z]\s*[·\-:]\s*/i,'').trim()||opt.label}${opt.kcal?' · '+opt.kcal+' kcal':''}${opt.p?' · '+opt.p+'g P':''}${opt.hc?' · '+opt.hc+'g HC':''}</div>
+          <div class="meal-option ${i===0?'active':''}" id="opt_${meal.key}_${i}">
+            <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
+              <span>${opt.p}g P · ${opt.hc}g HC · ${opt.g}g G</span>
+              <span style="color:var(--muted)">${opt.kcal} kcal</span>
+            </div>
             ${opt.items.map(it=>`
-              <div class="cal-meal-detail-item">
-                <span>${esc(it.f)}${it.note?` <span style="color:var(--accent3);font-size:8px">· ${esc(it.note)}</span>`:''}</span>
-                ${it.a?`<span class="cal-meal-detail-amt">${esc(it.a)}</span>`:''}
+              <div class="food-row">
+                <div><div class="food-name">${esc(it.f)}</div>${it.note?`<div class="food-note">${esc(it.note)}</div>`:''}</div>
+                <div class="food-amount">${esc(it.a)}</div>
               </div>`).join('')}
-          </div>`).join('')}`;
+          </div>`).join('')}
+      </div>`;
     }).join('')}
   </div>`;
 
