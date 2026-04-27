@@ -283,6 +283,7 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
     <button onclick="view('myplan')"><span class="ic">🥗</span>NUTRICIÓN</button>
     <button onclick="view('traininglog')"><span class="ic">🏋️</span>ENTRENAMIENTOS</button>
     <button onclick="view('report')"><span class="ic">📊</span>REPORTE QUINCENAL</button>
+    <button onclick="view('recipes')"><span class="ic">🍳</span>RECETAS</button>
   </div>
   <div class="week-pill" style="margin-top:8px">
     <span id="sb-week">Q1</span> · Día <span id="sb-day">1</span>/14 · <span id="sb-phase">BASE</span>
@@ -1189,7 +1190,7 @@ function getCustomExercises(content) {
 function view(v){
   currentView=v;
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
-  const map={dashboard:0,myplan:1,traininglog:2,report:3};
+  const map={dashboard:0,myplan:1,traininglog:2,report:3,recipes:4};
   document.querySelectorAll('.nav button')[map[v]]?.classList.add('on');
   document.getElementById('main').innerHTML=renderView();
 }
@@ -1208,6 +1209,7 @@ function renderView(){
     case 'traininglog':  return renderTrainingLog(q);
     case 'report':       return renderReport(q);
     case 'checkin':      return renderCheckin(q);
+    case 'recipes':      return renderRecipes(q);
   }
   return '';
 }
