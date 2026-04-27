@@ -283,6 +283,8 @@ function quincenaFromWeek(week){
 
 function buildProfilePrompt(user){
   const extra=user.onboarding_data||{};
+  const body=extra.body_composition||{};
+  const fasting=extra.fasting||{};
   const sports=Array.isArray(extra.sports)&&extra.sports.length?extra.sports:['Running'];
   const equip=Array.isArray(extra.equip)&&extra.equip.length?extra.equip.join(', '):'no indicado';
   const diet=Array.isArray(extra.diet)&&extra.diet.length?extra.diet.join(', '):'Ninguna';
@@ -300,6 +302,18 @@ DATOS FÍSICOS
 - Sexo: ${user.sex||'n/d'}
 - Peso: ${user.weight_kg||'n/d'} kg
 - Altura: ${user.height_cm||'n/d'} cm
+- Grasa corporal: ${body.bodyFat||'n/d'} %
+- Grasa subcutánea: ${body.subcutaneousFat||'n/d'} %
+- Grasa visceral: ${body.visceralFat||'n/d'}
+- Agua corporal: ${body.bodyWater||'n/d'} %
+- Músculo esquelético: ${body.skeletalMuscle||'n/d'} %
+- Masa muscular: ${body.muscleMass||'n/d'} kg
+- Masa ósea: ${body.boneMass||'n/d'} kg
+- Proteína corporal: ${body.proteinPercent||'n/d'} %
+- BMR/TMB medido: ${body.measuredBmr||'n/d'} kcal
+- Edad metabólica: ${body.metabolicAge||'n/d'}
+- Capacidad almacenamiento muscular: ${body.muscleStorage||'n/d'}
+- Perímetro cintura: ${body.waist||'n/d'} cm
 
 DATOS DEL CUESTIONARIO
 - Onboarding completado: ${user.onboarding_completed===true?'Sí':'No'}
@@ -325,6 +339,12 @@ DATOS DEL CUESTIONARIO
 - Dieta: ${diet}
 - Sueño: ${extra.sleep||'n/d'} h
 - Contexto: ${extra.context||'n/d'}
+- Ayuno intermitente: ${fasting.enabled||'No'}
+- Tipo ayuno: ${fasting.type||'n/d'}
+- Ventana alimentación: ${fasting.feedingWindow||'n/d'}
+- Experiencia ayuno: ${fasting.experience||'n/d'}
+- Días restricción/ayuno: ${Array.isArray(fasting.days)?fasting.days.join(', '):'n/d'}
+- Protocolo personalizado: ${fasting.custom||'n/d'}
 
 INSTRUCCIÓN PARA LA IA
 Analiza este perfil y genera el plan completo de la quincena ${q} para este usuario.
@@ -343,6 +363,7 @@ ${user.latest_report||'Aún sin reporte guardado.'}`;
 }
 
 function collectEditUserForPrompt(){
+  const current=users.find(x=>x.id===editId)?.onboarding_data||{};
   return {
     full_name:document.getElementById('e-name').value.trim(),
     email:document.getElementById('e-email').value.trim(),
@@ -357,6 +378,8 @@ function collectEditUserForPrompt(){
     current_plan:document.getElementById('e-plan').value.trim()||null,
     latest_report:document.getElementById('e-latest-report').value.trim()||null,
     onboarding_data:{
+      body_composition:current.body_composition||null,
+      fasting:current.fasting||null,
       injury:document.getElementById('e-injury').value.trim()||null,
       plan_start_date:document.getElementById('e-plan-start-date').value||null,
       injury_detail:document.getElementById('e-injury-detail').value.trim()||null,
@@ -561,6 +584,7 @@ function openEdit(id){
 
 async function saveEdit(){
   if(!editId) return;
+  const current=users.find(x=>x.id===editId)?.onboarding_data||{};
   const full_name=document.getElementById('e-name').value.trim();
   const age=parseInt(document.getElementById('e-age').value)||null;
   const sex=document.getElementById('e-sex').value||null;
@@ -573,6 +597,8 @@ async function saveEdit(){
   const notes=document.getElementById('e-notes').value.trim();
   const plan=document.getElementById('e-plan').value.trim();
   const onboarding_data={
+    body_composition:current.body_composition||null,
+    fasting:current.fasting||null,
     injury:document.getElementById('e-injury').value.trim()||null,
     plan_start_date:document.getElementById('e-plan-start-date').value||null,
     injury_detail:document.getElementById('e-injury-detail').value.trim()||null,

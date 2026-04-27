@@ -13,7 +13,7 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .hdr{background:#101622;border-bottom:1px solid var(--border);padding:16px 28px;display:flex;justify-content:space-between;align-items:center}
 .brand{font-size:20px;font-weight:800}.brand span{color:var(--accent)}
 .prog-bar{height:4px;background:var(--surface2)}
-.prog-fill{height:4px;background:var(--accent);transition:width .4s;width:20%}
+.prog-fill{height:4px;background:var(--accent);transition:width .4s;width:14.285%}
 .steps-row{background:#101622;border-bottom:1px solid var(--border);padding:12px 28px;display:flex;gap:6px;align-items:center;justify-content:center}
 .s-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;transition:all .2s}
 .s-dot.on{border-color:var(--accent);color:var(--accent);background:rgba(200,241,53,.1)}
@@ -55,6 +55,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 .err{background:rgba(255,141,141,.08);border:1px solid rgba(255,141,141,.25);border-radius:10px;padding:12px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--danger);margin-bottom:14px;line-height:1.7}
 .mcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 .mlbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin:4px 0 14px}
 .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .mc{background:var(--surface2);padding:12px;border-radius:10px;text-align:center}
 .mv{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent)}
@@ -80,7 +81,9 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   <div class="s-dot" id="d2">2</div><div class="s-line" id="l2"></div>
   <div class="s-dot" id="d3">3</div><div class="s-line" id="l3"></div>
   <div class="s-dot" id="d4">4</div><div class="s-line" id="l4"></div>
-  <div class="s-dot" id="d5">5</div>
+  <div class="s-dot" id="d5">5</div><div class="s-line" id="l5"></div>
+  <div class="s-dot" id="d6">6</div><div class="s-line" id="l6"></div>
+  <div class="s-dot" id="d7">7</div>
 </div>
 
 <div class="main">
@@ -155,6 +158,38 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 </div>
 
 <div class="panel" id="p2">
+  <div class="ptitle">Composición corporal avanzada</div>
+  <div class="psub">Campos opcionales de báscula inteligente y perímetros para ajustar mejor salud metabólica, hidratación y masa magra.</div>
+
+  <div class="section-label">Báscula y perímetros</div>
+  <div class="g3">
+    <div class="field"><label class="fl">% Grasa corporal</label><input id="body-fat" type="number" step="0.1" placeholder="Ej: 18.5"></div>
+    <div class="field"><label class="fl">% Grasa subcutánea</label><input id="subcutaneous-fat" type="number" step="0.1" placeholder="Ej: 15.2"></div>
+    <div class="field"><label class="fl">Grasa visceral (1-59)</label><input id="visceral-fat" type="number" min="1" max="59" placeholder="Ej: 8"></div>
+  </div>
+  <div class="g3">
+    <div class="field"><label class="fl">% Agua corporal</label><input id="body-water" type="number" step="0.1" placeholder="Ej: 58.4"></div>
+    <div class="field"><label class="fl">% Músculo esquelético</label><input id="skeletal-muscle" type="number" step="0.1" placeholder="Ej: 42.1"></div>
+    <div class="field"><label class="fl">Masa muscular (kg)</label><input id="muscle-mass" type="number" step="0.01" placeholder="Ej: 32.45"></div>
+  </div>
+  <div class="g3">
+    <div class="field"><label class="fl">Masa ósea (kg)</label><input id="bone-mass" type="number" step="0.01" placeholder="Ej: 3.10"></div>
+    <div class="field"><label class="fl">% Proteína</label><input id="protein-percent" type="number" step="0.1" placeholder="Ej: 19.2"></div>
+    <div class="field"><label class="fl">BMR / TMB (kcal)</label><input id="measured-bmr" type="number" placeholder="Ej: 1680"></div>
+  </div>
+  <div class="g3">
+    <div class="field"><label class="fl">Edad metabólica</label><input id="metabolic-age" type="number" placeholder="Ej: 31"></div>
+    <div class="field"><label class="fl">Capacidad almacenamiento muscular (1-9)</label><input id="muscle-storage" type="number" min="1" max="9" placeholder="Ej: 6"></div>
+    <div class="field"><label class="fl">Perímetro cintura (cm)</label><input id="waist" type="number" step="0.1" placeholder="Ej: 82.5"></div>
+  </div>
+
+  <div class="nav">
+    <button class="btn sec" onclick="go(1)">Atrás</button>
+    <button class="btn" onclick="go(3)">Siguiente</button>
+  </div>
+</div>
+
+<div class="panel" id="p3">
   <div class="ptitle">Objetivo</div>
   <div class="psub">Definimos meta principal, contexto competitivo y ritmos de referencia si aplican.</div>
 
@@ -219,12 +254,12 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   </div>
 
   <div class="nav">
-    <button class="btn sec" onclick="go(1)">Atrás</button>
-    <button class="btn" onclick="go(3)">Siguiente</button>
+    <button class="btn sec" onclick="go(2)">Atrás</button>
+    <button class="btn" onclick="go(4)">Siguiente</button>
   </div>
 </div>
 
-<div class="panel" id="p3">
+<div class="panel" id="p4">
   <div class="ptitle">Entrenamiento</div>
   <div class="psub">Selecciona los deportes que quieres trabajar y el contexto de carga semanal.</div>
 
@@ -322,12 +357,12 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   </div>
 
   <div class="nav">
-    <button class="btn sec" onclick="go(2)">Atrás</button>
-    <button class="btn" onclick="go(4)">Siguiente</button>
+    <button class="btn sec" onclick="go(3)">Atrás</button>
+    <button class="btn" onclick="go(5)">Siguiente</button>
   </div>
 </div>
 
-<div class="panel" id="p4">
+<div class="panel" id="p5">
   <div class="ptitle">Nutrición y contexto</div>
   <div class="psub">Con esto calculamos macros iniciales y la carga de la quincena 1.</div>
 
@@ -367,6 +402,83 @@ input[type=range]{flex:1;accent-color:var(--accent)}
     <textarea id="context" rows="4" placeholder="Ej: trabajo en oficina, estrés alto, hijos pequeños, viajes, turnos, etc."></textarea>
   </div>
 
+  <div class="nav">
+    <button class="btn sec" onclick="go(4)">Atrás</button>
+    <button class="btn" onclick="go(6)">Siguiente</button>
+  </div>
+</div>
+
+<div class="panel" id="p6">
+  <div class="ptitle">Ayuno intermitente y acceso</div>
+  <div class="psub">Define si el plan debe incluir protocolo de ayuno y, si entras como usuario nuevo, crea tu contraseña de acceso.</div>
+
+  <div class="field">
+    <label class="fl">¿Incluir ayuno intermitente?</label>
+    <div class="pills">
+      <div class="pill sel" data-key="fasting-enabled" data-value="No" onclick="pick(this,'fasting-enabled','No')">No</div>
+      <div class="pill" data-key="fasting-enabled" data-value="Sí" onclick="pick(this,'fasting-enabled','Sí')">Sí</div>
+    </div>
+  </div>
+
+  <div id="fasting-fields" style="display:none">
+    <div class="field">
+      <label class="fl">Tipo de ayuno</label>
+      <div class="pills">
+        <div class="pill" data-key="fasting-type" data-value="16:8" onclick="pick(this,'fasting-type','16:8')">16:8</div>
+        <div class="pill" data-key="fasting-type" data-value="14:10" onclick="pick(this,'fasting-type','14:10')">14:10</div>
+        <div class="pill" data-key="fasting-type" data-value="18:6" onclick="pick(this,'fasting-type','18:6')">18:6</div>
+        <div class="pill" data-key="fasting-type" data-value="20:4" onclick="pick(this,'fasting-type','20:4')">20:4</div>
+        <div class="pill" data-key="fasting-type" data-value="5:2" onclick="pick(this,'fasting-type','5:2')">5:2</div>
+        <div class="pill" data-key="fasting-type" data-value="OMAD" onclick="pick(this,'fasting-type','OMAD')">OMAD</div>
+        <div class="pill" data-key="fasting-type" data-value="Personalizado" onclick="pick(this,'fasting-type','Personalizado')">Personalizado</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="field">
+        <label class="fl">Ventana de alimentación preferida</label>
+        <select id="feeding-window" onchange="updateFastingFields()">
+          <option value="">Seleccionar</option>
+          <option>09:00-17:00</option>
+          <option>10:00-18:00</option>
+          <option>11:00-19:00</option>
+          <option>12:00-20:00</option>
+          <option>13:00-21:00</option>
+          <option>Personalizada</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="fl">Experiencia previa</label>
+        <select id="fasting-experience">
+          <option value="">Seleccionar</option>
+          <option>Nunca</option>
+          <option>&lt;2 semanas</option>
+          <option>2 semanas-3 meses</option>
+          <option>Actualmente</option>
+          <option>&gt;6 meses</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" id="fasting-days-wrap" style="display:none">
+      <label class="fl">Días de restricción / ayuno</label>
+      <div class="pills">
+        <div class="pill" data-key="fasting-days" data-value="Lunes" onclick="multi(this,'fasting-days','Lunes')">Lun</div>
+        <div class="pill" data-key="fasting-days" data-value="Martes" onclick="multi(this,'fasting-days','Martes')">Mar</div>
+        <div class="pill" data-key="fasting-days" data-value="Miércoles" onclick="multi(this,'fasting-days','Miércoles')">Mié</div>
+        <div class="pill" data-key="fasting-days" data-value="Jueves" onclick="multi(this,'fasting-days','Jueves')">Jue</div>
+        <div class="pill" data-key="fasting-days" data-value="Viernes" onclick="multi(this,'fasting-days','Viernes')">Vie</div>
+        <div class="pill" data-key="fasting-days" data-value="Sábado" onclick="multi(this,'fasting-days','Sábado')">Sáb</div>
+        <div class="pill" data-key="fasting-days" data-value="Domingo" onclick="multi(this,'fasting-days','Domingo')">Dom</div>
+      </div>
+    </div>
+
+    <div class="field" id="fasting-custom-wrap" style="display:none">
+      <label class="fl">Protocolo personalizado</label>
+      <textarea id="fasting-custom" rows="3" placeholder="Ej: ayuno lunes y jueves hasta las 14:00, cena temprana los domingos..."></textarea>
+    </div>
+  </div>
+
   <div class="mcard" id="password-card-form" style="display:none">
     <div class="mlbl">Contraseña para entrar después</div>
     <div class="g2">
@@ -382,12 +494,12 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   </div>
 
   <div class="nav">
-    <button class="btn sec" onclick="go(3)">Atrás</button>
+    <button class="btn sec" onclick="go(5)">Atrás</button>
     <button class="btn" onclick="generate()">Generar plan Quincena 1</button>
   </div>
 </div>
 
-<div class="panel" id="p5">
+<div class="panel" id="p7">
   <div class="ptitle">Plan Quincena 1 generado</div>
   <div class="psub" id="result-sub">Copia este texto, pégalo en el chat del proyecto y C.L.O.E. generará el plan completo.</div>
 
@@ -440,21 +552,22 @@ const SB_KEY='sb_publishable_MxUoL5CYRj9LP4Kiuueg9A_tYkA69gq';
 const {createClient}=supabase;
 const sb=createClient(SB_URL,SB_KEY);
 
-const F={injury:'Ninguna'};
-const M={sports:new Set(['Running']),diet:new Set(['Ninguna']),goals:new Set()};
+const F={injury:'Ninguna','fasting-enabled':'No'};
+const M={sports:new Set(['Running']),diet:new Set(['Ninguna']),goals:new Set(),'fasting-days':new Set()};
 const STATE={session:null,profile:null,userMode:false};
+const TOTAL_STEPS=7;
 
 function go(n){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('p'+n).classList.add('on');
-  for(let i=1;i<=5;i++){
+  for(let i=1;i<=TOTAL_STEPS;i++){
     const d=document.getElementById('d'+i);
     if(i<n){d.textContent='✓';d.className='s-dot ok';}
     else if(i===n){d.textContent=i;d.className='s-dot on';}
     else{d.textContent=i;d.className='s-dot';}
-    if(i<5) document.getElementById('l'+i).className='s-line'+(i<n?' ok':'');
+    if(i<TOTAL_STEPS) document.getElementById('l'+i).className='s-line'+(i<n?' ok':'');
   }
-  document.getElementById('prog').style.width=(n/5*100)+'%';
+  document.getElementById('prog').style.width=(n/TOTAL_STEPS*100)+'%';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -464,6 +577,9 @@ function pick(el,key,value){
   F[key]=value;
   if(key==='injury'){
     document.getElementById('injury-detail-wrap').style.display=value==='Ninguna'?'none':'block';
+  }
+  if(key==='fasting-enabled' || key==='fasting-type'){
+    updateFastingFields();
   }
 }
 
@@ -645,6 +761,27 @@ function formatSportsDayPrefs(prefs){
   ).join(' · ');
 }
 
+function updateFastingFields(){
+  const enabled=F['fasting-enabled']==='Sí';
+  const type=F['fasting-type']||'';
+  const fields=document.getElementById('fasting-fields');
+  const days=document.getElementById('fasting-days-wrap');
+  const custom=document.getElementById('fasting-custom-wrap');
+  if(fields) fields.style.display=enabled?'block':'none';
+  if(days) days.style.display=enabled && (type==='5:2' || type==='Personalizado')?'block':'none';
+  if(custom) custom.style.display=enabled && (type==='Personalizado' || document.getElementById('feeding-window')?.value==='Personalizada')?'block':'none';
+}
+
+function readValue(id,fallback=''){
+  const el=document.getElementById(id);
+  return el ? (el.value||fallback) : fallback;
+}
+
+function readTrim(id,fallback=''){
+  const el=document.getElementById(id);
+  return el ? (el.value.trim()||fallback) : fallback;
+}
+
 function collectPayload(){
   return {
     name:document.getElementById('name').value.trim()||'Usuario',
@@ -656,6 +793,20 @@ function collectPayload(){
     injury:F.injury||'Ninguna',
     injuryDetail:document.getElementById('injury-detail').value.trim(),
     steps:F.steps||'no indicado',
+    bodyComposition:{
+      bodyFat:readValue('body-fat'),
+      subcutaneousFat:readValue('subcutaneous-fat'),
+      visceralFat:readValue('visceral-fat'),
+      bodyWater:readValue('body-water'),
+      skeletalMuscle:readValue('skeletal-muscle'),
+      muscleMass:readValue('muscle-mass'),
+      boneMass:readValue('bone-mass'),
+      proteinPercent:readValue('protein-percent'),
+      measuredBmr:readValue('measured-bmr'),
+      metabolicAge:readValue('metabolic-age'),
+      muscleStorage:readValue('muscle-storage'),
+      waist:readValue('waist')
+    },
     goals:M.goals&&M.goals.size?[...M.goals]:[],
     goal:(M.goals&&M.goals.size?[...M.goals].join(', '):'?'),
     event:F.event||'Sin evento',
@@ -677,7 +828,15 @@ function collectPayload(){
     activity:F.activity||'Sedentario (oficina, poco movimiento)',
     dietList:M.diet&&M.diet.size?[...M.diet]:['Ninguna'],
     sleep:document.getElementById('sleep').value,
-    context:document.getElementById('context').value.trim()||'ninguno'
+    context:document.getElementById('context').value.trim()||'ninguno',
+    fasting:{
+      enabled:F['fasting-enabled']||'No',
+      type:F['fasting-type']||'no indicado',
+      feedingWindow:readValue('feeding-window','no indicado'),
+      experience:readValue('fasting-experience','no indicado'),
+      days:M['fasting-days']&&M['fasting-days'].size?[...M['fasting-days']]:[],
+      custom:readTrim('fasting-custom','')
+    }
   };
 }
 
@@ -728,6 +887,38 @@ No incluyas deportes no seleccionados. Coordina la carga semanal con fuerza, rec
 ${blocks}`;
 }
 
+function formatBodyComposition(body){
+  const labels=[
+    ['% grasa corporal',body.bodyFat,'%'],
+    ['% grasa subcutánea',body.subcutaneousFat,'%'],
+    ['Grasa visceral',body.visceralFat,''],
+    ['% agua corporal',body.bodyWater,'%'],
+    ['% músculo esquelético',body.skeletalMuscle,'%'],
+    ['Masa muscular',body.muscleMass,'kg'],
+    ['Masa ósea',body.boneMass,'kg'],
+    ['% proteína',body.proteinPercent,'%'],
+    ['BMR/TMB medido',body.measuredBmr,'kcal'],
+    ['Edad metabólica',body.metabolicAge,'años'],
+    ['Capacidad almacenamiento muscular',body.muscleStorage,'/9'],
+    ['Perímetro cintura',body.waist,'cm']
+  ];
+  const lines=labels.filter(([,value])=>value!==undefined && value!==null && value!=='')
+    .map(([label,value,unit])=>`- ${label}: ${value}${unit ? ' '+unit : ''}`);
+  return lines.length?lines.join('\n'):'- Sin datos avanzados de composición corporal.';
+}
+
+function formatFasting(fasting){
+  if(!fasting || fasting.enabled!=='Sí') return 'No incluir ayuno intermitente salvo que sea estrictamente necesario.';
+  return [
+    `Incluir ayuno intermitente: ${fasting.enabled}`,
+    `Tipo: ${fasting.type}`,
+    `Ventana alimentación: ${fasting.feedingWindow}`,
+    `Experiencia previa: ${fasting.experience}`,
+    `Días restricción/ayuno: ${fasting.days.length?fasting.days.join(', '):'no indicado'}`,
+    `Protocolo personalizado: ${fasting.custom||'no indicado'}`
+  ].join('\n');
+}
+
 function buildPrompt(payload,mac){
   const equip=payload.equipList.length?payload.equipList.join(', '):'no indicado';
   const diet=payload.dietList.length?payload.dietList.join(', '):'Ninguna';
@@ -747,6 +938,9 @@ Pasos actuales: ${payload.steps}
 Lesiones: ${payload.injury}${payload.injuryDetail ? ' - '+payload.injuryDetail : ''}
 Sueño habitual: ${payload.sleep}h/noche
 Contexto: ${payload.context}
+
+Composición corporal avanzada:
+${formatBodyComposition(payload.bodyComposition)}
 
 Objetivo principal: ${payload.goal}
 Evento / prueba: ${payload.event}${payload.eventDate ? ' ('+payload.eventDate+')' : ''}
@@ -807,6 +1001,8 @@ C. NUTRICIÓN C.L.O.E.
 
 Macros: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G
 Restricciones: ${diet}
+Ayuno intermitente:
+${formatFasting(payload.fasting)}
 
 Genera menús con cantidades exactas para cada día tipo.
 Para cada comida ofrece 3 opciones completas e intercambiables.
@@ -866,6 +1062,7 @@ async function saveUserOnboarding(payload){
       plan_start_date:payload.planStartDate,
       injury_detail:payload.injuryDetail,
       steps:payload.steps,
+      body_composition:payload.bodyComposition,
       event:payload.event,
       event_date:payload.eventDate,
       easy_pace:payload.easyPace,
@@ -886,7 +1083,8 @@ async function saveUserOnboarding(payload){
       activity:payload.activity,
       diet:payload.dietList,
       sleep:payload.sleep,
-      context:payload.context
+      context:payload.context,
+      fasting:payload.fasting
     }
   };
 
@@ -942,7 +1140,7 @@ async function generate(){
     document.getElementById('result-sub').textContent='Copia este texto, pégalo en el chat del proyecto y C.L.O.E. generará el plan completo.';
   }
 
-  go(5);
+  go(7);
 }
 
 function copyPrompt(){
@@ -976,6 +1174,19 @@ function applyProfileToForm(profile){
   restoreSingle('injury',extra.injury||'Ninguna');
   setInput('injury-detail',extra.injury_detail);
   restoreSingle('steps',extra.steps);
+  const body=extra.body_composition||{};
+  setInput('body-fat',body.bodyFat);
+  setInput('subcutaneous-fat',body.subcutaneousFat);
+  setInput('visceral-fat',body.visceralFat);
+  setInput('body-water',body.bodyWater);
+  setInput('skeletal-muscle',body.skeletalMuscle);
+  setInput('muscle-mass',body.muscleMass);
+  setInput('bone-mass',body.boneMass);
+  setInput('protein-percent',body.proteinPercent);
+  setInput('measured-bmr',body.measuredBmr);
+  setInput('metabolic-age',body.metabolicAge);
+  setInput('muscle-storage',body.muscleStorage);
+  setInput('waist',body.waist);
   restoreSingle('event',extra.event,'cpill');
   setInput('event-date',extra.event_date);
   setInput('easy-pace',extra.easy_pace);
@@ -1000,6 +1211,14 @@ function applyProfileToForm(profile){
   restoreMulti('diet',extra.diet);
   setSlider('sleep',extra.sleep||7,'h');
   setInput('context',extra.context);
+  const fasting=extra.fasting||{};
+  restoreSingle('fasting-enabled',fasting.enabled||'No');
+  restoreSingle('fasting-type',fasting.type);
+  setInput('feeding-window',fasting.feedingWindow);
+  setInput('fasting-experience',fasting.experience);
+  restoreMulti('fasting-days',fasting.days);
+  setInput('fasting-custom',fasting.custom);
+  updateFastingFields();
 }
 
 async function initUserMode(){
@@ -1025,6 +1244,7 @@ async function initUserMode(){
 
 initUserMode();
 updateSportDayPrefs();
+updateFastingFields();
 </script>
 </body>
 </html>
