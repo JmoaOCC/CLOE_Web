@@ -1130,14 +1130,24 @@ function getCustomExercises(content) {
   try{
     const {data:{session}}=await sb.auth.getSession();
     if(!session){window.location.href='login.html';return;}
-    const {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+    let {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
     if(error||!data){
       document.getElementById('loading-screen').textContent='Sesion iniciada, pero no se pudo leer el perfil. Revisa que el usuario exista en profiles.';
       return;
     }
-    if(data.role==='admin'){window.location.href='admin.html';return;}
-    if(data.status==='inactive'){await sb.auth.signOut();window.location.href='login.html';return;}
-    if(data.onboarding_completed!==true){window.location.href='onboarding.html';return;}
+    const adminUserId=new URLSearchParams(window.location.search).get('admin_user');
+    const isAdminView=data.role==='admin'&&!!adminUserId;
+    if(data.role==='admin'){
+      if(!adminUserId){window.location.href='admin.html';return;}
+      const {data:target,error:targetError}=await sb.from('profiles').select('*').eq('id',adminUserId).maybeSingle();
+      if(targetError||!target){
+        document.getElementById('loading-screen').textContent='No se pudo cargar el usuario solicitado desde admin.';
+        return;
+      }
+      data=target;
+    }
+    if(!isAdminView&&data.status==='inactive'){await sb.auth.signOut();window.location.href='login.html';return;}
+    if(!isAdminView&&data.onboarding_completed!==true){window.location.href='onboarding.html';return;}
     profile=data;
     const saved=localStorage.getItem('cloe_chk_'+profile.id);
     if(saved) checklist=JSON.parse(saved);

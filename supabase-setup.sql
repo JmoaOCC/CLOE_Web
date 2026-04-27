@@ -89,3 +89,21 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
+
+create or replace function admin_delete_user(target_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  if not public.is_admin() then
+    raise exception 'Solo administradores pueden eliminar usuarios';
+  end if;
+
+  delete from auth.users
+  where id = target_user_id;
+end;
+$$;
+
+grant execute on function admin_delete_user(uuid) to authenticated;

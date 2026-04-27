@@ -32,6 +32,8 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .abtn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;margin-right:4px}
 .abtn:hover{color:var(--text);border-color:var(--muted)}
 .abtn.p{color:var(--accent2);border-color:var(--accent2)}
+.abtn.g{color:var(--accent);border-color:var(--accent)}
+.abtn.w{color:var(--accent3);border-color:var(--accent3)}
 .abtn.d:hover{color:#f46;border-color:#f46}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.on{display:flex}
@@ -204,9 +206,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 
     <div class="mact">
       <button class="btn sec" onclick="copyProfilePrompt()">Copiar prompt IA</button>
+      <button class="btn sec" onclick="accessUserApp(editId)">Entrar app usuario</button>
+      <button class="btn sec" onclick="resetUserPassword(editId)">Reset contraseña</button>
       <button class="btn" onclick="saveEdit()">💾 Guardar</button>
       <button class="btn sec" onclick="advFortnight()">Avanzar quincena</button>
       <button class="btn dan" onclick="delUser()">Desactivar</button>
+      <button class="btn dan" onclick="deleteUserPermanent(editId)">Eliminar</button>
       <button class="btn sec" onclick="close('m-edit')">Cerrar</button>
     </div>
   </div>
@@ -429,8 +434,11 @@ function renderTable(){
       <td><span style="font-family:'DM Mono',monospace;font-size:10px;color:${hasPlan?'var(--accent)':'var(--muted)'}">${hasPlan?'✓ Sí':'— No'}</span></td>
       <td>
         <button class="abtn p" onclick="openEdit('${u.id}')">Editar</button>
+        <button class="abtn g" onclick="accessUserApp('${u.id}')">Entrar app</button>
+        <button class="abtn w" onclick="resetUserPassword('${u.id}')">Reset pass</button>
         <button class="abtn" onclick="advFortnightDirect('${u.id}',${w})">Q→</button>
         <button class="abtn d" onclick="delDirect('${u.id}')">Desactivar</button>
+        <button class="abtn d" onclick="deleteUserPermanent('${u.id}')">Eliminar</button>
       </td>
     </tr>`;
   }).join('');
@@ -673,6 +681,38 @@ async function delDirect(id){
   const {error}=await sb.from('profiles').update({status:'inactive'}).eq('id',id);
   if(error){toast('Error: '+error.message);return;}
   toast('✅ Usuario desactivado.');
+  load();
+}
+
+function accessUserApp(id){
+  if(!id) return;
+  window.open(`app.html?admin_user=${encodeURIComponent(id)}`,'_blank');
+}
+
+async function resetUserPassword(id){
+  const u=users.find(x=>x.id===id);
+  if(!u?.email){toast('Este usuario no tiene email.');return;}
+  if(!confirm(`Enviar email de reseteo de contraseña a ${u.email}?`)) return;
+  const redirectTo=new URL('login.html',window.location.href).href;
+  const {error}=await sb.auth.resetPasswordForEmail(u.email,{redirectTo});
+  if(error){toast('Error reset: '+error.message);return;}
+  toast('Email de reseteo enviado a '+u.email);
+}
+
+async function deleteUserPermanent(id){
+  const u=users.find(x=>x.id===id);
+  if(!u) return;
+  const ok=confirm(`ELIMINAR PERMANENTEMENTE a ${u.full_name||u.email}?\n\nSe intentará borrar el usuario de Supabase Auth mediante RPC. Si la función SQL no está instalada, se borrará al menos su perfil de la app.`);
+  if(!ok) return;
+  const rpc=await sb.rpc('admin_delete_user',{target_user_id:id});
+  if(rpc.error){
+    const {error}=await sb.from('profiles').delete().eq('id',id);
+    if(error){toast('Error eliminando perfil: '+error.message);return;}
+    toast('Perfil eliminado. Para borrar también Auth, ejecuta supabase-setup.sql actualizado.');
+  }else{
+    toast('Usuario eliminado de Auth y perfiles.');
+  }
+  if(editId===id) close('m-edit');
   load();
 }
 
