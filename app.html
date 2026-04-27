@@ -761,6 +761,76 @@ function parseMacrosLine(line){
   const m=line.match(/(\d+)\s*kcal[\s\S]*?(\d+)\s*g?\s*P[\s\S]*?(\d+)\s*g?\s*HC[\s\S]*?(\d+)\s*g?\s*G/i);
   return m?{kcal:+m[1],protein:+m[2],carbs:+m[3],fat:+m[4]}:null;
 }
+
+function cleanDecoratedTitle(line){
+  return String(line||'')
+    .replace(/^[\s─━═_\-=]+/g,'')
+    .replace(/[\s─━═_\-=]+$/g,'')
+    .replace(/^[-•*]\s*/,'')
+    .trim();
+}
+
+function parseFoodLine(line){
+  const raw=String(line||'').replace(/^[-•*]\s*/,'').trim();
+  if(!raw) return null;
+  const parts=raw.split(':');
+  if(parts.length>1){
+    return {f:parts.shift().trim(),a:parts.join(':').trim(),note:''};
+  }
+  return {f:raw,a:'',note:''};
+}
+
+function parseSupplementLine(line){
+  const item=parseFoodLine(line);
+  if(!item) return null;
+  return {
+    name:item.f,
+    does:'',
+    dose:item.a||'Según pauta del plan',
+    timing:'',
+    raw:String(line||'').replace(/^[-•*]\s*/,'').trim()
+  };
+}
+
+function normalizeSupplementSection(title){
+  const t=String(title||'').toUpperCase();
+  if(t.match(/LEVANT|AYUN/)) return {key:'levantarte',title:'Al levantarte',icon:'🌅'};
+  if(t.match(/PRE\s*ENTREN|ANTES\s*DEL?\s*ENTREN|CAFE/)) return {key:'pre_entreno',title:'Pre entreno',icon:'⚡'};
+  if(t.match(/DORM|ACOST/)) return {key:'dormir',title:'Antes de dormir',icon:'😴'};
+  return {key:t.toLowerCase().replace(/\s+/g,'_'),title:cleanDecoratedTitle(title),icon:'💊'};
+}
+
+function supplementDoes(name){
+  const t=String(name||'').toUpperCase();
+  if(t.match(/CREATINA/)) return 'Mejora fuerza, potencia y recuperación muscular.';
+  if(t.match(/CAFE|PRE.?WORK/)) return 'Aumenta activación, foco y rendimiento en entrenamientos exigentes.';
+  if(t.match(/MAGNES/)) return 'Apoya sueño, relajación muscular y recuperación.';
+  if(t.match(/OMEGA/)) return 'Soporte antiinflamatorio y salud cardiovascular.';
+  if(t.match(/VITAMINA\s*C/)) return 'Apoyo antioxidante e inmunitario.';
+  if(t.match(/VITAMINA\s*D|D3|K2/)) return 'Soporte hormonal, óseo e inmunitario.';
+  if(t.match(/MULTI/)) return 'Cubre micronutrientes base del día.';
+  if(t.match(/ASHW/)) return 'Ayuda a modular estrés y descanso.';
+  if(t.match(/PROTE|WHEY/)) return 'Facilita llegar a la proteína diaria.';
+  return 'Complemento de soporte dentro del plan.';
+}
+
+function normalizeSupplementItem(item){
+  if(typeof item==='object'&&item){
+    return {
+      name:item.name||item.raw||'Suplemento',
+      does:item.does||supplementDoes(item.name||item.raw),
+      dose:item.dose||item.a||'Según pauta del plan',
+      timing:item.timing||'Tomar según la ventana indicada.'
+    };
+  }
+  const parsed=parseSupplementLine(item)||{name:String(item||'Suplemento'),dose:'Según pauta del plan'};
+  return {...parsed,does:supplementDoes(parsed.name),timing:parsed.timing||'Tomar según la ventana indicada.'};
+}
+
+function orderSupplementSections(sections){
+  const order={levantarte:0,ayuno:0,pre_entreno:1,entreno_fuerza:1,entreno_running:1,dormir:2,acostarse:2};
+  return [...(sections||[])].sort((a,b)=>(order[a.key]??9)-(order[b.key]??9));
+}
 function extractPlanNutritionData(text, fallbackMacros){
   if(!text) return null;
   const meals=splitPlanBlocks(text,/TOMA|DESAYUNO|ALMUERZO|COMIDA|MERIENDA|CENA|POST/i).map((b,i)=>{
@@ -806,9 +876,9 @@ function parsePlanMacroLoose(line){
 function extractPlanNutritionDataClean(text, fallbackMacros){
   if(!text) return null;
   const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
-  const mealTitleRx=/^(?:[-•*]\s*)?(DESAYUNO|ALMUERZO|COMIDA|MERIENDA|CENA|POST[\s-]*CENA|PRE[\s-]*ENTRENO|POST[\s-]*ENTRENO|TOMA\s*\d+)\b(?:\s*\(([^)]*)\))?/i;
+  const mealTitleRx=/^(DESAYUNO|ALMUERZO|COMIDA|MERIENDA|CENA|POST[\s-]*CENA|PRE[\s-]*ENTRENO|POST[\s-]*ENTRENO|TOMA\s*\d+)\b(?:\s*\(([^)]*)\))?/i;
   const optionRx=/^Opci[oó]n\s+([A-Z])(?:\s*[-:·]\s*(.*))?$/i;
-  const stopRx=/D[IÍ]A\s+DESCANSO|REGLAS\s+GENERALES|ALCOHOL|SUPLEMENTOS|ENTRENAMIENTO|AJUSTES|NOTAS/i;
+  const stopRx=/D[IÍ]A\s+DESCANSO|REGLAS\s+GENERALES|ALCOHOL|SUPLEMENTOS|ENTRENAMIENTO|AJUSTES|NOTAS|AYUNO\s+INTERMITENTE/i;
   const separatorRx=/^[─━═_\-=]{3,}/;
   const meals=[];
   let cur=null, curOpt=null;
@@ -840,7 +910,7 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
     cur=null;
   };
   lines.forEach(raw=>{
-    const line=raw.replace(/^[-•]\s*/,'').trim();
+    const line=cleanDecoratedTitle(raw);
     if(!line||separatorRx.test(line)) return;
     if(stopRx.test(line)){ closeMeal(); return; }
     const mt=line.match(mealTitleRx);
@@ -856,7 +926,10 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
     if(om){
       closeOpt();
       curOpt={label:`Opción ${om[1].toUpperCase()}`,items:[],kcal:'',p:'',hc:'',g:''};
-      if(om[2]) curOpt.items.push({f:om[2].trim(),a:'',note:''});
+      if(om[2]){
+        const item=parseFoodLine(om[2]);
+        if(item) curOpt.items.push(item);
+      }
       return;
     }
     const macros=parsePlanMacroLoose(line);
@@ -869,7 +942,10 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
       cur.contentLines.push(line);
       return;
     }
-    if(curOpt) curOpt.items.push({f:line.replace(/^[-•]\s*/,''),a:'',note:''});
+    if(curOpt){
+      const item=parseFoodLine(line);
+      if(item) curOpt.items.push(item);
+    }
     cur.contentLines.push(line);
   });
   closeMeal();
@@ -885,10 +961,28 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
 }
 function extractPlanSupplementsData(text){
   if(!text) return null;
-  const blocks=splitPlanBlocks(text,null);
-  if(blocks.length) return blocks.map((b,i)=>({key:'plan_supp_'+i,title:b.title,items:b.content.split('\n').map(x=>x.trim()).filter(Boolean)}));
-  const lines=text.split('\n').map(x=>x.trim()).filter(Boolean);
-  return lines.length?[{key:'plan_supps',title:'Suplementos personalizados',items:lines}]:null;
+  const wanted=['AL LEVANTARTE','PRE ENTRENAMIENTO','PRE ENTRENO','ANTES DE DORMIR','ANTES DE ACOSTARTE','EN AYUNAS'];
+  const sections=[];
+  let cur=null;
+  text.split('\n').forEach(raw=>{
+    const line=cleanDecoratedTitle(raw);
+    if(!line) return;
+    const up=line.toUpperCase();
+    if(wanted.some(w=>up.includes(w))){
+      if(cur&&cur.items.length) sections.push(cur);
+      const meta=normalizeSupplementSection(line);
+      cur={...meta,items:[]};
+      return;
+    }
+    if(!cur) return;
+    if(up.match(/ENTRENAMIENTO|NUTRICI[ÓO]N|OBJETIVOS|AJUSTES|FECHAS/) || up.match(/^[A-F]\./)) return;
+    const item=parseSupplementLine(line);
+    if(item) cur.items.push(item);
+  });
+  if(cur&&cur.items.length) sections.push(cur);
+  if(sections.length) return sections;
+  const lines=text.split('\n').map(x=>cleanDecoratedTitle(x)).filter(Boolean);
+  return lines.length?[{key:'plan_supps',title:'Suplementos personalizados',icon:'💊',items:lines.map(parseSupplementLine).filter(Boolean)}]:null;
 }
 function applyPlanData(planText){
   if(!planText||!profile) return;
@@ -1279,34 +1373,38 @@ function renderCalDetail(q,di){
 // ── SUPPLEMENTS ───────────────────────────────────────────
 function renderSupplements(q){
   if(profile?._planSupplements?.length){
+    const sections=orderSupplementSections(profile._planSupplements);
     return `
   <div class="ph"><h1>Suplementos</h1><p>Protocolo personalizado de MI PLAN · Quincena ${q}</p></div>
-  ${profile._planSupplements.map(sec=>`
-    <div class="supp-section-pill">💊 ${esc(sec.title)} · MI PLAN</div>
+  ${sections.map(sec=>`
+    <div class="supp-section-pill">${sec.icon||'💊'} ${esc(sec.title)} · MI PLAN</div>
     <div class="supp-grid">
-      ${sec.items.map(item=>`<div class="supp-card">
+      ${sec.items.map(rawItem=>{
+        const item=normalizeSupplementItem(rawItem);
+        if(!item.timing || item.timing==='Tomar según la ventana indicada.') item.timing=`Tomar en la ventana: ${sec.title}.`;
+        return `<div class="supp-card">
         <div class="supp-card-top">
-          <div class="supp-card-icon">💊</div>
-          <div class="supp-card-name">${esc(String(item).split('|')[0].replace(/^[-•*]\s*/,'').trim()||'Suplemento')}</div>
+          <div class="supp-card-icon">${sec.icon||'💊'}</div>
+          <div class="supp-card-name">${esc(item.name)}</div>
         </div>
-        <div class="supp-card-dose">${esc(String(item).split('|')[1]?.trim()||item)}</div>
-        <div class="supp-card-time">${esc(String(item).split('|').slice(2).join(' · ').trim()||'Timing según tu plan personalizado.')}</div>
-      </div>`).join('')}
+        <div class="supp-card-dose"><span style="color:var(--muted)">Qué hace:</span> ${esc(item.does)}</div>
+        <div class="supp-card-dose"><span style="color:var(--muted)">Cantidad:</span> ${esc(item.dose)}</div>
+        <div class="supp-card-time"><span style="color:var(--muted)">Cómo tomarlo:</span> ${esc(item.timing)}</div>
+      </div>`;
+      }).join('')}
     </div>`).join('')}`;
   }
   const dayType=DAYTYPES[todayPlanIdx()];
   const extraKey=dayType==='strength'?'entreno_fuerza':dayType==='running'?'entreno_running':null;
   const sections=[
     {key:'ayuno',title:'🌅 Al levantarte · En ayunas',badge:'OBLIGATORIO'},
-    {key:'preDesayuno',title:'🍳 Antes del desayuno',badge:'DIARIO'},
-    {key:'preCena',title:'🌙 Antes de cenar',badge:'DIARIO'},
     ...(extraKey?[{key:extraKey,title:dayType==='strength'?'🏋️ Día fuerza · Pre-entreno':'🏃 Día running · Pre-entreno',badge:'HOY'}]:[]),
     {key:'acostarse',title:'😴 Antes de acostarte',badge:'NOCHE'},
   ];
   return `
   <div class="ph"><h1>Suplementos DOCE</h1><p>Protocolo basado en Programa DOCE · Quincena ${q}</p></div>
   <div class="alert">Protocolo extraído del Programa DOCE. Los suplementos son de soporte — no sustituyen una dieta correcta. Consulta con tu médico si tienes condiciones específicas.</div>
-  ${sections.map(sec=>{
+  ${orderSupplementSections(sections).map(sec=>{
     const supps=SUPPLEMENTS[sec.key]||[];
     return `<div class="supp-section-pill">${sec.title} · ${sec.badge}</div>
     <div class="supp-grid">
@@ -1315,8 +1413,9 @@ function renderSupplements(q){
           <div class="supp-card-icon">${s.icon}</div>
           <div class="supp-card-name">${s.name}</div>
         </div>
-        <div class="supp-card-dose">${s.dose}</div>
-        <div class="supp-card-time">${s.timing}</div>
+        <div class="supp-card-dose"><span style="color:var(--muted)">Qué hace:</span> ${supplementDoes(s.name)}</div>
+        <div class="supp-card-dose"><span style="color:var(--muted)">Cantidad:</span> ${s.dose}</div>
+        <div class="supp-card-time"><span style="color:var(--muted)">Cómo tomarlo:</span> ${s.timing}</div>
       </div>`).join('')}
     </div>`;
   }).join('')}`;
@@ -1487,12 +1586,16 @@ function renderNutrition(q){
 }
 
 function renderMealsVisual(meals){
-  return (meals||[]).map(meal=>{
+  const order={DESAYUNO:0,ALMUERZO:1,COMIDA:2,MERIENDA:3,CENA:4};
+  const sorted=[...(meals||[])].sort((a,b)=>(order[String(a.name||'').toUpperCase()]??9)-(order[String(b.name||'').toUpperCase()]??9));
+  return sorted.map(meal=>{
+    const mealName=String(meal.name||'Toma').replace(/\s+/g,' ').trim();
+    const window=meal.timing?`Ventana: ${meal.timing}`:'Ventana diaria según tu plan';
     if(!meal.options || !meal.options.length){
       const lines=String(meal.content||'').split('\n').map(line=>line.trim()).filter(Boolean);
       return `<div class="meal-block">
         <div class="meal-header">
-          <div><div class="meal-name">${esc(meal.name)}</div><div class="meal-macros">${esc(meal.timing||'')}</div></div>
+          <div><div class="meal-name">${esc(mealName)}</div><div class="meal-macros">${esc(window)}</div></div>
           ${meal.kcal?`<div class="meal-kcal">~${meal.kcal} kcal</div>`:''}
         </div>
         ${lines.map(line=>`<div class="food-row"><div class="food-name">${esc(line)}</div></div>`).join('')}
@@ -1501,8 +1604,8 @@ function renderMealsVisual(meals){
     return `<div class="meal-block">
       <div class="meal-header">
         <div>
-          <div class="meal-name">${esc(meal.name)}</div>
-          <div class="meal-macros">${esc(meal.timing||'')}</div>
+          <div class="meal-name">${esc(mealName)}</div>
+          <div class="meal-macros">${esc(window)}</div>
         </div>
       </div>
       <div class="meal-options-grid">
@@ -1513,7 +1616,7 @@ function renderMealsVisual(meals){
             <div class="meal-option-head">
               <div>
                 <div class="meal-option-badge">Opción ${letter}</div>
-                <div class="meal-macros" style="margin-top:6px">${esc(opt.label||'')}</div>
+                <div class="meal-macros" style="margin-top:6px">${esc(String(opt.label||'').replace(/^Opción\s+[A-Z]\s*[-:·]?\s*/i,'')||mealName)}</div>
               </div>
               ${opt.kcal?`<div class="meal-kcal">${opt.kcal} kcal</div>`:''}
             </div>
@@ -1959,7 +2062,9 @@ function planBiweeklyCalendar(q){
 function planCheatMealInfo(){
   return `<div style="background:rgba(91,156,246,.06);border:1px solid rgba(91,156,246,.2);border-radius:11px;padding:11px 13px;margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.8">
     <div style="color:var(--accent2);font-weight:500;margin-bottom:4px">Cheat meal semanal</div>
-    Es una comida libre planificada: puedes comer lo que quieras, pero es una comida, no un día entero libre. Hazla 1 vez por semana, preferiblemente en comida o cena social. Mantén el resto del día normal, prioriza proteína en las otras tomas, come hasta quedar satisfecho sin acabar lleno, hidrátate bien y vuelve a la siguiente toma del plan sin compensar con ayunos extremos.
+    Es una comida libre planificada: puedes comer lo que quieras, pero es una comida, no un día entero libre. Hazla 1 vez por semana, preferiblemente en comida o cena social. Come hasta quedar satisfecho sin acabar lleno, hidrátate bien y vuelve a la siguiente toma del plan sin compensar con ayunos extremos.
+    <br><br><span style="color:var(--accent)">Si haces cheat meal en la comida:</span> mantén una cena ligera y alta en proteína: carne/pescado/huevos + verduras, sin repetir postre, alcohol ni otra ración grande de hidratos.
+    <br><span style="color:var(--accent3)">Si haces cheat meal en la cena:</span> haz una comida normal del plan al mediodía, prioriza proteína y verduras, evita llegar con hambre extrema a la cena y no recortes agua ni suplementos.
   </div>`;
 }
 
