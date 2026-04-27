@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--accent4:#a78bfa;--text:#eef4ff;--muted:#9aa7bd;}
+:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--accent4:#a78bfa;--text:#ffffff;--muted:#cbd5e1;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
 .app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
@@ -265,6 +265,11 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 .cal-meal-detail-item:last-child{border-bottom:none}
 .cal-meal-detail-amt{color:var(--muted);flex-shrink:0;padding-left:8px}
 .autosave-hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);padding:7px 9px;background:rgba(91,156,246,.07);border:1px solid rgba(91,156,246,.18);border-radius:8px;margin:8px 0 12px;line-height:1.6}
+
+/* Efectos 3D y Sombreados para ventanas */
+.user-info, .week-pill, .card, .intervals-block, .supp-block, .supp-card, .meal-option-card, .meal-block, .macro-item, .plan-viewer, .chk, .cal-detail, .cal-ex-row, .plan-hdr, .plan-blk, .plan-toma, .mob-intervals, .mob-ex, .mob-meal, .mob-rest-card, .alert, .mob-btn-sb, .win-3d { box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
+.btn { box-shadow: 0 4px 14px rgba(200,241,53,0.25); }
+.cal-cell { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05); }
 </style>
 </head>
 <body>
@@ -1304,7 +1309,7 @@ function renderCalDetail(q,di){
         <div class="cal-detail-sub">El plan empieza el ${start?fmtShortDate(start):'día indicado'} · hoy queda resaltado en el calendario</div>
       </div>
     </div>
-    <div style="text-align:center;padding:14px;background:var(--surface2);border-radius:11px;border:1px solid var(--border);margin-bottom:12px">
+  <div class="win-3d" style="text-align:center;padding:14px;background:var(--surface2);border-radius:11px;border:1px solid var(--border);margin-bottom:12px">
       <div style="font-size:13px;font-weight:800;margin-bottom:4px">${msg}</div>
       <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">Puedes revisar MI PLAN y preparar horarios, material y compras.</div>
     </div>`;
@@ -1370,7 +1375,7 @@ function renderCalDetail(q,di){
       </div>`;
     }
   } else {
-    html+=`<div style="text-align:center;padding:14px;background:var(--surface2);border-radius:11px;border:1px solid var(--border);margin-bottom:12px">
+    html+=`<div class="win-3d" style="text-align:center;padding:14px;background:var(--surface2);border-radius:11px;border:1px solid var(--border);margin-bottom:12px">
       <div style="font-size:28px;margin-bottom:6px">🌿</div>
       <div style="font-size:13px;font-weight:800;margin-bottom:4px">Día de recuperación activa</div>
       <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">Movilidad suave · Foam roller 10min · Paseo tranquilo<br>La recuperación es parte del entrenamiento. Sin culpa.</div>
@@ -1471,7 +1476,7 @@ function renderTraining(q){
     const prev=getPrevWeight(ex.key);
     const target=prev>0?(prev+(ex.prog==='upper'?2.5:5)):null;
     const ytUrl=`https://www.youtube.com/results?search_query=${YT_LINKS[ex.key]||encodeURIComponent(ex.name)}`;
-    return `<div style="padding:9px 11px;border-radius:9px;background:var(--surface2);margin-bottom:6px;border:1px solid var(--border)">
+    return `<div class="win-3d" style="padding:9px 11px;border-radius:9px;background:var(--surface2);margin-bottom:6px;border:1px solid var(--border)">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
         <div style="flex:1">
           <div style="font-size:12px;font-weight:700">${ex.name}</div>
@@ -1576,7 +1581,7 @@ function renderNutrition(q){
     <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${nutr.carbs}g</div><div class="macro-label">HC</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${nutr.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>
-  <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${nutr.timing}</div>
+  <div class="win-3d" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${nutr.timing}</div>
   <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Diferencia A, B y C para alternar sin rehacer el plan.</div>
   ${renderMealsVisual(nutr.meals)}
   <div class="meal-block" style="border-color:rgba(167,139,250,.3)">
@@ -1801,7 +1806,7 @@ function renderPlan(q){
   return `
   <div class="ph"><h1>Plan quincenal · 8 quincenas</h1><p>Revisión cada 14 días · 4 fases · 16 semanas</p></div>
 
-  <div style="background:linear-gradient(135deg,rgba(200,241,53,.08),rgba(91,156,246,.05));border:1px solid rgba(200,241,53,.25);border-radius:14px;padding:18px;margin-bottom:18px">
+  <div class="win-3d" style="background:linear-gradient(135deg,rgba(200,241,53,.08),rgba(91,156,246,.05));border:1px solid rgba(200,241,53,.25);border-radius:14px;padding:18px;margin-bottom:18px">
     <div style="font-size:15px;font-weight:800;margin-bottom:4px;color:var(--accent)">${qDesc.title}</div>
     <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:2;white-space:pre-line">${qDesc.text}</div>
   </div>
@@ -1811,7 +1816,7 @@ function renderPlan(q){
     {c:'var(--accent3)',t:'FASE VOLUMEN · Q3–Q4 (días 29–56)',d:'Easy 6:30/km · 8×400 @ 5:10 · Tirada 65min · 4 series compuestos · Máximo estímulo hipertrofia'},
     {c:'var(--accent)',t:'FASE RITMO · Q5–Q6 (días 57–84)',d:'Tempo 5:30/km · 6×800 @ 5:00 · Tirada 75min · Alta intensidad · Optimización rendimiento'},
     {c:'#f1356a',t:'FASE ESPECÍFICO · Q7–Q8 (días 85–112)',d:'Tempo 5:20/km · 4×1200 @ 4:55 · Q7 Pico de forma · Q8 TAPER + Carrera objetivo'},
-  ].map(ph=>`<div style="background:var(--surface2);border-radius:11px;padding:12px 14px;margin-bottom:9px;border-left:3px solid ${ph.c}">
+  ].map(ph=>`<div class="win-3d" style="background:var(--surface2);border-radius:11px;padding:12px 14px;margin-bottom:9px;border-left:3px solid ${ph.c}">
     <div style="font-size:12px;font-weight:800;margin-bottom:5px">${ph.t}</div>
     <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">${ph.d}</div>
   </div>`).join('')}
@@ -1832,7 +1837,7 @@ function renderPlanOverview(q){
   const qDesc=Q_DESCRIPTIONS[q]||Q_DESCRIPTIONS[1];
   return `
   <div class="stitle">Resumen de la quincena</div>
-  <div style="background:linear-gradient(135deg,rgba(200,241,53,.08),rgba(91,156,246,.05));border:1px solid rgba(200,241,53,.25);border-radius:14px;padding:18px;margin-bottom:18px">
+  <div class="win-3d" style="background:linear-gradient(135deg,rgba(200,241,53,.08),rgba(91,156,246,.05));border:1px solid rgba(200,241,53,.25);border-radius:14px;padding:18px;margin-bottom:18px">
     <div style="font-size:15px;font-weight:800;margin-bottom:4px;color:var(--accent)">${qDesc.title}</div>
     <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:2;white-space:pre-line">${qDesc.text}</div>
   </div>
@@ -1841,7 +1846,7 @@ function renderPlanOverview(q){
     {c:'var(--accent3)',t:'FASE VOLUMEN · Q3-Q4',d:'Más volumen de trabajo, hipertrofia y consolidación de hábitos.'},
     {c:'var(--accent)',t:'FASE RITMO · Q5-Q6',d:'Más intensidad y mejora del rendimiento específico.'},
     {c:'#f1356a',t:'FASE ESPECÍFICO · Q7-Q8',d:'Pico de forma, taper y ejecución del objetivo.'},
-  ].map(ph=>`<div style="background:var(--surface2);border-radius:11px;padding:12px 14px;margin-bottom:9px;border-left:3px solid ${ph.c}">
+  ].map(ph=>`<div class="win-3d" style="background:var(--surface2);border-radius:11px;padding:12px 14px;margin-bottom:9px;border-left:3px solid ${ph.c}">
     <div style="font-size:12px;font-weight:800;margin-bottom:5px">${ph.t}</div>
     <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">${ph.d}</div>
   </div>`).join('')}
@@ -1859,7 +1864,7 @@ function renderPlanOverview(q){
 function renderGuideHtml(){
   return `
   <div class="stitle">Cómo usar tu plan</div>
-  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:14px;margin-bottom:18px">
+  <div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:14px;margin-bottom:18px">
     <div style="font-family:'DM Mono',monospace;font-size:10px;line-height:2;color:var(--text)">
       <div><span style="color:var(--accent3)">Entrenamiento</span> · Respeta el orden, el RIR, el tempo y registra pesos/reps al terminar cada serie.</div>
       <div><span style="color:var(--accent)">Running / cardio</span> · Copia el bloque Intervals.icu cuando exista y registra ritmo, distancia, tiempo y RPE.</div>
@@ -1874,13 +1879,13 @@ function renderGuideHtml(){
       ['Consistencia','El plan funciona por acumulación de semanas, no por sesiones heroicas.'],
       ['Recuperación','Dormir y descansar bien permite asimilar el estímulo.'],
       ['Datos reales','Lo que registras guía el ajuste de la siguiente quincena.'],
-    ].map(([t,d])=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:11px 12px">
+  ].map(([t,d])=>`<div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:11px 12px">
       <div style="font-size:11px;font-weight:800;margin-bottom:3px">${t}</div>
       <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7">${d}</div>
     </div>`).join('')}
   </div>
   <div class="stitle">Errores frecuentes a evitar</div>
-  <div style="background:rgba(241,161,53,.05);border:1px solid rgba(241,161,53,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px">
+  <div class="win-3d" style="background:rgba(241,161,53,.05);border:1px solid rgba(241,161,53,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px">
     ${[
       'Cambiar el plan a mitad de quincena sin datos.',
       'Ir siempre al fallo y romper el RIR indicado.',
@@ -1942,7 +1947,7 @@ function parseToVisualCards(text) {
       if(!tr) continue;
       const m = tr.match(/^[-•*]\s*([^:]+):\s*(.+)$/);
       if(m && m[1].length < 40) {
-          out += `<div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:8px; display:flex; flex-direction:column;">
+          out += `<div class="win-3d" style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:8px; display:flex; flex-direction:column;">
              <span style="font-weight:800; color:var(--accent2); font-size:11px; margin-bottom:4px">${esc(m[1])}</span>
              <span style="color:var(--text); font-size:10px; line-height:1.6">${esc(m[2])}</span>
           </div>`;
@@ -1996,7 +2001,7 @@ function planSupps(text){
               name = namePart.substring(0, idx).trim();
               desc = namePart.substring(idx+1).trim();
           }
-          html += `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+          html += `<div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
               <div style="font-weight:800;color:var(--accent);font-size:12px;margin-bottom:4px">💊 ${esc(name)}</div>
               ${desc ? `<div style="font-size:10px;color:var(--text);margin-bottom:8px;line-height:1.5">${esc(desc)}</div>` : ''}
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'DM Mono',monospace;font-size:9px;">
@@ -2030,7 +2035,7 @@ function planTomas(text){
   if(!tomas.length) return `<div class="plan-txt">${esc(text)}</div>`;
   const icMap={'TOMA 0':'🌅','TOMA 1':'🍳','TOMA 2':'🥪','TOMA 3':'🍽️','TOMA 4':'🌿','TOMA 5':'🌙','TOMA 6':'😴'};
   return `
-  ${macroL?`<div style="background:rgba(91,156,246,.07);border:1px solid rgba(91,156,246,.2);border-radius:9px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);margin-bottom:10px;line-height:1.9">⚡ ${esc(macroL)}${macroR?'<br>'+esc(macroR):''}</div>`:''}
+  ${macroL?`<div class="win-3d" style="background:rgba(91,156,246,.07);border:1px solid rgba(91,156,246,.2);border-radius:9px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent2);margin-bottom:10px;line-height:1.9">⚡ ${esc(macroL)}${macroR?'<br>'+esc(macroR):''}</div>`:''}
   ${tomas.map((t,i)=>{
     const id='pt'+(++_blkId);
     const icon=Object.entries(icMap).find(([k])=>t.label.toUpperCase().includes(k))?.[1]||'🍴';
@@ -2070,7 +2075,7 @@ function planBiweeklyCalendar(q){
 }
 
 function planCheatMealInfo(){
-  return `<div style="background:rgba(91,156,246,.06);border:1px solid rgba(91,156,246,.2);border-radius:11px;padding:11px 13px;margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.8">
+  return `<div class="win-3d" style="background:rgba(91,156,246,.06);border:1px solid rgba(91,156,246,.2);border-radius:11px;padding:11px 13px;margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.8">
     <div style="color:var(--accent2);font-weight:500;margin-bottom:4px">Cheat meal semanal</div>
     Es una comida libre planificada: puedes comer lo que quieras, pero es una comida, no un día entero libre. Hazla 1 vez por semana, preferiblemente en comida o cena social. Come hasta quedar satisfecho sin acabar lleno, hidrátate bien y vuelve a la siguiente toma del plan sin compensar con ayunos extremos.
     <br><br><span style="color:var(--accent)">Si haces cheat meal en la comida:</span> mantén una cena ligera y alta en proteína: carne/pescado/huevos + verduras, sin repetir postre, alcohol ni otra ración grande de hidratos.
@@ -2094,7 +2099,7 @@ function planGoals(objText,fechasText){
   if(!metrics.length&&!greens.length&&!warns.length&&!dates.length&&!foco) return `<div class="plan-txt">${esc(src)}</div>`;
   return `
   ${metrics.length?`<div class="stitle">Métricas objetivo</div>
-  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:12px">
+  <div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:12px">
     ${metrics.map(({k,v})=>`<div class="plan-obj-row"><span style="color:var(--muted)">${esc(k)}</span><span style="font-weight:700">${esc(v)}</span></div>`).join('')}
   </div>`:''}
   ${foco?`<div class="stitle">Foco de la quincena</div>
@@ -2104,7 +2109,7 @@ function planGoals(objText,fechasText){
   ${warns.length?`<div class="stitle">Señales de alerta ⚠</div>
   <div style="margin-bottom:12px">${warns.map(w=>`<div class="plan-sig plan-sig-w">${esc(w)}</div>`).join('')}</div>`:''}
   ${dates.length?`<div class="stitle">Fechas clave</div>
-  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px">
+  <div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px">
     ${dates.map(d=>`<div class="plan-adj">${esc(d)}</div>`).join('')}
   </div>`:''}`;
 }
@@ -2116,7 +2121,7 @@ function renderMyPlan(q){
   // ── SECCIÓN GUÍA Y RECOMENDACIONES (siempre visible) ──
   const guiaHtml=`
   <div class="stitle" style="margin-top:8px">📖 Cómo usar tu plan</div>
-  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:14px;margin-bottom:18px">
+  <div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:14px;margin-bottom:18px">
     <div style="font-family:'DM Mono',monospace;font-size:10px;line-height:2;color:var(--text)">
       <div style="margin-bottom:10px;color:var(--accent);font-weight:500">Tu plan quincenal tiene 6 componentes clave:</div>
       <div style="padding:5px 0;border-bottom:1px solid rgba(43,52,72,.3)">
@@ -2149,7 +2154,7 @@ function renderMyPlan(q){
       {ic:'💧',t:'Hidratación activa',d:'3L de agua mineral al día. El rendimiento cae con solo un 2% de deshidratación.'},
       {ic:'🌙',t:'Sueño como entrenamiento',d:'La hormona de crecimiento se libera en la fase 3 del sueño. Prioriza las 7-9h.'},
       {ic:'📈',t:'Paciencia y consistencia',d:'Los resultados visibles aparecen en la Q3-Q4. El proceso es el resultado.'},
-    ].map(item=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:11px 12px">
+  ].map(item=>`<div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:11px 12px">
       <div style="font-size:18px;margin-bottom:4px">${item.ic}</div>
       <div style="font-size:11px;font-weight:800;margin-bottom:3px">${item.t}</div>
       <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7">${item.d}</div>
@@ -2157,7 +2162,7 @@ function renderMyPlan(q){
   </div>
 
   <div class="stitle">⚠️ Errores frecuentes a evitar</div>
-  <div style="background:rgba(241,161,53,.05);border:1px solid rgba(241,161,53,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px">
+  <div class="win-3d" style="background:rgba(241,161,53,.05);border:1px solid rgba(241,161,53,.2);border-radius:12px;padding:12px 14px;margin-bottom:18px">
     ${[
       'Entrenar sin dormir bien — el entreno sin recuperación genera cortisol, no músculo.',
       'Saltarse la proteína post-entreno — la ventana anabólica es real en las 2h post-entreno.',
@@ -2171,7 +2176,7 @@ function renderMyPlan(q){
 
   if(!planText) return `
   <div class="ph"><h1>Mi plan · Q${q}</h1><p>${getPhase(q)} · Plan personalizado C.L.O.E.</p></div>
-  <div style="padding:16px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;line-height:2;background:var(--surface2);border-radius:12px;border:1px solid var(--border);margin-bottom:18px">⏳ Tu plan de Quincena ${q} está siendo preparado por tu coach.<br>Mientras tanto, consulta la guía de uso y principios del programa.</div>
+  <div class="win-3d" style="padding:16px;text-align:center;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;line-height:2;background:var(--surface2);border-radius:12px;border:1px solid var(--border);margin-bottom:18px">⏳ Tu plan de Quincena ${q} está siendo preparado por tu coach.<br>Mientras tanto, consulta la guía de uso y principios del programa.</div>
   ${guiaHtml}`;
 
   const s=parsePlanStructured(planText);
@@ -2204,7 +2209,7 @@ function renderMyPlan(q){
 
   ${hasAjustes?`
   <div class="stitle">📈 Ajustes específicos Q${q}</div>
-  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:18px">
+  <div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:10px 13px;margin-bottom:18px">
     ${adjItems.length?adjItems.map(l=>`<div class="plan-adj">${esc(l)}</div>`).join(''):`<div class="plan-txt">${esc(s.E)}</div>`}
   </div>`:''}
 
@@ -2234,7 +2239,7 @@ function renderReport(q){
   </div>
 
   <div class="stitle" style="margin-top:16px">⚖️ Datos báscula inteligente (medición final Q${q})</div>
-  <div style="background:rgba(91,156,246,.05);border:1px solid rgba(91,156,246,.2);border-radius:10px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:11px;line-height:1.7">
+  <div class="win-3d" style="background:rgba(91,156,246,.05);border:1px solid rgba(91,156,246,.2);border-radius:10px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:11px;line-height:1.7">
     Introduce los datos que aparecen en tu báscula inteligente. Son el input más valioso para que C.L.O.E. ajuste tu plan con precisión.
   </div>
   <div class="g2">
@@ -2257,7 +2262,7 @@ function renderReport(q){
   <textarea id="r-csv" rows="3" placeholder="Distancia total, TSS, ritmos medios, sesiones completadas..."></textarea>
   <label>Observaciones libres</label>
   <textarea id="r-n" rows="3" placeholder="Lesiones, contexto vital, fatiga, bloqueos, éxitos, cómo te has sentido..."></textarea>
-  <div style="background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:12px;margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.7">
+  <div class="win-3d" style="background:rgba(200,241,53,.07);border:1px solid rgba(200,241,53,.25);border-radius:10px;padding:12px;margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.7">
     <span style="color:var(--accent);font-weight:700">📸 Fotografías de progreso</span><br>
     Recuerda tomarte 3 fotos (Frente, Perfil y Espalda). Al copiar el reporte y pegarlo en el chat de la IA, <b>asegúrate de adjuntar las 3 imágenes en el mismo mensaje</b>.
   </div>

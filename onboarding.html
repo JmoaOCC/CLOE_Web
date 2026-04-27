@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#eef4ff;--muted:#9aa7bd;--danger:#ff8d8d}
+:root{--bg:#0c1018;--surface:#151b28;--surface2:#1c2433;--border:#2b3448;--accent:#c8f135;--accent2:#5b9cf6;--accent3:#f1a135;--text:#ffffff;--muted:#cbd5e1;--danger:#ff8d8d}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-height:100vh}
 .hdr{background:#101622;border-bottom:1px solid var(--border);padding:16px 28px;display:flex;justify-content:space-between;align-items:center}
@@ -68,6 +68,10 @@ input[type=range]{flex:1;accent-color:var(--accent)}
   .nav{flex-direction:column}
   .btn{width:100%}
 }
+
+/* Efectos 3D y Sombreados para ventanas */
+.mcard, .info, .notice, .err, .cpill { box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
+.btn { box-shadow: 0 4px 14px rgba(200,241,53,0.25); }
 </style>
 </head>
 <body>
