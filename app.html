@@ -60,12 +60,31 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .supp-name{font-size:12px;font-weight:700;flex:1}
 .supp-dose{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3)}
 .supp-timing{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px}
+.supp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:16px}
+.supp-card{background:linear-gradient(135deg,rgba(91,156,246,.09),rgba(200,241,53,.035));border:1px solid rgba(91,156,246,.22);border-radius:13px;padding:13px;min-height:132px;display:flex;flex-direction:column;gap:8px}
+.supp-card-top{display:flex;align-items:center;gap:9px}
+.supp-card-icon{width:34px;height:34px;border-radius:10px;background:rgba(200,241,53,.1);border:1px solid rgba(200,241,53,.25);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.supp-card-name{font-size:12px;font-weight:800;line-height:1.25}
+.supp-card-dose{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);line-height:1.5}
+.supp-card-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.55;margin-top:auto;border-top:1px solid rgba(43,52,72,.45);padding-top:7px}
+.supp-section-pill{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.2);border-radius:999px;padding:5px 9px;margin:4px 0 9px}
 
 /* NUTRITION WITH OPTIONS */
 .meal-option-tabs{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
 .meal-opt-btn{font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;line-height:1.35;white-space:normal;text-align:center}
 .meal-opt-btn.sel{background:rgba(200,241,53,.12);border-color:var(--accent);color:var(--accent)}
 .meal-option{display:none}.meal-option.active{display:block}
+.meal-options-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.meal-option-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.meal-option-card.a{border-color:rgba(200,241,53,.35)}
+.meal-option-card.b{border-color:rgba(91,156,246,.35)}
+.meal-option-card.c{border-color:rgba(241,161,53,.35)}
+.meal-option-head{padding:10px 12px;background:var(--surface2);display:flex;justify-content:space-between;gap:8px;align-items:flex-start;border-bottom:1px solid var(--border)}
+.meal-option-badge{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;border-radius:999px;padding:3px 8px;white-space:nowrap}
+.meal-option-card.a .meal-option-badge{background:rgba(200,241,53,.12);color:var(--accent);border:1px solid rgba(200,241,53,.25)}
+.meal-option-card.b .meal-option-badge{background:rgba(91,156,246,.12);color:var(--accent2);border:1px solid rgba(91,156,246,.25)}
+.meal-option-card.c .meal-option-badge{background:rgba(241,161,53,.12);color:var(--accent3);border:1px solid rgba(241,161,53,.25)}
+.meal-option-body{padding:10px 12px}
 .meal-block{background:var(--surface2);border-radius:11px;padding:12px;border:1px solid var(--border);margin-bottom:9px}
 .meal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
 .meal-name{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;text-transform:uppercase}
@@ -888,22 +907,31 @@ function applyPlanData(planText){
 function getPlanStrengthForDay(dayIdx){
   const days=profile?._strengthDays||[];
   if(!days.length) return null;
+  const wd=((dayIdx%7)+7)%7;
+  if(DAYTYPES[wd]!=='strength') return null;
   const label=(DAYLABELS[((dayIdx%7)+7)%7]||'').toUpperCase();
   const byKey=days.find(d=>label.includes(d.key));
   if(byKey) return byKey;
-  const strengthBefore=DAYTYPES.slice(0,dayIdx+1).filter(t=>t==='strength').length-1;
-  return days[Math.max(0,Math.min(strengthBefore,days.length-1))]||days[0];
+  let strengthBefore=0;
+  for(let i=0;i<=dayIdx;i++){
+    const iw=((i%7)+7)%7;
+    if(DAYTYPES[iw]==='strength') strengthBefore++;
+  }
+  const idx=Math.max(0,strengthBefore-1)%days.length;
+  return days[idx]||days[0];
 }
 function getPlanRunningSessionForDay(dayIdx){
+  const wd=((dayIdx%7)+7)%7;
+  const label=(DAYLABELS[wd]||'').toUpperCase();
+  if(!label.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|LARGA|CARDIO|RODAJE/)) return null;
   let sessions=null;
   try{
     const pr=typeof profile?.plan_running==='string'?JSON.parse(profile.plan_running):profile?.plan_running;
     if(pr&&typeof pr==='object'&&Object.keys(pr).length>0) sessions=pr;
   }catch(e){}
   if(!sessions) return null;
-  const label=(DAYLABELS[((dayIdx%7)+7)%7]||'').toUpperCase();
   const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/CARDIO|SUAVE|RODAJE/i)?'cardio':null;
-  const found=key&&sessions[key]?key:Object.keys(sessions)[0];
+  const found=key&&sessions[key]?key:null;
   const names={intervals:'INTERVALOS',tempo:'TEMPO',long:'TIRADA LARGA',cardio:'CARDIO'};
   return found?{label:names[found]||found.toUpperCase(),fmt:sessions[found],goal:'Plan personalizado de MI PLAN'}:null;
 }
@@ -1113,7 +1141,7 @@ function renderDashboard(q,w){
       calHtml+=`<div class="cal-cell ${isToday?'today':''} ${isSel?'selected':''}" onclick="calSelectDay(${di})">
         ${allExDone?'<div class="cal-cell-done">✓</div>':''}
         <div class="cal-cell-num">${fmtShortDate(cellDate)}</div>
-        <div class="cal-cell-icons">${icon}</div>
+        <div class="cal-cell-icons" title="${di>=0&&di<14?esc(getDayTypeLabel(di)):''}">${icon}</div>
         <div class="cal-cell-type">${di<0?'PRE Q1':di>=14?'FUERA Q':shortLabel}</div>
       </div>`;
     }
@@ -1254,14 +1282,16 @@ function renderSupplements(q){
     return `
   <div class="ph"><h1>Suplementos</h1><p>Protocolo personalizado de MI PLAN · Quincena ${q}</p></div>
   ${profile._planSupplements.map(sec=>`
-    <div class="supp-block">
-      <div class="supp-header"><div class="supp-title">${esc(sec.title)}</div><div class="supp-badge">MI PLAN</div></div>
-      <div class="supp-body">
-        ${sec.items.map(item=>`<div class="supp-row">
-          <div class="supp-icon">💊</div>
-          <div style="flex:1"><div class="supp-dose">${esc(item)}</div></div>
-        </div>`).join('')}
-      </div>
+    <div class="supp-section-pill">💊 ${esc(sec.title)} · MI PLAN</div>
+    <div class="supp-grid">
+      ${sec.items.map(item=>`<div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-card-icon">💊</div>
+          <div class="supp-card-name">${esc(String(item).split('|')[0].replace(/^[-•*]\s*/,'').trim()||'Suplemento')}</div>
+        </div>
+        <div class="supp-card-dose">${esc(String(item).split('|')[1]?.trim()||item)}</div>
+        <div class="supp-card-time">${esc(String(item).split('|').slice(2).join(' · ').trim()||'Timing según tu plan personalizado.')}</div>
+      </div>`).join('')}
     </div>`).join('')}`;
   }
   const dayType=DAYTYPES[todayPlanIdx()];
@@ -1278,18 +1308,16 @@ function renderSupplements(q){
   <div class="alert">Protocolo extraído del Programa DOCE. Los suplementos son de soporte — no sustituyen una dieta correcta. Consulta con tu médico si tienes condiciones específicas.</div>
   ${sections.map(sec=>{
     const supps=SUPPLEMENTS[sec.key]||[];
-    return `<div class="supp-block">
-      <div class="supp-header"><div class="supp-title">${sec.title}</div><div class="supp-badge">${sec.badge}</div></div>
-      <div class="supp-body">
-        ${supps.map(s=>`<div class="supp-row">
-          <div class="supp-icon">${s.icon}</div>
-          <div style="flex:1">
-            <div class="supp-name">${s.name}</div>
-            <div class="supp-dose">${s.dose}</div>
-            <div class="supp-timing">${s.timing}</div>
-          </div>
-        </div>`).join('')}
-      </div>
+    return `<div class="supp-section-pill">${sec.title} · ${sec.badge}</div>
+    <div class="supp-grid">
+      ${supps.map(s=>`<div class="supp-card">
+        <div class="supp-card-top">
+          <div class="supp-card-icon">${s.icon}</div>
+          <div class="supp-card-name">${s.name}</div>
+        </div>
+        <div class="supp-card-dose">${s.dose}</div>
+        <div class="supp-card-time">${s.timing}</div>
+      </div>`).join('')}
     </div>`;
   }).join('')}`;
 }
@@ -1416,49 +1444,23 @@ function renderRunning(q){
 // ── NUTRITION ─────────────────────────────────────────────
 function renderNutrition(q){
   if(profile?._planNutrition){
-    const LABELS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-    const idx=nutritionDayTab;
-    const isRest=DAYTYPES[idx]==='rest';
     const data=profile._planNutrition;
-    const macros=isRest?(data.rest||data.training):data.training;
+    const macros=data.training||data.rest;
     return `
   <div class="ph"><h1>Nutrición</h1><p>Plan personalizado de MI PLAN · Quincena ${q}</p></div>
-  <div class="meal-day-tabs">${LABELS.map((l,i)=>`<div class="meal-day-tab ${i===idx?'active':''}" onclick="nutritionDayTab=${i};view('myplan')">${l}</div>`).join('')}</div>
   ${macros?`<div class="macro-bar">
     <div class="macro-item"><div class="macro-val">${macros.kcal}</div><div class="macro-label">Kcal</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${macros.protein}g</div><div class="macro-label">Proteína</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${macros.carbs}g</div><div class="macro-label">HC</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${macros.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>`:''}
-  <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${isRest?'Día descanso según MI PLAN':'Día entreno según MI PLAN'}</div>
-  ${data.meals.map(meal=>`
-    <div class="meal-block">
-      <div class="meal-header">
-        <div>
-          <div class="meal-name">${esc(meal.name)}</div>
-          <div class="meal-macros" style="font-size:9px;color:var(--muted)">${esc(meal.timing)}</div>
-        </div>
-        ${meal.kcal?`<div class="meal-kcal">~${meal.kcal} kcal</div>`:''}
-      </div>
-      <div class="meal-option active" style="display:block">
-        ${meal.macros?`<div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
-          <span>${meal.macros.protein}g P · ${meal.macros.carbs}g HC · ${meal.macros.fat}g G</span>
-          <span style="color:var(--muted)">${meal.macros.kcal} kcal</span>
-        </div>`:''}
-        ${meal.content.split('\n').map(line=>line.trim()).filter(Boolean).map(line=>`
-          <div class="food-row"><div class="food-name">${esc(line)}</div></div>`).join('')}
-      </div>
-    </div>`).join('')}`;
+  <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Elige una opción por toma según preferencia y adherencia.</div>
+  ${renderMealsVisual(data.meals)}`;
   }
-  const LABELS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-  const TYPES=['training','training','rest','training','training','training','rest'];
-  const idx=nutritionDayTab;
   const N=getNutrition();
-  const isRest=TYPES[idx]==='rest';
-  const nutr=isRest?(N.rest||N.training):N.training;
+  const nutr=N.training;
   return `
   <div class="ph"><h1>Nutrición DOCE</h1><p>Sistema intercambios · Elige tu opción cada comida · Regla 80/20</p></div>
-  <div class="meal-day-tabs">${LABELS.map((l,i)=>`<div class="meal-day-tab ${i===idx?'active':''}" onclick="nutritionDayTab=${i};view('myplan')">${l}</div>`).join('')}</div>
   <div class="macro-bar">
     <div class="macro-item"><div class="macro-val">${nutr.kcal}</div><div class="macro-label">Kcal</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${nutr.protein}g</div><div class="macro-label">Proteína</div></div>
@@ -1466,31 +1468,8 @@ function renderNutrition(q){
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${nutr.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>
   <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${nutr.timing}</div>
-  ${nutr.meals.map(meal=>`
-    <div class="meal-block">
-      <div class="meal-header">
-        <div>
-          <div class="meal-name">${meal.name}</div>
-          <div class="meal-macros" style="font-size:9px;color:var(--muted)">${meal.timing}</div>
-        </div>
-        <div class="meal-kcal">~${meal.options[0].kcal} kcal</div>
-      </div>
-      <div class="meal-option-tabs">
-        ${meal.options.map((opt,i)=>`<button class="meal-opt-btn ${i===0?'sel':''}" onclick="selectMealOpt(this,'${meal.key}',${i})">${opt.label}</button>`).join('')}
-      </div>
-      ${meal.options.map((opt,i)=>`
-        <div class="meal-option ${i===0?'active':''}" id="opt_${meal.key}_${i}">
-          <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
-            <span>${opt.p}g P · ${opt.hc}g HC · ${opt.g}g G</span>
-            <span style="color:var(--muted)">${opt.kcal} kcal</span>
-          </div>
-          ${opt.items.map(it=>`
-            <div class="food-row">
-              <div><div class="food-name">${it.f}</div>${it.note?`<div class="food-note">${it.note}</div>`:''}</div>
-              <div class="food-amount">${it.a}</div>
-            </div>`).join('')}
-        </div>`).join('')}
-    </div>`).join('')}
+  <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Diferencia A, B y C para alternar sin rehacer el plan.</div>
+  ${renderMealsVisual(nutr.meals)}
   <div class="meal-block" style="border-color:rgba(167,139,250,.3)">
     <div class="meal-name" style="color:var(--accent4)">📋 REGLAS GENERALES DOCE</div>
     <br>
@@ -1498,15 +1477,58 @@ function renderNutrition(q){
       'Pesar filetes en CRUDO · hidratos como indica la dieta',
       'Beber 3 litros de agua mineral al día',
       'Verdura libre: brócoli, alcachofas, judías verdes, acelgas, espinacas, espárragos',
-      'Hortalizas: calabacín, berenjena, pepino, champiñones, cebolla (moderada)',
-      'Ensalada libre: canónigos, escarola, lechuga romana, berros',
+      'Hortalizas: calabacín, berenjena, pepino, champiñones, cebolla moderada',
       'Espray para cocinar las carnes — nunca aceite en sartén',
       'Sal rosa del Himalaya en todas las comidas',
       'Refrescos sin azúcar: máximo 2 al día',
       'Café: 3 máximo/día con leche de almendras sin azúcar o sin lactosa',
-      'FIN DE SEMANA: si hay Cheat Meal → solo 3 comidas, eliminar almuerzo y merienda. NUNCA llenarse.',
     ].map(r=>`<div class="food-row"><div class="food-name" style="font-size:11px">· ${r}</div></div>`).join('')}
   </div>`;
+}
+
+function renderMealsVisual(meals){
+  return (meals||[]).map(meal=>{
+    if(!meal.options || !meal.options.length){
+      const lines=String(meal.content||'').split('\n').map(line=>line.trim()).filter(Boolean);
+      return `<div class="meal-block">
+        <div class="meal-header">
+          <div><div class="meal-name">${esc(meal.name)}</div><div class="meal-macros">${esc(meal.timing||'')}</div></div>
+          ${meal.kcal?`<div class="meal-kcal">~${meal.kcal} kcal</div>`:''}
+        </div>
+        ${lines.map(line=>`<div class="food-row"><div class="food-name">${esc(line)}</div></div>`).join('')}
+      </div>`;
+    }
+    return `<div class="meal-block">
+      <div class="meal-header">
+        <div>
+          <div class="meal-name">${esc(meal.name)}</div>
+          <div class="meal-macros">${esc(meal.timing||'')}</div>
+        </div>
+      </div>
+      <div class="meal-options-grid">
+        ${meal.options.map((opt,i)=>{
+          const cls=['a','b','c'][i]||'';
+          const letter=String.fromCharCode(65+i);
+          return `<div class="meal-option-card ${cls}">
+            <div class="meal-option-head">
+              <div>
+                <div class="meal-option-badge">Opción ${letter}</div>
+                <div class="meal-macros" style="margin-top:6px">${esc(opt.label||'')}</div>
+              </div>
+              ${opt.kcal?`<div class="meal-kcal">${opt.kcal} kcal</div>`:''}
+            </div>
+            <div class="meal-option-body">
+              ${(opt.p||opt.hc||opt.g)?`<div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:7px">${opt.p||0}g P · ${opt.hc||0}g HC · ${opt.g||0}g G</div>`:''}
+              ${(opt.items||[]).map(it=>`<div class="food-row">
+                <div><div class="food-name">${esc(it.f)}</div>${it.note?`<div class="food-note">${esc(it.note)}</div>`:''}</div>
+                <div class="food-amount">${esc(it.a)}</div>
+              </div>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function stripHeader(html){
@@ -1519,7 +1541,8 @@ function renderNutritionHub(q){
   <div class="stitle">Suplementos</div>
   ${stripHeader(renderSupplements(q))}
   <div class="stitle">Nutrición</div>
-  ${stripHeader(renderNutrition(q))}`;
+  ${stripHeader(renderNutrition(q))}
+  ${planCheatMealInfo()}`;
 }
 
 function renderTrainingCalendar(q){
@@ -1531,8 +1554,8 @@ function renderTrainingCalendar(q){
       const di=week*7+wd;
       html+=`<div class="cal-cell ${di===mobDayIdx?'selected':''}" onclick="mobDayIdx=${di};view('traininglog')">
         <div class="cal-cell-day">${dayNames[wd]}</div>
-        <div class="cal-cell-num">D${di+1}</div>
-        <div class="cal-cell-icons">${getDayIcons(di)}</div>
+        <div class="cal-cell-num">${di+1}</div>
+        <div class="cal-cell-icons" title="${esc(getDayTypeLabel(di))}">${getDayIcons(di)}</div>
         <div class="cal-cell-type">${getDayTypeLabel(di)}</div>
       </div>`;
     }
@@ -1936,7 +1959,7 @@ function planBiweeklyCalendar(q){
 function planCheatMealInfo(){
   return `<div style="background:rgba(91,156,246,.06);border:1px solid rgba(91,156,246,.2);border-radius:11px;padding:11px 13px;margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);line-height:1.8">
     <div style="color:var(--accent2);font-weight:500;margin-bottom:4px">Cheat meal semanal</div>
-    1 comida libre a la semana, no 1 día libre. Mantén proteína alta, evita llegar con hambre extrema y vuelve a la siguiente toma normal del plan. Si el plan no concreta cantidades o contexto, se marca como sin datos y no se inventa una dieta genérica.
+    Es una comida libre planificada: puedes comer lo que quieras, pero es una comida, no un día entero libre. Hazla 1 vez por semana, preferiblemente en comida o cena social. Mantén el resto del día normal, prioriza proteína en las otras tomas, come hasta quedar satisfecho sin acabar lleno, hidrátate bien y vuelve a la siguiente toma del plan sin compensar con ayunos extremos.
   </div>`;
 }
 
