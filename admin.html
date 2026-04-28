@@ -38,6 +38,7 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.on{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;padding:26px}
+.modal.wide{max-width:900px}
 .modal h2{font-size:16px;font-weight:800;margin-bottom:18px}
 label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;display:block;margin-top:12px;margin-bottom:4px}
 input,select,textarea{width:100%;background:#0f1624;color:var(--text);border:1px solid var(--border);padding:10px 12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border .2s}
@@ -86,18 +87,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
     <button class="btn" onclick="openCreate()">+ Crear usuario</button>
     <button class="btn sec" onclick="load()">↻ Actualizar</button>
+    <button class="btn sec" onclick="openPromptBase()">Prompt Base</button>
   </div>
 
   <div style="background:var(--surface);border-radius:14px;border:1px solid var(--border);overflow:hidden">
     <table class="tbl">
       <thead>
         <tr>
-          <th>Nombre</th><th>Email</th><th>Quincena</th><th>Fase</th>
+          <th>Nombre</th><th>Email</th><th>Quincena</th><th>Día</th><th>Fase</th>
           <th>Estado</th><th>Objetivo</th><th>Plan S1</th><th>Acciones</th>
         </tr>
       </thead>
       <tbody id="tbody">
-        <tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Cargando...</td></tr>
+        <tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">Cargando...</td></tr>
       </tbody>
     </table>
   </div>
@@ -151,6 +153,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <div><label>Altura (cm)</label><input type="number" id="e-height"></div>
       <div><label>Objetivo</label><input id="e-goal"></div>
       <div><label>Semana interna</label><input type="number" id="e-week" min="1" max="16"></div>
+      <div><label>Día del plan</label><input type="number" id="e-plan-day" min="1" max="14" placeholder="2 = día 2/14"></div>
       <div><label>Estado</label>
         <select id="e-status">
           <option value="active">Activo</option>
@@ -174,6 +177,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <div><label>Evento</label><input id="e-event"></div>
       <div><label>Nivel running</label><input id="e-run-level"></div>
       <div><label>Nivel fuerza</label><input id="e-gym-level"></div>
+      <div><label>Nivel calistenia</label><input id="e-calis-level"></div>
       <div><label>Distribución</label><input id="e-split"></div>
       <div><label>Tiempo por sesión</label><input id="e-session-time"></div>
       <div><label>Actividad</label><input id="e-activity"></div>
@@ -217,6 +221,19 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <button class="btn dan" onclick="delUser()">Desactivar</button>
       <button class="btn dan" onclick="deleteUserPermanent(editId)">Eliminar</button>
       <button class="btn sec" onclick="close('m-edit')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROMPT BASE -->
+<div class="overlay" id="m-prompt-base">
+  <div class="modal wide">
+    <h2>Prompt Base</h2>
+    <textarea id="prompt-base-text" class="plan-area" rows="24" readonly></textarea>
+    <div class="plan-hint">Plantilla con todos los campos que entiende la app. Puedes copiarla y usarla como base para pedir a la IA una quincena completa.</div>
+    <div class="mact">
+      <button class="btn" onclick="copyPromptBase()">Copiar Prompt Base</button>
+      <button class="btn sec" onclick="close('m-prompt-base')">Cerrar</button>
     </div>
   </div>
 </div>
@@ -290,6 +307,13 @@ function quincenaFromWeek(week){
   return Math.ceil((week||1)/2);
 }
 
+function readPlanDayInput(){
+  const raw=document.getElementById('e-plan-day')?.value;
+  if(raw===''||raw===undefined||raw===null) return null;
+  const n=parseInt(raw);
+  return Number.isFinite(n)?Math.min(14,Math.max(1,n)):null;
+}
+
 function buildProfilePrompt(user){
   const extra=user.onboarding_data||{};
   const body=extra.body_composition||{};
@@ -327,6 +351,7 @@ DATOS FÍSICOS
 DATOS DEL CUESTIONARIO
 - Onboarding completado: ${user.onboarding_completed===true?'Sí':'No'}
 - Inicio del plan: ${extra.plan_start_date||'n/d'}
+- Día del plan: ${extra.plan_day?`${extra.plan_day}/14`:'n/d'}
 - Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` (${extra.injury_detail})`:''}
 - Pasos: ${extra.steps||'n/d'}
 - Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
@@ -334,6 +359,7 @@ DATOS DEL CUESTIONARIO
 - Target pace: ${extra.target_pace||'n/d'}
 - Nivel running: ${extra.run_level||'n/d'}
 - Nivel fuerza: ${extra.gym_level||'n/d'}
+- Nivel calistenia: ${extra.calis_level||'n/d'}
 - Días por semana: ${extra.days||'n/d'}
 - Distribución: ${extra.split||'n/d'}
 - Días fuerza/semana: ${extra.strength_days||'n/d'}
@@ -371,6 +397,199 @@ ${user.current_plan||user.quincena1_plan||'Aún sin plan cargado.'}
 ${user.latest_report||'Aún sin reporte guardado.'}`;
 }
 
+function buildPromptBase(){
+  return `C.L.O.E. COACH · PROMPT BASE PARA GENERAR QUINCENA
+Objetivo: generar un plan completo que la app pueda leer y pintar en calendario, suplementos, entrenamientos, nutrición, objetivos, ajustes y fechas.
+
+REGLAS DE FORMATO PARA LA IA
+- Devuelve siempre secciones A, B, C, D, E y F con estos títulos exactos.
+- Incluye CALENDARIO QX con 14 líneas tipo: Dia 1 - Martes 28/04: Fuerza A - Tren superior.
+- Usa nombres claros en los bloques de entreno: FUERZA A, FUERZA B, CALISTENIA A, RUNNING EASY, CICLISMO, NATACIÓN, ANDAR, DESCANSO.
+- En suplementos usa ventanas exactas: AL LEVANTARTE, ANTES DEL DESAYUNO, PRE ENTRENAMIENTO, ANTES DE CENAR, POST ENTRENAMIENTO FUERZA, ANTES DE ACOSTARTE.
+- En nutrición, bajo cada Opción A/B/C incluye una línea TIPS: con consejo breve.
+- Si falta un dato escribe SIN DATOS. No inventes datos médicos.
+
+DATOS USUARIO DE MUESTRA
+Usuario: Sandra Demo
+Email: sandra.demo@email.com
+Quincena solicitada: Q1
+Día actual del plan: 2/14
+Fase: BASE
+Inicio del plan: 2026-04-28
+Fechas Q1: 28/04/2026 a 11/05/2026
+Objetivo principal: Recomposición corporal
+Edad: 38
+Sexo: Mujer
+Peso: 70.0 kg
+Altura: 178 cm
+IMC: 22.1
+Macros diana: 1805 kcal · 140g proteína / 169g hidratos / 63g grasa
+Pasos actuales: 6500/día
+Pasos objetivo: 8000/día
+Sueño: 8.5h
+Actividad laboral: Sedentario
+Lesiones: Rodillas sensibles
+Detalle lesión: evitar zancadas, sentadilla profunda y dolor articular
+Condición médica relevante: fibrilación auricular, sin intervalos en Q1
+Contexto: estrés laboral alto, oficina, quiere adherencia simple
+Deportes seleccionados: Running, Andar, Fuerza, Calistenia
+Nivel running: Principiante menos de 6 meses
+Nivel fuerza/gimnasio: Menos de 1 año
+Nivel calistenia: Principiante, domina plancha básica 20s, no domina dominadas
+Equipamiento: Gimnasio completo, mancuernas, máquinas, bandas elásticas, barra de dominadas asistida, suelo/colchoneta
+Días disponibles por semana: 5
+Días fuerza/semana: 4
+Días deportes/semana: 1
+Días preferidos fuerza: Martes, Miércoles, Viernes, Lunes
+Días preferidos por deporte: Running: Jueves · Andar: Jueves o descanso activo · Calistenia: Viernes
+Tiempo por sesión: 45-60 min
+Easy pace: 8:00/km
+Target pace: 7:30/km
+Evento: Sin evento
+Dieta/restricciones: Sin lactosa
+Ayuno intermitente: No
+Último reporte: SIN DATOS
+
+COMPOSICIÓN CORPORAL
+Peso: 70.00 kg
+IMC: 22.1
+Grasa corporal: SIN DATOS
+Grasa subcutánea: SIN DATOS
+Grasa visceral: SIN DATOS
+Masa muscular: SIN DATOS
+Músculo esquelético: SIN DATOS
+Agua corporal: SIN DATOS
+Masa ósea: SIN DATOS
+BMR: SIN DATOS
+Edad metabólica: SIN DATOS
+Cintura: SIN DATOS
+
+FORMATO DE SALIDA ESPERADO
+
+── PERFIL FÍSICO ─────────────────────────────────────
+C.L.O.E. COACH - PLAN Q1
+Usuario: Sandra Demo
+Fase: BASE
+Fechas Q1: 28/04/2026 a 11/05/2026
+Macros: 1805 kcal | P 140g | HC 169g | G 63g
+
+A. SUPLEMENTOS
+
+AL LEVANTARTE
+- Agua mineral con limón: Hidratación e inicio digestivo | 1 vaso grande | En ayunas antes de cualquier alimento | Base del protocolo matutino
+- Creatina monohidrato: Fuerza y retención muscular | 5g | Con agua | Constancia diaria
+
+ANTES DEL DESAYUNO
+- Picolinato de cromo: Sensibilidad a la insulina | 200 mcg | 10 min antes del desayuno | Opcional según tolerancia
+
+PRE ENTRENAMIENTO
+- Cafeína: Rendimiento y concentración | 1 café solo | 30 min antes | Evitar después de las 15:00
+
+ANTES DE CENAR
+- Picolinato de cromo: Control glucémico | 200 mcg | 10 min antes de la cena | Opcional según tolerancia
+
+POST ENTRENAMIENTO FUERZA
+- Proteína de guisante o whey sin lactosa: Síntesis proteica | 25g | Dentro de 30 min | Prioritaria si no llega a proteína
+
+ANTES DE ACOSTARTE
+- Magnesio bisglicinato: Sueño y recuperación | 400 mg | Con agua | Prioritario
+
+B. ENTRENAMIENTO
+
+CALENDARIO Q1
+Dia 1 - Martes 28/04: Fuerza A - Tren superior
+Dia 2 - Miercoles 29/04: Fuerza B - Tren inferior
+Dia 3 - Jueves 30/04: Running Easy o Andar
+Dia 4 - Viernes 01/05: Calistenia A - Core y empuje
+Dia 5 - Sabado 02/05: Descanso completo
+Dia 6 - Domingo 03/05: Descanso completo
+Dia 7 - Lunes 04/05: Fuerza C - Tren inferior glúteo
+Dia 8 - Martes 05/05: Fuerza A - Semana 2
+Dia 9 - Miercoles 06/05: Fuerza B - Semana 2
+Dia 10 - Jueves 07/05: Running Easy - Semana 2
+Dia 11 - Viernes 08/05: Calistenia A - Semana 2
+Dia 12 - Sabado 09/05: Descanso completo
+Dia 13 - Domingo 10/05: Descanso completo
+Dia 14 - Lunes 11/05: Fuerza C - Semana 2
+
+-----
+FUERZA A
+-----
+Objetivo: empuje y tirón técnico.
+Press banca máquina: 3x12 · RIR 3 · 25 kg · tempo 3-0-1-0 · descanso 90s
+Remo máquina sentado: 3x12 · RIR 3 · 25 kg · tempo 2-0-1-0 · descanso 90s
+
+-----
+CALISTENIA A
+-----
+Objetivo: control corporal, core y empuje sin dolor.
+Plancha frontal: 3x25 seg · RIR técnico 3 · descanso 45s
+Flexiones inclinadas en banco: 3x10 · RIR 3 · descanso 75s
+Remo invertido asistido: 3x8 · RIR 3 · descanso 90s
+Dead bug: 3x10 cada lado · control respiración · descanso 45s
+
+-----
+RUNNING EASY
+-----
+Objetivo: cardio suave aeróbico sin cambios de ritmo.
+Warmup
+10m 8:00/km Pace
+Main set
+25m 7:45/km Pace
+Cooldown
+10m 8:00/km Pace
+
+-----
+DESCANSO
+-----
+Sin actividad física programada.
+
+C. NUTRICIÓN C.L.O.E.
+
+Macros diana: 1805 kcal · 140g proteína / 169g hidratos / 63g grasa
+Objetivo: Recomposición corporal · Sin lactosa
+
+━━━ DESAYUNO (08:00) ━━━
+Opción A
+- Huevos enteros talla M: 2 unidades
+- Pan integral: 1 rebanada
+TIPS: Añade especias y tomate para más sabor sin calorías.
+
+Opción B
+- Avena: 60g
+- Proteína sin lactosa: 25g
+TIPS: Tritura con hielo para mejorar textura y saciedad.
+
+Opción C
+- Yogur de soja: 150g
+- Arándanos: 70g
+TIPS: Añade canela para sabor y adherencia.
+
+━━━ REGLAS GENERALES ━━━
+Agua mineral: mínimo 3 litros diarios
+Proteína presente en cada toma principal
+Sin frito, rebozados ni bollería industrial
+
+D. OBJETIVOS
+PASOS DIARIOS: 8000
+SUEÑO: 8.5h
+ADHERENCIA ENTRENO: 80%
+ADHERENCIA NUTRICION: 75%
+FOCO QUINCENA 1: Instalar sistema, técnica y registro.
+
+E. AJUSTES
+- Calistenia: progresar con rango, control escapular y repeticiones antes de añadir dificultad.
+- Rodillas: rango sin dolor.
+- FA: sin intervalos ni apnea.
+
+F. FECHAS
+Inicio Q1: 28/04/2026
+Pesaje: 02/05/2026 y 09/05/2026
+Fotos: 28/04/2026 y 11/05/2026
+Envio reporte: 11/05/2026
+Fin Q1: 11/05/2026`;
+}
+
 function collectEditUserForPrompt(){
   const current=users.find(x=>x.id===editId)?.onboarding_data||{};
   return {
@@ -390,6 +609,7 @@ function collectEditUserForPrompt(){
       body_composition:current.body_composition||null,
       fasting:current.fasting||null,
       injury:document.getElementById('e-injury').value.trim()||null,
+      plan_day:readPlanDayInput(),
       plan_start_date:document.getElementById('e-plan-start-date').value||null,
       injury_detail:document.getElementById('e-injury-detail').value.trim()||null,
       steps:document.getElementById('e-steps').value.trim()||null,
@@ -399,6 +619,7 @@ function collectEditUserForPrompt(){
       target_pace:document.getElementById('e-target-pace').value.trim()||null,
       run_level:document.getElementById('e-run-level').value.trim()||null,
       gym_level:document.getElementById('e-gym-level').value.trim()||null,
+      calis_level:document.getElementById('e-calis-level').value.trim()||null,
       days:parseInt(document.getElementById('e-days').value)||null,
       strength_days:parseInt(document.getElementById('e-strength-days').value)||null,
       sport_days:parseInt(document.getElementById('e-sport-days').value)||null,
@@ -420,7 +641,7 @@ function collectEditUserForPrompt(){
 function renderTable(){
   const tb=document.getElementById('tbody');
   if(!users.length){
-    tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Sin usuarios. Crea el primero.</td></tr>';
+    tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">Sin usuarios. Crea el primero.</td></tr>';
     return;
   }
   tb.innerHTML=users.map(u=>{
@@ -428,10 +649,12 @@ function renderTable(){
     const sc=u.status==='active'?'sa':u.status==='pending'?'sp':'si';
     const sl=u.status==='active'?'Activo':u.status==='pending'?'Pendiente':'Inactivo';
     const hasPlan=(u.current_plan&&u.current_plan.length>10)||(u.quincena1_plan&&u.quincena1_plan.length>10);
+    const planDay=Math.min(14,Math.max(1,parseInt(u.onboarding_data?.plan_day)||((((w-1)%2)*7)+1)));
     return `<tr>
       <td style="font-weight:700">${u.full_name||'—'}</td>
       <td style="color:var(--muted)">${u.email||'—'}</td>
       <td><span style="color:var(--accent)">Q${quincenaFromWeek(w)}</span><span style="color:var(--muted)">/8</span></td>
+      <td><span style="color:var(--accent3)">${planDay}</span><span style="color:var(--muted)">/14</span></td>
       <td style="color:var(--accent2)">${phase(w)}</td>
       <td><span class="sbadge ${sc}">${sl}</span></td>
       <td style="color:var(--muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.goal||'—'}</td>
@@ -561,6 +784,7 @@ function openEdit(id){
   document.getElementById('e-height').value=u.height_cm||'';
   document.getElementById('e-goal').value=u.goal||'';
   document.getElementById('e-week').value=u.week||1;
+  document.getElementById('e-plan-day').value=extra.plan_day||'';
   document.getElementById('e-status').value=u.status||'pending';
   document.getElementById('e-onboarding-completed').value=u.onboarding_completed===true?'true':'false';
   document.getElementById('e-days').value=extra.days||'';
@@ -575,6 +799,7 @@ function openEdit(id){
   document.getElementById('e-event').value=extra.event||'';
   document.getElementById('e-run-level').value=extra.run_level||'';
   document.getElementById('e-gym-level').value=extra.gym_level||'';
+  document.getElementById('e-calis-level').value=extra.calis_level||'';
   document.getElementById('e-split').value=extra.split||'';
   document.getElementById('e-session-time').value=extra.session_t||'';
   document.getElementById('e-activity').value=extra.activity||'';
@@ -612,6 +837,7 @@ async function saveEdit(){
     body_composition:current.body_composition||null,
     fasting:current.fasting||null,
     injury:document.getElementById('e-injury').value.trim()||null,
+    plan_day:readPlanDayInput(),
     plan_start_date:document.getElementById('e-plan-start-date').value||null,
     injury_detail:document.getElementById('e-injury-detail').value.trim()||null,
     steps:document.getElementById('e-steps').value.trim()||null,
@@ -621,6 +847,7 @@ async function saveEdit(){
     target_pace:document.getElementById('e-target-pace').value.trim()||null,
     run_level:document.getElementById('e-run-level').value.trim()||null,
     gym_level:document.getElementById('e-gym-level').value.trim()||null,
+    calis_level:document.getElementById('e-calis-level').value.trim()||null,
     days:parseInt(document.getElementById('e-days').value)||null,
     strength_days:parseInt(document.getElementById('e-strength-days').value)||null,
     sport_days:parseInt(document.getElementById('e-sport-days').value)||null,
@@ -735,6 +962,20 @@ function copyLatestReport(){
   area.setSelectionRange(0,99999);
   document.execCommand('copy');
   toast('Último reporte copiado.');
+}
+
+function openPromptBase(){
+  document.getElementById('prompt-base-text').value=buildPromptBase();
+  document.getElementById('m-prompt-base').classList.add('on');
+}
+
+function copyPromptBase(){
+  const area=document.getElementById('prompt-base-text');
+  if(!area.value) area.value=buildPromptBase();
+  area.select();
+  area.setSelectionRange(0,99999);
+  document.execCommand('copy');
+  toast('Prompt Base copiado.');
 }
 
 function close(id){document.getElementById(id).classList.remove('on');}

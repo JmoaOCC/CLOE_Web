@@ -382,15 +382,17 @@ function getPlanStartDate(){ return parseLocalDate(profile?.onboarding_data?.pla
 function getTimelineInfo(){
   const start=getPlanStartDate();
   const today=localDateOnly(new Date());
+  const manualDay=parseInt(profile?.onboarding_data?.plan_day);
+  const manualDayOffset=Number.isFinite(manualDay)&&manualDay>=1&&manualDay<=14?manualDay-1:null;
   if(!start){
     const w=profile?.week||1;
-    return {start:null,today,q:getQuincena(w),week:w,dayOffset:((w-1)%2)*7+todayPlanIdx(),beforeStart:false,qStart:null};
+    return {start:null,today,q:getQuincena(w),week:w,dayOffset:manualDayOffset??(((w-1)%2)*7+todayPlanIdx()),beforeStart:false,qStart:null};
   }
   const offset=diffDays(today,start);
   const beforeStart=offset<0;
   const q=beforeStart?1:Math.min(TOTAL_QUINCENAS,Math.floor(offset/14)+1);
   const week=beforeStart?1:Math.min(TOTAL_QUINCENAS*2,Math.floor(offset/7)+1);
-  const dayOffset=beforeStart?offset:offset%14;
+  const dayOffset=manualDayOffset??(beforeStart?offset:offset%14);
   const qStart=beforeStart?start:addDays(start,(q-1)*14);
   return {start,today,q,week,dayOffset,beforeStart,qStart};
 }
@@ -1082,14 +1084,14 @@ function getPlanStrengthForDay(dayIdx){
   const days=profile?._strengthDays||[];
   if(!days.length) return null;
   const wd=((dayIdx%7)+7)%7;
-  if(DAYTYPES[wd]!=='strength') return null;
+  if(!['strength','calisthenics'].includes(DAYTYPES[wd])) return null;
   const label=(DAYLABELS[((dayIdx%7)+7)%7]||'').toUpperCase();
   const byKey=days.find(d=>label.includes(d.key));
   if(byKey) return byKey;
   let strengthBefore=0;
   for(let i=0;i<=dayIdx;i++){
     const iw=((i%7)+7)%7;
-    if(DAYTYPES[iw]==='strength') strengthBefore++;
+    if(['strength','calisthenics'].includes(DAYTYPES[iw])) strengthBefore++;
   }
   const idx=Math.max(0,strengthBefore-1)%days.length;
   return days[idx]||days[0];
@@ -1119,6 +1121,7 @@ function getDayCategories(dayIdx){
     getPlanRunningSessionForDay(dayIdx)?.fmt||''
   ].join(' ').toUpperCase();
   const cats=[];
+  if(text.match(/CALISTENIA|CALISTHENICS|PESO CORPORAL|DOMINADAS|FLEXIONES|PLANCHA|FONDOS/)) cats.push('calisthenics');
   if(text.match(/FUERZA|GYM|GIMNAS|PRESS|SENTADILLA|PESO MUERTO|REMO|HIP THRUST/)) cats.push('strength');
   if(text.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|RODAJE|CARDIO/)) cats.push('running');
   if(text.match(/CICLISMO|BICI|RODILLO|BIKE/)) cats.push('cycling');
@@ -1129,24 +1132,33 @@ function getDayCategories(dayIdx){
   return [...new Set(cats)];
 }
 function getDayIcons(dayIdx){
-  const icons={strength:'🏋️',running:'🏃',cycling:'🚴',swim:'🏊',walk:'🚶',rest:'😴'};
+  const icons={strength:'🏋️',calisthenics:'🤸',running:'🏃',cycling:'🚴',swim:'🏊',walk:'🚶',rest:'😴'};
   return getDayCategories(dayIdx).map(c=>icons[c]||'📅').join('');
 }
 function getDayTypeLabel(dayIdx){
-  const labels={strength:'Gimnasio',running:'Running',cycling:'Ciclismo',swim:'Natación',walk:'Andar',rest:'Descanso'};
+  const labels={strength:'Gimnasio',calisthenics:'Calistenia',running:'Running',cycling:'Ciclismo',swim:'Natación',walk:'Andar',rest:'Descanso'};
   return getDayCategories(dayIdx).map(c=>labels[c]||c).join(' + ');
 }
 function parsePlanSchedule(text){
   if(!text) return null;
   const dm={'lunes':0,'martes':1,'miércoles':2,'miercoles':2,'jueves':3,'viernes':4,'sábado':5,'sabado':5,'domingo':6};
   const sched=Array(7).fill(null);let found=0;
+  const typeFromLabel=val=>val.match(/DESCANSO/i)?'rest'
+    :val.match(/CALISTENIA|CALISTHENICS|PESO\s*CORPORAL/i)?'calisthenics'
+    :val.match(/FUERZA|GYM/i)?'strength'
+    :val.match(/ANDAR|CAMIN/i)?'walk'
+    :val.match(/NATACI[ÓO]N|PISCINA/i)?'swim'
+    :val.match(/RODILLO|CICLISMO|BICI/i)?'cycling'
+    :val.match(/RUNNING|CARDIO|CORRER|CARRERA|TEMPO|TIRADA|RODAJE/i)?'running'
+    :null;
   text.split('\n').forEach(line=>{
-    const m=line.match(/^(?:\[)?\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d+)?(?:\])?\s*[:\-]?\s*([^|\n]+)/);
+    const m=line.match(/^(?:Dia|Día)\s+\d+\s*[-–]\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d{1,2}\/\d{1,2})?\s*[:\-]\s*([^|\n]+)/i)
+      || line.match(/^(?:\[)?\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d+)?(?:\])?\s*[:\-]?\s*([^|\n]+)/);
     if(!m) return;
     const k=m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const idx=dm[k];if(idx===undefined) return;
     const val=m[2].trim();
-    const type=val.match(/DESCANSO/i)?'rest':val.match(/FUERZA|GYM/i)?'strength':val.match(/RUNNING|CARDIO|ANDAR|NATACI[ÓO]N|RODILLO|CICLISMO/i)?'running':null;
+    const type=typeFromLabel(val);
     if(type && !sched[idx]){sched[idx]={label:val.split(/[·—|]/)[0].trim().toUpperCase(),type};found++;}
   });
   return found>=5?sched:null;
@@ -1174,9 +1186,9 @@ function extractPlanRunningSessions(text){
 function extractPlanStrengthDays(text){
   if(!text) return [];
   const days=[];const seenKeys=new Set();
-  const blocks = splitPlanBlocks(text, /FUERZA/i);
+  const blocks = splitPlanBlocks(text, /FUERZA|CALISTENIA/i);
   blocks.forEach(b => {
-    const km = b.title.match(/FUERZA\s+([ABCD])\b/i);
+    const km = b.title.match(/(?:FUERZA|CALISTENIA)\s+([ABCD])\b/i);
     const key = km ? km[1].toUpperCase() : 'D'+(days.length+1);
     if(seenKeys.has(key)) return;
     seenKeys.add(key);
@@ -1406,7 +1418,7 @@ function renderCalDetail(q,di){
   </div>`;
 
   // ─ ENTRENAMIENTO ─
-  if(type==='strength'){
+  if(type==='strength'||type==='calisthenics'){
     const isA=wd===0;
     const customSt=getPlanStrengthForDay(di);
     html+=`<div class="stitle" style="margin:0 0 9px">Ejercicios del día</div>`;
@@ -1434,7 +1446,7 @@ function renderCalDetail(q,di){
         </div>`;
       }).join('');
     }
-  } else if(type==='running'){
+  } else if(['running','cycling','swim','walk'].includes(type)){
     const rs=getPlanRunningSessionForDay(di)||getRunSession(wd,q);
     html+=`<div class="stitle" style="margin:0 0 9px">Sesión de running</div>`;
     if(rs){
@@ -1485,7 +1497,7 @@ function renderSupplements(q){
     </div>`).join('')}`;
   }
   const dayType=DAYTYPES[todayPlanIdx()];
-  const extraKey=dayType==='strength'?'entreno_fuerza':dayType==='running'?'entreno_running':null;
+  const extraKey=(dayType==='strength'||dayType==='calisthenics')?'entreno_fuerza':(['running','cycling','swim','walk'].includes(dayType)?'entreno_running':null);
   const sections=[
     {key:'ayuno',title:'🌅 Al levantarte · En ayunas',badge:'OBLIGATORIO'},
     ...(extraKey?[{key:extraKey,title:dayType==='strength'?'🏋️ Día fuerza · Pre-entreno':'🏃 Día running · Pre-entreno',badge:'HOY'}]:[]),
@@ -1784,7 +1796,7 @@ function renderTrainingDayDetail(q,d){
     </div>
   </div>`;
 
-  if(type==='strength'){
+  if(type==='strength'||type==='calisthenics'){
     const customStrength=getPlanStrengthForDay(d);
     if(customStrength){
       const exList=getCustomExercises(customStrength.content);
@@ -1799,17 +1811,17 @@ function renderTrainingDayDetail(q,d){
       }
     }else{
       const {exList,fmt}=getStrengthIntervals(wd===0?'A':'B',q);
-      html+=`<div class="stitle" style="margin-top:0">Fuerza día ${wd===0?'A':'B'}</div>
+      html+=`<div class="stitle" style="margin-top:0">${type==='calisthenics'?'Calistenia':'Fuerza día '+(wd===0?'A':'B')}</div>
       <div class="intervals-block">
         <button class="copy-btn" onclick="copyText(this,${JSON.stringify(fmt).replace(/"/g,'&quot;')})">Copiar</button>
         <pre>${fmt}</pre>
       </div>
       ${renderExerciseInputs(exList,log,false)}`;
     }
-  }else if(type==='running'){
+  }else if(['running','cycling','swim','walk'].includes(type)){
     const rs=getPlanRunningSessionForDay(d)||getRunSession(wd,q);
     const rl=log.running||{};
-    html+=`<div class="stitle" style="margin-top:0">${esc(rs?.label||'Sesión')}</div>
+    html+=`<div class="stitle" style="margin-top:0">${esc(rs?.label||getDayTypeLabel(d)||'Sesión')}</div>
     ${rs?`<div class="intervals-block">
       <button class="copy-btn" onclick="copyText(this,${JSON.stringify(rs.fmt).replace(/"/g,'&quot;')})">Copiar</button>
       <pre>${esc(rs.fmt)}</pre>
@@ -2134,7 +2146,7 @@ function planTomas(text){
 
 function planBiweeklyCalendar(q){
   const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-  const typeIcons={strength:'🏋️',running:'🏃',rest:'😴'};
+  const typeIcons={strength:'🏋️',calisthenics:'🤸',running:'🏃',cycling:'🚴',swim:'🏊',walk:'🚶',rest:'😴'};
   let html='';
   for(let week=0;week<2;week++){
     html+=`<div class="cal-week-label">SEMANA ${week+1}</div><div class="cal-row">`;
@@ -2416,7 +2428,7 @@ function genReport(q){
   for(let d=0;d<14;d++){
     const wd=d%7;
     const log=loadDayLog(q,d);const type=DAYTYPES[wd];const parts=[];
-    if(type==='strength'&&log.sets){
+    if((type==='strength'||type==='calisthenics')&&log.sets){
       const {exList}=getStrengthIntervals(wd===0?'A':'B',q);
       exList.forEach(ex=>{
         const sets=(log.sets[ex.key]||[]).filter(s=>s&&s.kg);
@@ -2426,7 +2438,7 @@ function genReport(q){
         }
       });
     }
-    if(type==='running'&&log.running?.pace) parts.push(`Running: ${log.running.pace}/km · ${log.running.dist||'?'}km · ${log.running.time||'?'}min · RPE ${log.running.feel||'?'}/10`);
+    if(['running','cycling','swim','walk'].includes(type)&&log.running?.pace) parts.push(`${getDayTypeLabel(d)}: ${log.running.pace}/km · ${log.running.dist||'?'}km · ${log.running.time||'?'}min · RPE ${log.running.feel||'?'}/10`);
     if(log.meals){const mc=Object.values(log.meals).filter(Boolean).length;if(mc>0) parts.push(`Nutrición: ${mc}/6 tomas`);}
     if(log.obs) parts.push(`Obs: ${log.obs}`);
     if(parts.length) daysSummary+=`\nDía ${d+1} · ${dayNames[wd]} (${DAYLABELS[wd]})\n${parts.map(p=>'  · '+p).join('\n')}\n`;
@@ -2563,7 +2575,7 @@ function renderMobileDay(){
   // Los suplementos se consultan en NUTRICIÓN.
 
   // ── FUERZA ──
-  if(type==='strength'){
+  if(type==='strength'||type==='calisthenics'){
     const customStrength=getPlanStrengthForDay(d);
     if(customStrength){
       const exList = getCustomExercises(customStrength.content);
@@ -2637,7 +2649,7 @@ function renderMobileDay(){
   }
 
   // ── RUNNING ──
-  if(type==='running'){
+  if(['running','cycling','swim','walk'].includes(type)){
     const rs=getPlanRunningSessionForDay(d)||getRunSession(wd,q);
     if(rs){
       const rl=log.running||{};
@@ -2798,7 +2810,7 @@ function saveDayData(){
   const wd=mobDayIdx%7;
   const type=DAYTYPES[wd];
   // collect set data
-  if(type==='strength'){
+  if(type==='strength'||type==='calisthenics'){
     let exListToSave = [];
     const customStrength=getPlanStrengthForDay(mobDayIdx);
     if(customStrength){
@@ -2822,7 +2834,7 @@ function saveDayData(){
       }
     });
   }
-  if(type==='running'){
+  if(['running','cycling','swim','walk'].includes(type)){
     log.running={
       pace:document.getElementById('mrun_pace')?.value||'',
       dist:document.getElementById('mrun_dist')?.value||'',
@@ -2840,15 +2852,15 @@ function updateMobStatus(q,d){
   if(!statusEl) return;
   const wd=d%7;
   const log=loadDayLog(q,d);const type=DAYTYPES[wd];const parts=[];
-  if(type==='strength'&&getPlanStrengthForDay(d)){
+    if((type==='strength'||type==='calisthenics')&&getPlanStrengthForDay(d)){
     parts.push('fuerza MI PLAN');
-  }else if(type==='strength'&&log.sets){
+  }else if((type==='strength'||type==='calisthenics')&&log.sets){
     const {exList}=getStrengthIntervals(wd===0?'A':'B',q);
     const done=exList.reduce((acc,ex)=>acc+(log.sets[ex.key]||[]).filter(s=>s&&s.done).length,0);
     const total=exList.reduce((acc,ex)=>acc+ex.sets,0);
     if(done>0) parts.push(`${done}/${total} series`);
   }
-  if(type==='running'&&log.running?.pace) parts.push(log.running.pace);
+  if(['running','cycling','swim','walk'].includes(type)&&log.running?.pace) parts.push(log.running.pace);
   if(log.meals){const mc=Object.values(log.meals).filter(Boolean).length;if(mc>0) parts.push(`${mc}/6 tomas`);}
   if(log.supps){const sc=Object.values(log.supps).filter(Boolean).length;if(sc>0) parts.push(`${sc} supps`);}
   if(log.obs) parts.push('obs ✓');

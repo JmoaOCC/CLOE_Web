@@ -275,6 +275,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
       <div class="pill" data-key="sports" data-value="Rodillo" onclick="multi(this,'sports','Rodillo')">Rodillo</div>
       <div class="pill" data-key="sports" data-value="Natación" onclick="multi(this,'sports','Natación')">Natación</div>
       <div class="pill" data-key="sports" data-value="Andar" onclick="multi(this,'sports','Andar')">Andar</div>
+      <div class="pill" data-key="sports" data-value="Calistenia" onclick="multi(this,'sports','Calistenia')">Calistenia</div>
     </div>
   </div>
 
@@ -294,6 +295,15 @@ input[type=range]{flex:1;accent-color:var(--accent)}
       <div class="pill" data-key="gym-lvl" data-value="Menos de 1 año" onclick="pick(this,'gym-lvl','Menos de 1 año')">Menos de 1 año</div>
       <div class="pill" data-key="gym-lvl" data-value="1-3 años" onclick="pick(this,'gym-lvl','1-3 años')">1-3 años</div>
       <div class="pill" data-key="gym-lvl" data-value="Más de 3 años" onclick="pick(this,'gym-lvl','Más de 3 años')">Más de 3 años</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="fl">Nivel en calistenia</label>
+    <div class="pills">
+      <div class="pill" data-key="calis-lvl" data-value="Principiante (control básico, sin dominadas estrictas)" onclick="pick(this,'calis-lvl','Principiante (control básico, sin dominadas estrictas)')">Principiante</div>
+      <div class="pill" data-key="calis-lvl" data-value="Intermedio (flexiones y dominadas asistidas o estrictas)" onclick="pick(this,'calis-lvl','Intermedio (flexiones y dominadas asistidas o estrictas)')">Intermedio</div>
+      <div class="pill" data-key="calis-lvl" data-value="Avanzado (dominadas, fondos y progresiones complejas)" onclick="pick(this,'calis-lvl','Avanzado (dominadas, fondos y progresiones complejas)')">Avanzado</div>
     </div>
   </div>
 
@@ -357,6 +367,9 @@ input[type=range]{flex:1;accent-color:var(--accent)}
       <div class="pill" data-key="equip" data-value="Barra y discos" onclick="multi(this,'equip','Barra y discos')">Barra y discos</div>
       <div class="pill" data-key="equip" data-value="Máquinas" onclick="multi(this,'equip','Máquinas')">Máquinas</div>
       <div class="pill" data-key="equip" data-value="Solo peso corporal" onclick="multi(this,'equip','Solo peso corporal')">Peso corporal</div>
+      <div class="pill" data-key="equip" data-value="Barra de dominadas" onclick="multi(this,'equip','Barra de dominadas')">Barra dominadas</div>
+      <div class="pill" data-key="equip" data-value="Anillas o TRX" onclick="multi(this,'equip','Anillas o TRX')">Anillas/TRX</div>
+      <div class="pill" data-key="equip" data-value="Paralelas" onclick="multi(this,'equip','Paralelas')">Paralelas</div>
     </div>
   </div>
 
@@ -819,6 +832,7 @@ function collectPayload(){
     targetPace:document.getElementById('target-pace').value.trim()||'no indicado',
     runLevel:F['run-lvl']||'no indicado',
     gymLevel:F['gym-lvl']||'no indicado',
+    calisLevel:F['calis-lvl']||'no indicado',
     days:document.getElementById('days').value,
     strengthDays:document.getElementById('strength-days').value||'no indicado',
     sportDays:document.getElementById('sport-days').value||'no indicado',
@@ -873,6 +887,12 @@ function buildSportsPrompt(payload){
 - Días preferidos: ${days}
 - Programa caminatas como trabajo aeróbico suave y recuperación activa.
 - Indica duración, terreno, ritmo percibido y objetivo de pasos.`;
+    if(sport==='Calistenia') return `CALISTENIA
+- Días preferidos: ${days}
+- Nivel calistenia: ${payload.calisLevel}
+- Genera sesiones por patrones: empuje, tirón, core, movilidad y control escapular.
+- Indica progresión/regresión de cada ejercicio: inclinación, asistencia, rango, tempo o isometría.
+- Prioriza técnica, rango libre de dolor y control respiratorio. No programes habilidades avanzadas si el nivel no lo permite.`;
     return `${sport}
 - Días preferidos: ${days}
 - Genera sesiones específicas de este deporte con duración, intensidad y objetivo.`;
@@ -987,6 +1007,7 @@ Respeta la disponibilidad semanal:
 
 Equipamiento disponible: ${equip}
 Nivel fuerza: ${payload.gymLevel}
+Nivel calistenia: ${payload.calisLevel}
 
 Usa estructura full body o torso-pierna según corresponda.
 Para cada ejercicio especifica:
@@ -1073,6 +1094,7 @@ async function saveUserOnboarding(payload){
       target_pace:payload.targetPace,
       run_level:payload.runLevel,
       gym_level:payload.gymLevel,
+      calis_level:payload.calisLevel,
       days:payload.days,
       goals:payload.goals,
       strength_days:payload.strengthDays,
@@ -1197,6 +1219,7 @@ function applyProfileToForm(profile){
   setInput('target-pace',extra.target_pace);
   restoreSingle('run-lvl',extra.run_level);
   restoreSingle('gym-lvl',extra.gym_level);
+  restoreSingle('calis-lvl',extra.calis_level);
   setSlider('days',extra.days||4,' días');
   setInput('strength-days',extra.strength_days);
   setInput('sport-days',extra.sport_days);
