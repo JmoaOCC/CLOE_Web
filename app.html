@@ -913,6 +913,23 @@ function attachTipsFromMealContent(meal){
   });
   return meal;
 }
+function getTipFromMealContent(meal, optionIndex){
+  if(!meal?.content) return '';
+  const optionRx=/^Opci[oó]n\s+([A-Z])(?:\s*[-:·]\s*(.*))?$/i;
+  const tipRx=/^TIPS?\s*:\s*(.+)$/i;
+  let idx=-1;
+  for(const raw of String(meal.content).split('\n')){
+    const line=cleanDecoratedTitle(raw);
+    const om=line.match(optionRx);
+    if(om){
+      idx=Math.max(0,om[1].toUpperCase().charCodeAt(0)-65);
+      continue;
+    }
+    const tm=line.match(tipRx);
+    if(tm&&idx===optionIndex) return tm[1].trim();
+  }
+  return '';
+}
 function extractPlanNutritionDataClean(text, fallbackMacros){
   if(!text) return null;
   const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
@@ -970,6 +987,7 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
         const item=parseFoodLine(om[2]);
         if(item) curOpt.items.push(item);
       }
+      cur.contentLines.push(line);
       return;
     }
     const macros=parsePlanMacroLoose(line);
@@ -1681,7 +1699,7 @@ function renderMealsVisual(meals){
           const cls=['a','b','c'][i]||'';
           const letter=String.fromCharCode(65+i);
           const tipItem=(opt.items||[]).find(it=>String(it.f||'').match(/^TIPS?\s*:?\s*/i));
-          const optionTip=opt.tip||(tipItem?(tipItem.a||tipItem.note||String(tipItem.f||'').replace(/^TIPS?\s*:\s*/i,'')):'');
+          const optionTip=opt.tip||getTipFromMealContent(meal,i)||(tipItem?(tipItem.a||tipItem.note||String(tipItem.f||'').replace(/^TIPS?\s*:\s*/i,'')):'');
           const optionItems=(opt.items||[]).filter(it=>!String(it.f||'').match(/^TIPS?\s*:?\s*/i));
           return `<div class="meal-option-card ${cls}">
             <div class="meal-option-head">
@@ -2688,7 +2706,7 @@ function renderMobileDay(){
         </div>
         ${meal.options.map((opt,i)=>{
           const tipItem=(opt.items||[]).find(it=>String(it.f||'').match(/^TIPS?\s*:?\s*/i));
-          const optionTip=opt.tip||(tipItem?(tipItem.a||tipItem.note||String(tipItem.f||'').replace(/^TIPS?\s*:\s*/i,'')):'');
+          const optionTip=opt.tip||getTipFromMealContent(meal,i)||(tipItem?(tipItem.a||tipItem.note||String(tipItem.f||'').replace(/^TIPS?\s*:\s*/i,'')):'');
           const optionItems=(opt.items||[]).filter(it=>!String(it.f||'').match(/^TIPS?\s*:?\s*/i));
           return `
           <div class="meal-option ${i===0?'active':''}" id="opt_${meal.key}_${i}">
