@@ -881,7 +881,7 @@ function extractPlanNutritionData(text, fallbackMacros){
            items: b.content.split('\n').filter(l => l.trim() && !l.match(/MACROS/i) && !l.match(/(\d+)\s*(?:kcal|cal|calor)/i)).map(l => ({f: l.trim(), a: '', note: ''}))
         });
     }
-    return {key:'plan_meal_'+i,name,timing:b.title,kcal:kcal?+kcal:null,macros,content:b.content, options};
+    return attachTipsFromMealContent({key:'plan_meal_'+i,name,timing:b.title,kcal:kcal?+kcal:null,macros,content:b.content, options});
   });
   if(!meals.length) return null;
   const training=parseMacrosLine((text.match(/MACROS\s+D[IÍ]A\s+ENTRENO[^\n]+/i)||[])[0])||fallbackMacros;
@@ -893,6 +893,25 @@ function parsePlanMacroLoose(line){
   const m=String(line).match(/(\d+)\s*kcal[\s\S]*?(\d+)\s*g?\s*P[\s\S]*?(\d+)\s*g?\s*HC[\s\S]*?(\d+)\s*g?\s*G/i)
     || String(line).match(/(\d+)\s*kcal[\s\S]*?(\d+)\s*P[\s\S]*?(\d+)\s*HC[\s\S]*?(\d+)\s*G/i);
   return m?{kcal:+m[1],protein:+m[2],carbs:+m[3],fat:+m[4]}:null;
+}
+function attachTipsFromMealContent(meal){
+  if(!meal?.content||!meal.options?.length) return meal;
+  const optionRx=/^Opci[oó]n\s+([A-Z])(?:\s*[-:·]\s*(.*))?$/i;
+  const tipRx=/^TIPS?\s*:\s*(.+)$/i;
+  let idx=-1;
+  String(meal.content).split('\n').forEach(raw=>{
+    const line=cleanDecoratedTitle(raw);
+    const om=line.match(optionRx);
+    if(om){
+      idx=Math.max(0,om[1].toUpperCase().charCodeAt(0)-65);
+      return;
+    }
+    const tm=line.match(tipRx);
+    if(tm&&idx>=0&&meal.options[idx]&&!meal.options[idx].tip){
+      meal.options[idx].tip=tm[1].trim();
+    }
+  });
+  return meal;
 }
 function extractPlanNutritionDataClean(text, fallbackMacros){
   if(!text) return null;
@@ -977,6 +996,7 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
   });
   closeMeal();
   meals.forEach(meal=>{
+    attachTipsFromMealContent(meal);
     const first=meal.options.find(o=>o.kcal);
     if(first&&!meal.kcal) meal.kcal=+first.kcal;
     if(first&&!meal.macros) meal.macros={kcal:+first.kcal,protein:+first.p||0,carbs:+first.hc||0,fat:+first.g||0};
@@ -1660,9 +1680,9 @@ function renderMealsVisual(meals){
         ${meal.options.map((opt,i)=>{
           const cls=['a','b','c'][i]||'';
           const letter=String.fromCharCode(65+i);
-          const tipItem=(opt.items||[]).find(it=>String(it.f||'').match(/^TIPS?$/i));
-          const optionTip=opt.tip||(tipItem?(tipItem.a||tipItem.note||''):'');
-          const optionItems=(opt.items||[]).filter(it=>!String(it.f||'').match(/^TIPS?$/i));
+          const tipItem=(opt.items||[]).find(it=>String(it.f||'').match(/^TIPS?\s*:?\s*/i));
+          const optionTip=opt.tip||(tipItem?(tipItem.a||tipItem.note||String(tipItem.f||'').replace(/^TIPS?\s*:\s*/i,'')):'');
+          const optionItems=(opt.items||[]).filter(it=>!String(it.f||'').match(/^TIPS?\s*:?\s*/i));
           return `<div class="meal-option-card ${cls}">
             <div class="meal-option-head">
               <div>
@@ -2667,9 +2687,9 @@ function renderMobileDay(){
           ${meal.options.map((opt,i)=>`<button class="meal-opt-btn ${i===0?'sel':''}" onclick="selectMealOpt(this,'${meal.key}',${i})">${opt.label}</button>`).join('')}
         </div>
         ${meal.options.map((opt,i)=>{
-          const tipItem=(opt.items||[]).find(it=>String(it.f||'').match(/^TIPS?$/i));
-          const optionTip=opt.tip||(tipItem?(tipItem.a||tipItem.note||''):'');
-          const optionItems=(opt.items||[]).filter(it=>!String(it.f||'').match(/^TIPS?$/i));
+          const tipItem=(opt.items||[]).find(it=>String(it.f||'').match(/^TIPS?\s*:?\s*/i));
+          const optionTip=opt.tip||(tipItem?(tipItem.a||tipItem.note||String(tipItem.f||'').replace(/^TIPS?\s*:\s*/i,'')):'');
+          const optionItems=(opt.items||[]).filter(it=>!String(it.f||'').match(/^TIPS?\s*:?\s*/i));
           return `
           <div class="meal-option ${i===0?'active':''}" id="opt_${meal.key}_${i}">
             ${(opt.p||opt.hc||opt.g||opt.kcal)?`<div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);margin-bottom:6px">
