@@ -94,6 +94,8 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .food-row:last-child{border-bottom:none}
 .food-name{font-size:11px}.food-amount{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;text-align:right}
 .food-note{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent3);margin-top:2px}
+.food-tip{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);line-height:1.6;margin-top:8px;padding:8px 9px;background:rgba(200,241,53,.08);border:1px solid rgba(200,241,53,.22);border-radius:8px}
+.food-tip-label{color:var(--accent3);font-weight:800;margin-right:4px}
 .meal-note{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);padding:6px 8px;background:var(--bg);border-radius:7px;border-left:2px solid var(--accent3);line-height:1.7;margin-top:5px}
 .macro-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
 .macro-item{text-align:center;background:var(--surface2);padding:8px;border-radius:9px}
@@ -266,8 +268,15 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
 .cal-meal-detail-amt{color:var(--muted);flex-shrink:0;padding-left:8px}
 .autosave-hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--accent2);padding:7px 9px;background:rgba(91,156,246,.07);border:1px solid rgba(91,156,246,.18);border-radius:8px;margin:8px 0 12px;line-height:1.6}
 
+/* RECETARIO */
+.recipe-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;margin-bottom:10px;overflow:hidden}
+.recipe-hdr{background:var(--surface2);padding:11px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+.recipe-badge{font-family:'DM Mono',monospace;font-size:10px;background:rgba(200,241,53,.12);color:var(--accent);border:1px solid rgba(200,241,53,.25);padding:3px 8px;border-radius:6px;font-weight:700}
+.recipe-body{display:none;padding:14px;border-top:1px solid var(--border)}
+.recipe-body.on{display:block}
+
 /* Efectos 3D y Sombreados para ventanas */
-.user-info, .week-pill, .card, .intervals-block, .supp-block, .supp-card, .meal-option-card, .meal-block, .macro-item, .plan-viewer, .chk, .cal-detail, .cal-ex-row, .plan-hdr, .plan-blk, .plan-toma, .mob-intervals, .mob-ex, .mob-meal, .mob-rest-card, .alert, .mob-btn-sb, .win-3d { box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
+.user-info, .week-pill, .card, .intervals-block, .supp-block, .supp-card, .meal-option-card, .meal-block, .macro-item, .plan-viewer, .chk, .cal-detail, .cal-ex-row, .plan-hdr, .plan-blk, .plan-toma, .mob-intervals, .mob-ex, .mob-meal, .mob-rest-card, .alert, .mob-btn-sb, .win-3d, .recipe-card { box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
 .btn { box-shadow: 0 4px 14px rgba(200,241,53,0.25); }
 .cal-cell { box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05); }
 </style>
@@ -287,6 +296,7 @@ label{font-size:9px;color:var(--muted);display:block;margin-top:8px;margin-botto
     <button class="on" onclick="view('dashboard')"><span class="ic">📋</span>MI PLAN</button>
     <button onclick="view('myplan')"><span class="ic">🥗</span>NUTRICIÓN</button>
     <button onclick="view('traininglog')"><span class="ic">🏋️</span>ENTRENAMIENTOS</button>
+    <button onclick="view('recipes')"><span class="ic">🍳</span>RECETARIO</button>
     <button onclick="view('report')"><span class="ic">📊</span>REPORTE QUINCENAL</button>
   </div>
   <div class="week-pill" style="margin-top:8px">
@@ -786,22 +796,29 @@ function parseFoodLine(line){
 }
 
 function parseSupplementLine(line){
-  const item=parseFoodLine(line);
+  const raw=String(line||'').replace(/^[-•*]\s*/,'').trim();
+  if(!raw) return null;
+  const main=raw.split('|').map(p=>p.trim()).filter(Boolean);
+  const first=main.shift()||raw;
+  const item=parseFoodLine(first);
   if(!item) return null;
   return {
     name:item.f,
-    does:'',
-    dose:item.a||'Según pauta del plan',
-    timing:'',
-    raw:String(line||'').replace(/^[-•*]\s*/,'').trim()
+    does:item.a||'',
+    dose:main[0]||'Según pauta del plan',
+    timing:[main[1],main[2]].filter(Boolean).join(' · '),
+    raw
   };
 }
 
 function normalizeSupplementSection(title){
   const t=String(title||'').toUpperCase();
   if(t.match(/LEVANT|AYUN/)) return {key:'levantarte',title:'Al levantarte',icon:'🌅'};
-  if(t.match(/PRE\s*ENTREN|ANTES\s*DEL?\s*ENTREN|CAFE/)) return {key:'pre_entreno',title:'Pre entreno',icon:'⚡'};
-  if(t.match(/DORM|ACOST/)) return {key:'dormir',title:'Antes de dormir',icon:'😴'};
+  if(t.match(/ANTES\s+DEL\s+DESAYUNO/)) return {key:'antes_desayuno',title:'Antes del desayuno',icon:'🍽️'};
+  if(t.match(/PRE\s*ENTREN|ANTES\s*DEL?\s*ENTREN|CAFE/)) return {key:'pre_entreno',title:'Pre entrenamiento',icon:'⚡'};
+  if(t.match(/ANTES\s+DE\s+CENAR/)) return {key:'antes_cenar',title:'Antes de cenar',icon:'🌙'};
+  if(t.match(/POST\s*ENTRENAMIENTO\s*FUERZA|POST\s*ENTRENO\s*FUERZA/)) return {key:'post_fuerza',title:'Post entrenamiento fuerza',icon:'🏋️'};
+  if(t.match(/DORM|ACOST/)) return {key:'dormir',title:'Antes de acostarte',icon:'😴'};
   return {key:t.toLowerCase().replace(/\s+/g,'_'),title:cleanDecoratedTitle(title),icon:'💊'};
 }
 
@@ -833,7 +850,7 @@ function normalizeSupplementItem(item){
 }
 
 function orderSupplementSections(sections){
-  const order={levantarte:0,ayuno:0,pre_entreno:1,entreno_fuerza:1,entreno_running:1,dormir:2,acostarse:2};
+  const order={levantarte:0,ayuno:0,antes_desayuno:1,pre_entreno:2,entreno_fuerza:2,entreno_running:2,antes_cenar:3,post_fuerza:4,dormir:5,acostarse:5};
   return [...(sections||[])].sort((a,b)=>(order[a.key]??9)-(order[b.key]??9));
 }
 function extractPlanNutritionData(text, fallbackMacros){
@@ -947,6 +964,12 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
       cur.contentLines.push(line);
       return;
     }
+    const tip=line.match(/^TIPS?\s*:\s*(.+)$/i);
+    if(tip&&curOpt){
+      curOpt.tip=tip[1].trim();
+      cur.contentLines.push(line);
+      return;
+    }
     if(curOpt){
       const item=parseFoodLine(line);
       if(item) curOpt.items.push(item);
@@ -966,7 +989,18 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
 }
 function extractPlanSupplementsData(text){
   if(!text) return null;
-  const wanted=['AL LEVANTARTE','PRE ENTRENAMIENTO','PRE ENTRENO','ANTES DE DORMIR','ANTES DE ACOSTARTE','EN AYUNAS'];
+  const wanted=[
+    'AL LEVANTARTE',
+    'ANTES DEL DESAYUNO',
+    'PRE ENTRENAMIENTO',
+    'PRE ENTRENO',
+    'ANTES DE CENAR',
+    'POST ENTRENAMIENTO FUERZA',
+    'POST ENTRENO FUERZA',
+    'ANTES DE DORMIR',
+    'ANTES DE ACOSTARTE',
+    'EN AYUNAS'
+  ];
   const sections=[];
   let cur=null;
   text.split('\n').forEach(raw=>{
@@ -1194,7 +1228,7 @@ function getCustomExercises(content) {
 function view(v){
   currentView=v;
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
-  const map={dashboard:0,myplan:1,traininglog:2,report:3};
+  const map={dashboard:0,myplan:1,traininglog:2,recipes:3,report:4};
   document.querySelectorAll('.nav button')[map[v]]?.classList.add('on');
   document.getElementById('main').innerHTML=renderView();
 }
@@ -1211,6 +1245,7 @@ function renderView(){
     case 'plan':         return renderPlan(q);
     case 'myplan':       return renderNutritionHub(q);
     case 'traininglog':  return renderTrainingLog(q);
+    case 'recipes':      return renderRecipes(q);
     case 'report':       return renderReport(q);
     case 'checkin':      return renderCheckin(q);
   }
@@ -1641,6 +1676,7 @@ function renderMealsVisual(meals){
                 <div><div class="food-name">${esc(it.f)}</div>${it.note?`<div class="food-note">${esc(it.note)}</div>`:''}</div>
                 <div class="food-amount">${esc(it.a)}</div>
               </div>`).join('')}
+              ${opt.tip?`<div class="food-tip"><span class="food-tip-label">TIPS:</span>${esc(opt.tip)}</div>`:''}
             </div>
           </div>`;
         }).join('')}
@@ -2640,6 +2676,7 @@ function renderMobileDay(){
                 <div><div class="food-name">${esc(it.f)}</div>${it.note?`<div class="food-note">${esc(it.note)}</div>`:''}</div>
                 <div class="food-amount">${esc(it.a)}</div>
               </div>`).join('')}
+            ${opt.tip?`<div class="food-tip"><span class="food-tip-label">TIPS:</span>${esc(opt.tip)}</div>`:''}
           </div>`).join('')}
       </div>`;
     }).join('')}
