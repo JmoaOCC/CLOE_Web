@@ -229,6 +229,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 <div class="overlay" id="m-prompt-base">
   <div class="modal wide">
     <h2>Prompt Base</h2>
+    <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">El prompt empieza con: “Eres un entrenador físico, nutricionista deportivo y médico deportivo...”</div>
     <textarea id="prompt-base-text" class="plan-area" rows="24" readonly></textarea>
     <div class="plan-hint">Plantilla con todos los campos que entiende la app. Puedes copiarla y usarla como base para pedir a la IA una quincena completa.</div>
     <div class="mact">
@@ -322,7 +323,32 @@ function buildProfilePrompt(user){
   const equip=Array.isArray(extra.equip)&&extra.equip.length?extra.equip.join(', '):'no indicado';
   const diet=Array.isArray(extra.diet)&&extra.diet.length?extra.diet.join(', '):'Ninguna';
   const q=quincenaFromWeek(user.week||1);
-  return `C.L.O.E. COACH · PERFIL USUARIO
+  return `Eres un entrenador físico, nutricionista deportivo y médico deportivo especializado en el método de nutrición y entrenamiento C.L.O.E.
+
+Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodología C.L.O.E, utilizando la documentación del proyecto cargada y búsqueda de información en internet sobre este método.
+
+Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentación del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
+
+**Instrucciones de ejecución:**
+
+1. Revisa la documentación del proyecto cargada para obtener:
+   - La estructura y formato exacto del documento txt a completar
+   - Los datos y parámetros específicos del método C.L.O.E
+   - Las variables y campos que deben rellenarse
+
+2. Investiga en internet sobre el método C.L.O.E si requieres información adicional sobre sus principios, fases, o aplicación práctica en nutrición y entrenamiento.
+
+3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando únicamente los datos numéricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q específico solicitado.
+
+4. Asegúrate de que:
+   - Todos los campos se completen con información coherente y basada en la metodología C.L.O.E
+   - Las recomendaciones sean apropiadas para el nivel y características del cuartil Q
+   - El documento mantenga su estructura original sin cambios de formato
+   - La información sea profesional y aplicable
+
+5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original.
+
+C.L.O.E. COACH · PERFIL USUARIO
 Usuario: ${user.full_name||'Sin nombre'}
 Email: ${user.email||'Sin email'}
 Semana interna actual: ${user.week||1}

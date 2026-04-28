@@ -366,6 +366,8 @@ function quincenaLabel(q){ return `Q${q}`; }
 const DAYS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const DAYLABELS=['FUERZA A','INTERVALOS','DESCANSO','FUERZA B','TEMPO','TIRADA LARGA','DESCANSO'];
 const DAYTYPES=['strength','running','rest','strength','running','running','rest'];
+function getDayLabelRaw(dayIdx){ const wd=((dayIdx%7)+7)%7; return DAYLABELS[dayIdx]||DAYLABELS[wd]||''; }
+function getDayTypeRaw(dayIdx){ const wd=((dayIdx%7)+7)%7; return DAYTYPES[dayIdx]||DAYTYPES[wd]||'rest'; }
 function todayPlanIdx(){ const d=new Date().getDay(); return d===0?6:d-1; }
 function localDateOnly(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
 function parseLocalDate(s){
@@ -1084,37 +1086,38 @@ function getPlanStrengthForDay(dayIdx){
   const days=profile?._strengthDays||[];
   if(!days.length) return null;
   const wd=((dayIdx%7)+7)%7;
-  if(!['strength','calisthenics'].includes(DAYTYPES[wd])) return null;
-  const label=(DAYLABELS[((dayIdx%7)+7)%7]||'').toUpperCase();
+  if(!['strength','calisthenics'].includes(getDayTypeRaw(dayIdx))) return null;
+  const label=(getDayLabelRaw(dayIdx)||'').toUpperCase();
   const byKey=days.find(d=>label.includes(d.key));
   if(byKey) return byKey;
   let strengthBefore=0;
   for(let i=0;i<=dayIdx;i++){
     const iw=((i%7)+7)%7;
-    if(['strength','calisthenics'].includes(DAYTYPES[iw])) strengthBefore++;
+    if(['strength','calisthenics'].includes(getDayTypeRaw(i))) strengthBefore++;
   }
   const idx=Math.max(0,strengthBefore-1)%days.length;
   return days[idx]||days[0];
 }
 function getPlanRunningSessionForDay(dayIdx){
   const wd=((dayIdx%7)+7)%7;
-  const label=(DAYLABELS[wd]||'').toUpperCase();
-  if(!label.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|LARGA|CARDIO|RODAJE/)) return null;
+  const label=(getDayLabelRaw(dayIdx)||'').toUpperCase();
+  if(!label.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|LARGA|CARDIO|RODAJE|T[ÉE]CNICA/)) return null;
   let sessions=null;
   try{
     const pr=typeof profile?.plan_running==='string'?JSON.parse(profile.plan_running):profile?.plan_running;
     if(pr&&typeof pr==='object'&&Object.keys(pr).length>0) sessions=pr;
   }catch(e){}
   if(!sessions) return null;
-  const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/CARDIO|SUAVE|RODAJE/i)?'cardio':null;
+  const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/CARDIO|SUAVE|RODAJE|T[ÉE]CNICA/i)?'cardio':null;
   const found=key&&sessions[key]?key:null;
   const names={intervals:'INTERVALOS',tempo:'TEMPO',long:'TIRADA LARGA',cardio:'CARDIO'};
-  return found?{label:names[found]||found.toUpperCase(),fmt:sessions[found],goal:'Plan personalizado de MI PLAN'}:null;
+  return found?{label:names[found]||found.toUpperCase(),fmt:sessions[found],goal:'Plan personalizado de MI PLAN'}
+    :{label:cleanDecoratedTitle(label),fmt:cleanDecoratedTitle(getDayLabelRaw(dayIdx)),goal:'Sesión indicada en el calendario del plan. Completa el detalle real al registrar.'};
 }
 function getDayCategories(dayIdx){
   const wd=((dayIdx%7)+7)%7;
   const text=[
-    DAYLABELS[wd]||'',
+    getDayLabelRaw(dayIdx)||'',
     getPlanStrengthForDay(dayIdx)?.title||'',
     getPlanStrengthForDay(dayIdx)?.content||'',
     getPlanRunningSessionForDay(dayIdx)?.label||'',
@@ -1127,8 +1130,8 @@ function getDayCategories(dayIdx){
   if(text.match(/CICLISMO|BICI|RODILLO|BIKE/)) cats.push('cycling');
   if(text.match(/NATACI[ÓO]N|PISCINA|SWIM/)) cats.push('swim');
   if(text.match(/ANDAR|CAMIN|PASEO/)) cats.push('walk');
-  if(!cats.length && (DAYTYPES[wd]||'')==='rest') cats.push('rest');
-  if(!cats.length) cats.push(DAYTYPES[wd]||'rest');
+  if(!cats.length && (getDayTypeRaw(dayIdx)||'')==='rest') cats.push('rest');
+  if(!cats.length) cats.push(getDayTypeRaw(dayIdx)||'rest');
   return [...new Set(cats)];
 }
 function getDayIcons(dayIdx){
@@ -1142,22 +1145,23 @@ function getDayTypeLabel(dayIdx){
 function parsePlanSchedule(text){
   if(!text) return null;
   const dm={'lunes':0,'martes':1,'miércoles':2,'miercoles':2,'jueves':3,'viernes':4,'sábado':5,'sabado':5,'domingo':6};
-  const sched=Array(7).fill(null);let found=0;
-  const typeFromLabel=val=>val.match(/DESCANSO/i)?'rest'
+  const sched=Array(14).fill(null);let found=0;
+  const typeFromLabel=val=>val.match(/ANDAR|CAMIN/i)?'walk'
     :val.match(/CALISTENIA|CALISTHENICS|PESO\s*CORPORAL/i)?'calisthenics'
     :val.match(/FUERZA|GYM/i)?'strength'
-    :val.match(/ANDAR|CAMIN/i)?'walk'
     :val.match(/NATACI[ÓO]N|PISCINA/i)?'swim'
     :val.match(/RODILLO|CICLISMO|BICI/i)?'cycling'
     :val.match(/RUNNING|CARDIO|CORRER|CARRERA|TEMPO|TIRADA|RODAJE/i)?'running'
+    :val.match(/DESCANSO/i)?'rest'
     :null;
   text.split('\n').forEach(line=>{
-    const m=line.match(/^(?:Dia|Día)\s+\d+\s*[-–]\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d{1,2}\/\d{1,2})?\s*[:\-]\s*([^|\n]+)/i)
-      || line.match(/^(?:\[)?\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d+)?(?:\])?\s*[:\-]?\s*([^|\n]+)/);
+    const dayLine=line.match(/^(?:Dia|Día)\s+(\d+)\s*[-–]\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d{1,2}\/\d{1,2})?\s*[:\-]\s*([^|\n]+)/i);
+    const m=dayLine||line.match(/^(?:\[)?\s*([A-Za-záéíóúñÁÉÍÓÚÑ]+)(?:\s+\d+)?(?:\])?\s*[:\-]?\s*([^|\n]+)/);
     if(!m) return;
-    const k=m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-    const idx=dm[k];if(idx===undefined) return;
-    const val=m[2].trim();
+    const k=(dayLine?m[2]:m[1]).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const baseIdx=dm[k];if(baseIdx===undefined) return;
+    const idx=dayLine?Math.min(13,Math.max(0,(parseInt(m[1])||1)-1)):baseIdx;
+    const val=(dayLine?m[3]:m[2]).trim();
     const type=typeFromLabel(val);
     if(type && !sched[idx]){sched[idx]={label:val.split(/[·—|]/)[0].trim().toUpperCase(),type};found++;}
   });
@@ -1203,12 +1207,12 @@ function getCustomExercises(content) {
   const exList = [];
   let i = 0;
   for (let line of lines) {
-      const match = line.match(/^(?:[-•*]\s*)?([^:]+?)\s*[:|-]?\s*(\d+)\s*[x×]\s*(\d+(?:-\d+)?)(.*)$/);
+      const match = line.match(/^(?:[-•*]\s*)?(.+?)\s*[:|-]?\s*(\d+)\s*[x×]\s*([^·.\n]+)(.*)$/);
       if (match && !match[1].toUpperCase().includes('DÍA')) {
           exList.push({
               key: 'cex_'+i,
               name: match[1].trim().replace(/[-:]$/, '').trim(),
-              sets: parseInt(match[2]), reps: match[3], meta: match[4].trim(),
+              sets: parseInt(match[2]), reps: match[3].trim(), meta: match[4].trim(),
               rest: match[4].match(/(\d+\s*s(?:eg)?)/i) ? match[4].match(/(\d+\s*s(?:eg)?)/i)[1] : '—'
           });
           i++;
@@ -1403,8 +1407,8 @@ function renderCalDetail(q,di){
   }
   const qs=getTimelineInfo().qStart;
   const wd=qs?(addDays(qs,di).getDay()+6)%7:((di%7)+7)%7;
-  const type=DAYTYPES[wd];
-  const label=DAYLABELS[wd];
+  const type=getDayTypeRaw(di);
+  const label=getDayLabelRaw(di);
   const log=loadDayLog(q,di);
   const fullDayNames=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
   const icon=getDayIcons(di);
@@ -1786,7 +1790,7 @@ function renderTrainingLog(q){
 
 function renderTrainingDayDetail(q,d){
   const wd=d%7;
-  const type=DAYTYPES[wd];
+  const type=getDayTypeRaw(d);
   const log=loadDayLog(q,d);
   let html=`<div class="cal-detail-hdr">
     <span style="font-size:26px">${getDayIcons(d)}</span>
@@ -1859,7 +1863,7 @@ function renderExerciseInputs(exList,log,isCustom){
       rows+=`<div class="mob-set-row">
         <div class="mob-set-num">S${si+1}</div>
         <input class="mob-set-input" type="number" placeholder="${target||''}" value="${sv.kg||''}" id="ms_${ex.key}_${si}_kg" inputmode="decimal" oninput="saveDayData()">
-        <input class="mob-set-input" type="number" placeholder="${ex.reps}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="numeric" oninput="saveDayData()">
+        <input class="mob-set-input" type="text" placeholder="${esc(ex.reps)}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="text" oninput="saveDayData()">
         <input class="mob-set-input" type="text" placeholder="RIR" value="${sv.rir||''}" id="ms_${ex.key}_${si}_rir" oninput="saveDayData()">
         <button class="mob-set-done ${sv.done?'ok':''}" id="ms_${ex.key}_${si}_done" onclick="toggleSetDone('${ex.key}',${si})">✓</button>
       </div>`;
@@ -2152,10 +2156,10 @@ function planBiweeklyCalendar(q){
     html+=`<div class="cal-week-label">SEMANA ${week+1}</div><div class="cal-row">`;
     for(let wd=0;wd<7;wd++){
       const di=week*7+wd;
-      const type=DAYTYPES[wd];
+      const type=getDayTypeRaw(di);
       const strength=getPlanStrengthForDay(di);
       const run=getPlanRunningSessionForDay(di);
-      const title=strength?.title||run?.label||DAYLABELS[wd];
+      const title=strength?.title||run?.label||getDayLabelRaw(di);
       html+=`<div class="cal-cell" onclick="mobDayIdx=${di};view('traininglog')">
         <div class="cal-cell-day">${dayNames[wd]}</div>
         <div class="cal-cell-num">${di+1}</div>
@@ -2427,7 +2431,7 @@ function genReport(q){
   const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   for(let d=0;d<14;d++){
     const wd=d%7;
-    const log=loadDayLog(q,d);const type=DAYTYPES[wd];const parts=[];
+    const log=loadDayLog(q,d);const type=getDayTypeRaw(d);const parts=[];
     if((type==='strength'||type==='calisthenics')&&log.sets){
       const {exList}=getStrengthIntervals(wd===0?'A':'B',q);
       exList.forEach(ex=>{
@@ -2441,7 +2445,7 @@ function genReport(q){
     if(['running','cycling','swim','walk'].includes(type)&&log.running?.pace) parts.push(`${getDayTypeLabel(d)}: ${log.running.pace}/km · ${log.running.dist||'?'}km · ${log.running.time||'?'}min · RPE ${log.running.feel||'?'}/10`);
     if(log.meals){const mc=Object.values(log.meals).filter(Boolean).length;if(mc>0) parts.push(`Nutrición: ${mc}/6 tomas`);}
     if(log.obs) parts.push(`Obs: ${log.obs}`);
-    if(parts.length) daysSummary+=`\nDía ${d+1} · ${dayNames[wd]} (${DAYLABELS[wd]})\n${parts.map(p=>'  · '+p).join('\n')}\n`;
+    if(parts.length) daysSummary+=`\nDía ${d+1} · ${dayNames[wd]} (${getDayLabelRaw(d)})\n${parts.map(p=>'  · '+p).join('\n')}\n`;
   }
 
   const deltaP=wv&&wpv?(parseFloat(wv)-parseFloat(wpv)).toFixed(1):'n/d';
@@ -2550,7 +2554,7 @@ function renderMobileDayBar(){
   const dayNames=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   document.getElementById('mob-day-bar').innerHTML=Array.from({length:14},(_,i)=>{
     const wd=i%7;
-    const shortLabel=DAYLABELS[wd].split(' ')[0];
+    const shortLabel=getDayLabelRaw(i).split(' ')[0];
     return `<button class="mob-day-btn ${i===mobDayIdx?'on':''}" onclick="setMobDay(${i})">Día ${i+1}<br><span style="font-size:8px">${dayNames[wd]} · ${shortLabel}</span></button>`;
   }).join('');
 }
@@ -2561,14 +2565,14 @@ function renderMobileDay(){
   const q=timeline.q||getQuincena(profile?.week||1);
   const d=mobDayIdx; // 0-13
   const wd=d%7;     // 0-6 día de semana
-  const type=DAYTYPES[wd];
+  const type=getDayTypeRaw(d);
   const log=loadDayLog(q,d);
   const planNut=profile?._planNutrition;
   const N=getNutrition();
   const isRest=type==='rest';
   const nutr=planNut?{...(isRest?(planNut.rest||planNut.training):planNut.training),meals:planNut.meals}:isRest?N.rest:N.training;
   const dayNamesLong=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-  document.getElementById('mob-date-label').textContent=`Día ${d+1} · ${dayNamesLong[wd]} · ${DAYLABELS[wd]} · Q${q}`;
+  document.getElementById('mob-date-label').textContent=`Día ${d+1} · ${dayNamesLong[wd]} · ${getDayLabelRaw(d)} · Q${q}`;
 
   let html='';
 
@@ -2594,7 +2598,7 @@ function renderMobileDay(){
               const sv=savedSets[si]||{};
               sHtml+=`<div class="mob-set-row"><div class="mob-set-num">S${si+1}</div>
                 <input class="mob-set-input" type="number" placeholder="kg" value="${sv.kg||''}" id="ms_${ex.key}_${si}_kg" inputmode="decimal" onchange="saveDayData()">
-                <input class="mob-set-input" type="number" placeholder="${ex.reps}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="numeric" onchange="saveDayData()">
+                <input class="mob-set-input" type="text" placeholder="${esc(ex.reps)}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="text" onchange="saveDayData()">
                 <input class="mob-set-input" type="text" placeholder="RIR" value="${sv.rir||''}" id="ms_${ex.key}_${si}_rir" inputmode="text" onchange="saveDayData()">
                 <button class="mob-set-done ${sv.done?'ok':''}" id="ms_${ex.key}_${si}_done" onclick="toggleSetDone('${ex.key}',${si})">✓</button></div>`;
             }
@@ -2628,7 +2632,7 @@ function renderMobileDay(){
           sHtml+=`<div class="mob-set-row">
             <div class="mob-set-num">S${si+1}</div>
             <input class="mob-set-input" type="number" placeholder="${target||''}" value="${sv.kg||''}" id="ms_${ex.key}_${si}_kg" inputmode="decimal" onchange="saveDayData()">
-            <input class="mob-set-input" type="number" placeholder="${ex.reps}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="numeric" onchange="saveDayData()">
+            <input class="mob-set-input" type="text" placeholder="${esc(ex.reps)}" value="${sv.reps||''}" id="ms_${ex.key}_${si}_reps" inputmode="text" onchange="saveDayData()">
             <input class="mob-set-input" type="text" placeholder="RIR" value="${sv.rir||''}" id="ms_${ex.key}_${si}_rir" inputmode="text" onchange="saveDayData()">
             <button class="mob-set-done ${sv.done?'ok':''}" id="ms_${ex.key}_${si}_done" onclick="toggleSetDone('${ex.key}',${si})">✓</button>
           </div>`;
@@ -2651,15 +2655,14 @@ function renderMobileDay(){
   // ── RUNNING ──
   if(['running','cycling','swim','walk'].includes(type)){
     const rs=getPlanRunningSessionForDay(d)||getRunSession(wd,q);
-    if(rs){
-      const rl=log.running||{};
-      html+=`<div class="mob-section">
-        <div class="mob-section-title">🏃 ${rs.label}</div>
-        <div class="mob-intervals">
+    const rl=log.running||{};
+    html+=`<div class="mob-section">
+        <div class="mob-section-title">${getDayIcons(d)} ${esc(rs?.label||getDayLabelRaw(d)||getDayTypeLabel(d))}</div>
+        ${rs?.fmt?`<div class="mob-intervals">
           <button class="mob-copy" onclick="copyText(this,${JSON.stringify(rs.fmt).replace(/"/g,'&quot;')})">📋</button>
-          <pre>${rs.fmt}</pre>
-        </div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);border-left:2px solid var(--accent2);padding-left:9px;margin-bottom:10px">💡 ${rs.goal}</div>
+          <pre>${esc(rs.fmt)}</pre>
+        </div>`:''}
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);border-left:2px solid var(--accent2);padding-left:9px;margin-bottom:10px">💡 ${esc(rs?.goal||'Sesión indicada por el calendario del plan.')}</div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Registro post-sesión</div>
         <div class="g2" style="gap:7px">
           <div><label>Ritmo / Velocidad</label><input type="text" id="mrun_pace" placeholder="Ej: 6:30/km o 25km/h" value="${rl.pace||''}" inputmode="text" onchange="saveDayData()"></div>
@@ -2668,7 +2671,6 @@ function renderMobileDay(){
           <div><label>Sensación RPE (1-10)</label><input type="number" id="mrun_feel" placeholder="7" min="1" max="10" value="${rl.feel||''}" inputmode="numeric" onchange="saveDayData()"></div>
         </div>
       </div>`;
-    }
   }
 
   // ── DESCANSO ──
@@ -2808,7 +2810,7 @@ function saveDayData(){
   const timeline=getTimelineInfo(); const q=timeline.q||getQuincena(profile?.week||1);
   const log=loadDayLog(q,mobDayIdx);
   const wd=mobDayIdx%7;
-  const type=DAYTYPES[wd];
+  const type=getDayTypeRaw(mobDayIdx);
   // collect set data
   if(type==='strength'||type==='calisthenics'){
     let exListToSave = [];
@@ -2851,7 +2853,7 @@ function updateMobStatus(q,d){
   const statusEl = document.getElementById('mob-status-text');
   if(!statusEl) return;
   const wd=d%7;
-  const log=loadDayLog(q,d);const type=DAYTYPES[wd];const parts=[];
+  const log=loadDayLog(q,d);const type=getDayTypeRaw(d);const parts=[];
     if((type==='strength'||type==='calisthenics')&&getPlanStrengthForDay(d)){
     parts.push('fuerza MI PLAN');
   }else if((type==='strength'||type==='calisthenics')&&log.sets){
