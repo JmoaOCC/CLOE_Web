@@ -1088,7 +1088,7 @@ function getPlanStrengthForDay(dayIdx){
   const wd=((dayIdx%7)+7)%7;
   if(!['strength','calisthenics'].includes(getDayTypeRaw(dayIdx))) return null;
   const label=(getDayLabelRaw(dayIdx)||'').toUpperCase();
-  const byKey=days.find(d=>label.includes(d.key));
+  const byKey=days.find(d=>new RegExp(`\\b(?:FUERZA|CALISTENIA)\\s+${d.key}\\b`).test(label));
   if(byKey) return byKey;
   let strengthBefore=0;
   for(let i=0;i<=dayIdx;i++){
@@ -1101,17 +1101,20 @@ function getPlanStrengthForDay(dayIdx){
 function getPlanRunningSessionForDay(dayIdx){
   const wd=((dayIdx%7)+7)%7;
   const label=(getDayLabelRaw(dayIdx)||'').toUpperCase();
-  if(!label.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|LARGA|CARDIO|RODAJE|T[ÉE]CNICA/)) return null;
+  if(!label.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|LARGA|CARDIO|RODAJE|T[ÉE]CNICA|CADENCIA/)) return null;
   let sessions=null;
   try{
     const pr=typeof profile?.plan_running==='string'?JSON.parse(profile.plan_running):profile?.plan_running;
     if(pr&&typeof pr==='object'&&Object.keys(pr).length>0) sessions=pr;
   }catch(e){}
   if(!sessions) return null;
-  const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/CARDIO|SUAVE|RODAJE|T[ÉE]CNICA/i)?'cardio':null;
-  const found=key&&sessions[key]?key:null;
-  const names={intervals:'INTERVALOS',tempo:'TEMPO',long:'TIRADA LARGA',cardio:'CARDIO'};
-  return found?{label:names[found]||found.toUpperCase(),fmt:sessions[found],goal:'Plan personalizado de MI PLAN'}
+  const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/T[ÉE]CNICA|CADENCIA/i)?'technique':label.match(/CARDIO|SUAVE|RODAJE/i)?'cardio':null;
+  const weekKey=key?`${key}_w${dayIdx>=7?2:1}`:null;
+  const found=(weekKey&&sessions[weekKey])?weekKey:(key&&sessions[key]?key:null);
+  const names={intervals:'INTERVALOS',tempo:'TEMPO',long:'TIRADA LARGA',technique:'TÉCNICA',cardio:'CARDIO'};
+  const base=found?found.replace(/_w\d+$/,''):key;
+  const weekLabel=found&&found.match(/_w(\d+)$/)?` · Semana ${found.match(/_w(\d+)$/)[1]}`:'';
+  return found?{label:(names[base]||base.toUpperCase())+weekLabel,fmt:sessions[found],goal:'Plan personalizado de MI PLAN'}
     :{label:cleanDecoratedTitle(label),fmt:cleanDecoratedTitle(getDayLabelRaw(dayIdx)),goal:'Sesión indicada en el calendario del plan. Completa el detalle real al registrar.'};
 }
 function getDayCategories(dayIdx){
@@ -1126,7 +1129,7 @@ function getDayCategories(dayIdx){
   const cats=[];
   if(text.match(/CALISTENIA|CALISTHENICS|PESO CORPORAL|DOMINADAS|FLEXIONES|PLANCHA|FONDOS/)) cats.push('calisthenics');
   if(text.match(/FUERZA|GYM|GIMNAS|PRESS|SENTADILLA|PESO MUERTO|REMO|HIP THRUST/)) cats.push('strength');
-  if(text.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|RODAJE|CARDIO/)) cats.push('running');
+  if(text.match(/RUNNING|CORRER|CARRERA|INTERVAL|TEMPO|TIRADA|RODAJE|CARDIO|T[ÉE]CNICA|CADENCIA/)) cats.push('running');
   if(text.match(/CICLISMO|BICI|RODILLO|BIKE/)) cats.push('cycling');
   if(text.match(/NATACI[ÓO]N|PISCINA|SWIM/)) cats.push('swim');
   if(text.match(/ANDAR|CAMIN|PASEO/)) cats.push('walk');
@@ -1188,15 +1191,18 @@ function trimTrainingContent(content){
 }
 function extractPlanRunningSessions(text){
   if(!text) return {};
-  const sessions={};const seen=new Set();
+  const sessions={};
   const blocks = splitPlanBlocks(text, null);
   blocks.forEach(b => {
     const title = b.title.toUpperCase();
-    if(title.match(/FUERZA|DESCANSO|NATACI[ÓO]N|RODILLO/i)||title.match(/SEMANA\s+\d/i)) return;
+    if(title.match(/FUERZA|DESCANSO|NATACI[ÓO]N|RODILLO/i)) return;
     const content=trimTrainingContent(b.content);
-    if(!content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+|Duraci[óo]n:|Ritmo objetivo:/i)) return;
-    const key=title.match(/INTERVAL/i)?'intervals':title.match(/TEMPO/i)?'tempo':title.match(/TIRADA|LARGA/i)?'long':'cardio';
-    if(!seen.has(key)){seen.add(key);sessions[key]=content;}
+    if(!content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+|Duraci[óo]n:|Ritmo objetivo:|S\d+\s*:|T[ÉE]CNICA|CADENCIA|DRILL|SKIPPING|ZONA\s*\d|RODAJE|KM\b/i)) return;
+    const base=title.match(/INTERVAL/i)?'intervals':title.match(/TEMPO/i)?'tempo':title.match(/TIRADA|LARGA/i)?'long':title.match(/T[ÉE]CNICA|CADENCIA/i)?'technique':'cardio';
+    const week=(title.match(/SEMANA\s*(\d+)/i)||[])[1];
+    const key=week?`${base}_w${week}`:base;
+    if(!sessions[key]) sessions[key]=content;
+    if(!sessions[base]) sessions[base]=content;
   });
   return sessions;
 }
@@ -1610,16 +1616,23 @@ function renderRunning(q){
     if(pr&&typeof pr==='object'&&Object.keys(pr).length>0) planSessions=pr;
   }catch(e){}
   if(planSessions){
-    const TAB_LABELS={intervals:'Intervalos',tempo:'Tempo',long:'Tirada Larga',cardio:'Cardio Suave'};
-    const keys=Object.keys(planSessions);
+    const TAB_LABELS={intervals:'Intervalos',tempo:'Tempo',long:'Tirada Larga',technique:'Técnica',cardio:'Cardio Suave'};
+    const allKeys=Object.keys(planSessions);
+    const keys=allKeys.filter(k=>!allKeys.some(x=>x.startsWith(k+'_w')));
     const sel=Math.min(runningTab,keys.length-1);
     const key=keys[sel];
     const content=planSessions[key];
-    const label=TAB_LABELS[key]||key.toUpperCase();
+    const baseKey=String(key||'').replace(/_w\d+$/,'');
+    const weekLabel=(String(key||'').match(/_w(\d+)$/)||[])[1];
+    const label=(TAB_LABELS[baseKey]||baseKey.toUpperCase())+(weekLabel?` · S${weekLabel}`:'');
     return `
     <div class="ph"><h1>Running · Q${q}</h1><p>Plan personalizado · Ritmo easy ${p.easy}/km</p></div>
     <div class="day-tabs">
-      ${keys.map((k,i)=>`<div class="day-tab ${i===sel?'active':''}" onclick="runningTab=${i};view('running')">${TAB_LABELS[k]||k.toUpperCase()}</div>`).join('')}
+      ${keys.map((k,i)=>{
+        const bk=String(k).replace(/_w\d+$/,'');
+        const wk=(String(k).match(/_w(\d+)$/)||[])[1];
+        return `<div class="day-tab ${i===sel?'active':''}" onclick="runningTab=${i};view('running')">${(TAB_LABELS[bk]||bk.toUpperCase())+(wk?' S'+wk:'')}</div>`;
+      }).join('')}
     </div>
     <div class="intervals-block">
       <button class="copy-btn" onclick="copyText(this,${JSON.stringify(content).replace(/"/g,'&quot;')})">📋 Copiar</button>
