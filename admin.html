@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>C.L.O.E. Â· Admin</title>
+<title>C.L.O.E. · Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -35,12 +35,12 @@ body{background:var(--bg);color:var(--text);font-family:Syne,sans-serif;min-heig
 .qtag{display:inline-flex;align-items:center;gap:5px;background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.25);color:var(--accent2);border-radius:8px;padding:5px 8px;font-size:11px}
 .daybox{min-width:120px}.daytop{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:11px}.daytop strong{color:var(--accent3)}
 .daybar{height:6px;background:#0f1624;border:1px solid var(--border);border-radius:999px;overflow:hidden}.dayfill{height:100%;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:999px}
-.actions{display:flex;gap:6px;flex-wrap:wrap;min-width:260px}
+.actions{display:flex;gap:6px;flex-wrap:nowrap;align-items:center;min-width:max-content}
 .sbadge{font-size:10px;padding:3px 9px;border-radius:6px}
 .sa{background:rgba(200,241,53,.1);color:var(--accent);border:1px solid rgba(200,241,53,.25)}
 .sp{background:rgba(241,161,53,.1);color:var(--accent3);border:1px solid rgba(241,161,53,.25)}
 .si{background:rgba(43,52,72,.5);color:var(--muted);border:1px solid var(--border)}
-.abtn{font-family:'DM Mono',monospace;font-size:10px;padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:#101827;color:var(--muted);cursor:pointer;transition:all .2s}
+.abtn{font-family:'DM Mono',monospace;font-size:10px;padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:#101827;color:var(--muted);cursor:pointer;transition:all .2s;height:28px;line-height:16px;white-space:nowrap}
 .abtn:hover{color:var(--text);border-color:var(--muted)}
 .abtn.p{color:var(--accent2);border-color:var(--accent2)}
 .abtn.g{color:var(--accent);border-color:var(--accent)}
@@ -91,7 +91,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 </head>
 <body>
 <div class="hdr">
-  <div class="brand">C.L.O.E. <span>COACH</span> <span style="font-size:13px;color:var(--muted);font-weight:400">Â· Panel Admin</span></div>
+  <div class="brand">C.L.O.E. <span>COACH</span> <span style="font-size:13px;color:var(--muted);font-weight:400">· Panel Admin</span></div>
   <div style="display:flex;align-items:center;gap:12px">
     <span class="badge">ADMIN</span>
     <a href="onboarding.html" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);text-decoration:none">+ Cuestionario</a>
@@ -99,14 +99,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   </div>
 </div>
 
-<div class="state" id="auth-state">Verificando sesiÃ³n de administrador...</div>
+<div class="state" id="auth-state">Verificando sesión de administrador...</div>
 
 <div class="main">
   <div class="cards">
-    <div class="kcard"><div class="klbl">Usuarios activos</div><div class="kval a" id="st-active">â€”</div></div>
-    <div class="kcard"><div class="klbl">Pendientes</div><div class="kval o" id="st-pending">â€”</div></div>
-    <div class="kcard"><div class="klbl">Total</div><div class="kval b" id="st-total">â€”</div></div>
-    <div class="kcard"><div class="klbl">Quincena media</div><div class="kval" id="st-week">â€”</div></div>
+    <div class="kcard"><div class="klbl">Usuarios activos</div><div class="kval a" id="st-active">—</div></div>
+    <div class="kcard"><div class="klbl">Pendientes</div><div class="kval o" id="st-pending">—</div></div>
+    <div class="kcard"><div class="klbl">Total</div><div class="kval b" id="st-total">—</div></div>
+    <div class="kcard"><div class="klbl">Quincena media</div><div class="kval" id="st-week">—</div></div>
   </div>
 
   <div class="stitle">Usuarios</div>
@@ -114,7 +114,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <input class="search" id="user-search" placeholder="Buscar por nombre, email u objetivo..." oninput="renderTable()">
     <div class="toolbar-actions">
     <button class="btn" onclick="openCreate()">+ Crear usuario</button>
-    <button class="btn sec" onclick="load()">â†» Actualizar</button>
+    <button class="btn sec" onclick="load()">↻ Actualizar</button>
     <button class="btn sec" onclick="openPromptBase()">Prompt Base</button>
     </div>
   </div>
@@ -123,7 +123,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <table class="tbl">
       <thead>
         <tr>
-          <th>Usuario</th><th>Quincena</th><th>DÃ­a</th><th>Fase</th>
+          <th>Usuario</th><th>Quincena</th><th>Día</th><th>Fase</th>
           <th>Estado</th><th>Objetivo</th><th>Plan</th><th>Acciones</th>
         </tr>
       </thead>
@@ -139,12 +139,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   <div class="modal">
     <h2>Crear usuario</h2>
     <label>Nombre completo</label>
-    <input id="c-name" placeholder="MarÃ­a GarcÃ­a">
+    <input id="c-name" placeholder="María García">
     <label>Email</label>
     <input type="email" id="c-email" placeholder="maria@email.com">
-    <label>ContraseÃ±a inicial</label>
-    <input id="c-pass" placeholder="mÃ­nimo 8 caracteres">
-    <button class="btn sec" style="margin-top:8px;font-size:11px;padding:6px 12px" onclick="genPass()">Generar contraseÃ±a</button>
+    <label>Contraseña inicial</label>
+    <input id="c-pass" placeholder="mínimo 8 caracteres">
+    <button class="btn sec" style="margin-top:8px;font-size:11px;padding:6px 12px" onclick="genPass()">Generar contraseña</button>
     <div class="g2" style="margin-top:4px">
       <div><label>Edad</label><input type="number" id="c-age" placeholder="35"></div>
       <div><label>Sexo</label><select id="c-sex"><option value="Hombre">Hombre</option><option value="Mujer">Mujer</option></select></div>
@@ -153,17 +153,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     </div>
     <label>Objetivo</label>
     <select id="c-goal">
-      <option>RecomposiciÃ³n corporal</option>
+      <option>Recomposición corporal</option>
       <option>Perder grasa</option>
-      <option>Ganar mÃºsculo</option>
+      <option>Ganar músculo</option>
       <option>Rendimiento deportivo</option>
     </select>
-    <label>Plan Quincena 1 (pega aquÃ­ el output de CLOE IA)</label>
-    <textarea id="c-plan" class="plan-area" rows="8" placeholder="Pega aquÃ­ el plan completo que ha generado CLOE despuÃ©s de analizar el cuestionario...&#10;&#10;Incluye las dos semanas completas de la quincena 1, con fuerza, deportes, nutriciÃ³n y objetivos."></textarea>
-    <div class="plan-hint">ðŸ’¡ Flujo: rellena el cuestionario en onboarding.html â†’ copia el prompt â†’ pÃ©galo en el chat de CLOE â†’ CLOE genera el plan â†’ cÃ³pialo aquÃ­</div>
+    <label>Plan Quincena 1 (pega aquí el output de CLOE IA)</label>
+    <textarea id="c-plan" class="plan-area" rows="8" placeholder="Pega aquí el plan completo que ha generado CLOE después de analizar el cuestionario...&#10;&#10;Incluye las dos semanas completas de la quincena 1, con fuerza, deportes, nutrición y objetivos."></textarea>
+    <div class="plan-hint">Flujo: rellena el cuestionario en onboarding.html → copia el prompt → pégalo en el chat de CLOE → CLOE genera el plan → cópialo aquí</div>
     <div class="pass-box" id="pass-box"></div>
     <div class="mact">
-      <button class="btn" onclick="createUser()">âœ… Crear usuario</button>
+      <button class="btn" onclick="createUser()">Crear usuario</button>
       <button class="btn sec" onclick="close('m-create')">Cancelar</button>
     </div>
   </div>
@@ -190,7 +190,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <div><label>Altura (cm)</label><input type="number" id="e-height"></div>
       <div><label>Objetivo</label><input id="e-goal"></div>
       <div><label>Semana interna</label><input type="number" id="e-week" min="1" max="16"></div>
-      <div><label>DÃ­a del plan manual</label><input type="number" id="e-plan-day" min="1" max="14" placeholder="Vacío = automático por fecha inicio"></div>
+      <div><label>Día del plan manual</label><input type="number" id="e-plan-day" min="1" max="14" placeholder="Vacío = automático por fecha inicio"></div>
       <div><label>Estado</label>
         <select id="e-status">
           <option value="active">Activo</option>
@@ -198,9 +198,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
           <option value="inactive">Inactivo</option>
         </select>
       </div>
-      <div><label>Onboarding completado</label><select id="e-onboarding-completed"><option value="true">SÃ­</option><option value="false">No</option></select></div>
-      <div><label>DÃ­as por semana</label><input type="number" id="e-days" min="1" max="7"></div>
-      <div><label>Horas de sueÃ±o</label><input type="number" step="0.5" id="e-sleep"></div>
+      <div><label>Onboarding completado</label><select id="e-onboarding-completed"><option value="true">Sí</option><option value="false">No</option></select></div>
+      <div><label>Días por semana</label><input type="number" id="e-days" min="1" max="7"></div>
+      <div><label>Horas de sueño</label><input type="number" step="0.5" id="e-sleep"></div>
       <div><label>Easy pace</label><input id="e-easy-pace"></div>
       <div><label>Target pace</label><input id="e-target-pace"></div>
       <div><label>Fecha evento</label><input type="date" id="e-event-date"></div>
@@ -212,14 +212,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <label>Datos del cuestionario</label>
     <div class="g2">
       <div><label>Lesiones</label><input id="e-injury"></div>
-      <div><label>Detalle lesiÃ³n</label><input id="e-injury-detail"></div>
+      <div><label>Detalle lesión</label><input id="e-injury-detail"></div>
       <div><label>Pasos</label><input id="e-steps"></div>
       <div><label>Evento</label><input id="e-event"></div>
       <div><label>Nivel running</label><input id="e-run-level"></div>
       <div><label>Nivel fuerza</label><input id="e-gym-level"></div>
       <div><label>Nivel calistenia</label><input id="e-calis-level"></div>
-      <div><label>DistribuciÃ³n</label><input id="e-split"></div>
-      <div><label>Tiempo por sesiÃ³n</label><input id="e-session-time"></div>
+      <div><label>Distribución</label><input id="e-split"></div>
+      <div><label>Tiempo por sesión</label><input id="e-session-time"></div>
       <div><label>Actividad</label><input id="e-activity"></div>
       <div><label>Deportes (coma separada)</label><input id="e-sports"></div>
       <div><label>Equipamiento (coma separada)</label><input id="e-equip"></div>
@@ -230,29 +230,29 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <div class="form-section-title">Disponibilidad y contexto</div>
     <label>Disponibilidad y agenda</label>
     <div class="g2">
-      <div><label>DÃ­as fuerza/semana</label><input type="number" id="e-strength-days" min="0" max="7"></div>
-      <div><label>DÃ­as deportes/semana</label><input type="number" id="e-sport-days" min="0" max="7"></div>
+      <div><label>Días fuerza/semana</label><input type="number" id="e-strength-days" min="0" max="7"></div>
+      <div><label>Días deportes/semana</label><input type="number" id="e-sport-days" min="0" max="7"></div>
       <div><label>Preferencia fuerza</label><input id="e-strength-pref" placeholder="Lunes, Jueves"></div>
-      <div><label>Preferencia deportes</label><input id="e-sport-pref" placeholder="Martes, SÃ¡bado"></div>
+      <div><label>Preferencia deportes</label><input id="e-sport-pref" placeholder="Martes, Sábado"></div>
     </div>
     <label>Notas de agenda</label>
     <textarea id="e-schedule-notes" rows="2"></textarea>
     <label>Contexto adicional</label>
-    <textarea id="e-context" rows="3" placeholder="Trabajo, estrÃ©s, horarios, viajes, hijos..."></textarea>
+    <textarea id="e-context" rows="3" placeholder="Trabajo, estrés, horarios, viajes, hijos..."></textarea>
     <label>Notas del coach</label>
     <textarea id="e-notes" rows="2" placeholder="Observaciones, ajustes, alertas..."></textarea>
 
     </div>
     <div class="form-section">
     <div class="form-section-title">Reportes y prompt</div>
-    <label>Ãšltimo reporte guardado por el usuario</label>
+    <label>Último reporte guardado por el usuario</label>
     <textarea id="e-latest-report" class="plan-area" rows="8" readonly></textarea>
-    <div class="plan-hint">Este reporte lo genera el usuario al terminar la quincena. CÃ³pialo a la IA para preparar la quincena siguiente.</div>
-    <div class="mact"><button class="btn sec" onclick="copyLatestReport()">Copiar Ãºltimo reporte</button></div>
+    <div class="plan-hint">Este reporte lo genera el usuario al terminar la quincena. Cópialo a la IA para preparar la quincena siguiente.</div>
+    <div class="mact"><button class="btn sec" onclick="copyLatestReport()">Copiar último reporte</button></div>
 
     <label>Prompt IA del perfil</label>
     <textarea id="e-profile-prompt" class="plan-area" rows="10" readonly></textarea>
-    <div class="plan-hint">Resumen automÃ¡tico del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
+    <div class="plan-hint">Resumen automático del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
 
     </div>
     <div class="form-section">
@@ -262,15 +262,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <button class="btn sec" style="padding:6px 12px;font-size:10px" onclick="adaptActivePlan()">Adaptar</button>
     </div>
     <textarea id="e-plan" class="plan-area" rows="10"></textarea>
-    <div class="plan-hint">ðŸ’¡ Para actualizar el plan: genera el reporte quincenal desde la app del usuario â†’ pÃ©galo en el chat â†’ C.L.O.E. genera la quincena siguiente â†’ pega aquÃ­ el resultado</div>
+    <div class="plan-hint">Para actualizar el plan: genera el reporte quincenal desde la app del usuario → pégalo en el chat → C.L.O.E. genera la quincena siguiente → pega aquí el resultado</div>
 
     </div>
     <div class="mact">
       <button class="btn sec" onclick="copyProfilePrompt()">Copiar prompt IA</button>
       <button class="btn sec" onclick="accessUserApp(editId)">Entrar app usuario</button>
       <button class="btn sec" onclick="openLogs(editId)">Logs</button>
-      <button class="btn sec" onclick="resetUserPassword(editId)">Reset contraseÃ±a</button>
-      <button class="btn" onclick="saveEdit()">ðŸ’¾ Guardar</button>
+      <button class="btn sec" onclick="resetUserPassword(editId)">Reset contraseña</button>
+      <button class="btn" onclick="saveEdit()">Guardar Guardar</button>
       <button class="btn sec" onclick="advFortnight()">Avanzar quincena</button>
       <button class="btn dan" onclick="delUser()">Desactivar</button>
       <button class="btn dan" onclick="deleteUserPermanent(editId)">Eliminar</button>
@@ -283,7 +283,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 <div class="overlay" id="m-prompt-base">
   <div class="modal wide">
     <h2>Prompt Base</h2>
-    <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">El prompt empieza con: â€œEres un entrenador fÃ­sico, nutricionista deportivo y mÃ©dico deportivo...â€</div>
+    <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">El prompt empieza con: “Eres un entrenador físico, nutricionista deportivo y médico deportivo...”</div>
     <textarea id="prompt-base-text" class="plan-area" rows="24" readonly></textarea>
     <div class="plan-hint">Plantilla con todos los campos que entiende la app. Puedes copiarla y usarla como base para pedir a la IA una quincena completa.</div>
     <div class="mact">
@@ -332,11 +332,11 @@ let authReady=false;
     return;
   }
   if(data?.role!=='admin'){
-    setAuthState('La sesiÃ³n existe, pero este usuario no tiene role = admin en profiles.',true);
+    setAuthState('La sesión existe, pero este usuario no tiene role = admin en profiles.',true);
     return;
   }
   authReady=true;
-  setAuthState(`SesiÃ³n activa como admin: ${data.email||session.user.email||'usuario'}`);
+  setAuthState(`Sesión activa como admin: ${data.email||session.user.email||'usuario'}`);
   load();
 })();
 
@@ -351,11 +351,11 @@ async function load(){
   document.getElementById('st-pending').textContent=pending;
   document.getElementById('st-total').textContent=users.length;
   document.getElementById('st-week').textContent=users.length?
-    'Q'+(users.reduce((s,u)=>s+quincenaFromWeek(u.week||1),0)/users.length).toFixed(1):'â€”';
+    'Q'+(users.reduce((s,u)=>s+quincenaFromWeek(u.week||1),0)/users.length).toFixed(1):'—';
   renderTable();
 }
 
-function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÃFICO';}
+function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÍFICO';}
 
 function listToText(value){
   return Array.isArray(value)?value.join(', '):(value||'');
@@ -375,7 +375,7 @@ function quincenaFromWeek(week){
 }
 
 function esc(value){
-  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  return String(value?'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 
 function initials(name,email){
@@ -416,335 +416,6 @@ function formatFoodPreferences(preferences,notes=''){
   const lines=entries.map(([cat,items])=>`- ${cat}: ${items.join(', ')}`);
   if(notes) lines.push(`- Notas: ${notes}`);
   return lines.length?lines.join('\n'):'- Sin preferencias marcadas.';
-}
-
-function buildProfilePrompt(user){
-  const extra=user.onboarding_data||{};
-  const body=extra.body_composition||{};
-  const fasting=extra.fasting||{};
-  const sports=Array.isArray(extra.sports)&&extra.sports.length?extra.sports:['Running'];
-  const equip=Array.isArray(extra.equip)&&extra.equip.length?extra.equip.join(', '):'no indicado';
-  const diet=Array.isArray(extra.diet)&&extra.diet.length?extra.diet.join(', '):'Ninguna';
-  const q=quincenaFromWeek(user.week||1);
-  const currentPlanDay=calculatePlanDay(user);
-  return `Eres un entrenador fÃ­sico, nutricionista deportivo y mÃ©dico deportivo especializado en el mÃ©todo de nutriciÃ³n y entrenamiento C.L.O.E.
-
-Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodologÃ­a C.L.O.E, utilizando la documentaciÃ³n del proyecto cargada y bÃºsqueda de informaciÃ³n en internet sobre este mÃ©todo.
-
-Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentaciÃ³n del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
-
-**Instrucciones de ejecuciÃ³n:**
-
-1. Revisa la documentaciÃ³n del proyecto cargada para obtener:
-   - La estructura y formato exacto del documento txt a completar
-   - Los datos y parÃ¡metros especÃ­ficos del mÃ©todo C.L.O.E
-   - Las variables y campos que deben rellenarse
-
-2. Investiga en internet sobre el mÃ©todo C.L.O.E si requieres informaciÃ³n adicional sobre sus principios, fases, o aplicaciÃ³n prÃ¡ctica en nutriciÃ³n y entrenamiento.
-
-3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando Ãºnicamente los datos numÃ©ricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q especÃ­fico solicitado.
-
-4. AsegÃºrate de que:
-   - Todos los campos se completen con informaciÃ³n coherente y basada en la metodologÃ­a C.L.O.E
-   - Las recomendaciones sean apropiadas para el nivel y caracterÃ­sticas del cuartil Q
-   - El documento mantenga su estructura original sin cambios de formato
-   - La informaciÃ³n sea profesional y aplicable
-
-5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original.
-
-C.L.O.E. COACH Â· PERFIL USUARIO
-Usuario: ${user.full_name||'Sin nombre'}
-Email: ${user.email||'Sin email'}
-Semana interna actual: ${user.week||1}
-Quincena actual: ${q}
-Estado: ${user.status||'pending'}
-Objetivo: ${user.goal||'Sin definir'}
-
-DATOS FÃSICOS
-- Edad: ${user.age||'n/d'}
-- Sexo: ${user.sex||'n/d'}
-- Peso: ${user.weight_kg||'n/d'} kg
-- Altura: ${user.height_cm||'n/d'} cm
-- Grasa corporal: ${body.bodyFat||'n/d'} %
-- Grasa subcutÃ¡nea: ${body.subcutaneousFat||'n/d'} %
-- Grasa visceral: ${body.visceralFat||'n/d'}
-- Agua corporal: ${body.bodyWater||'n/d'} %
-- MÃºsculo esquelÃ©tico: ${body.skeletalMuscle||'n/d'} %
-- Masa muscular: ${body.muscleMass||'n/d'} kg
-- Masa Ã³sea: ${body.boneMass||'n/d'} kg
-- ProteÃ­na corporal: ${body.proteinPercent||'n/d'} %
-- BMR/TMB medido: ${body.measuredBmr||'n/d'} kcal
-- Edad metabÃ³lica: ${body.metabolicAge||'n/d'}
-- Capacidad almacenamiento muscular: ${body.muscleStorage||'n/d'}
-- PerÃ­metro cintura: ${body.waist||'n/d'} cm
-
-DATOS DEL CUESTIONARIO
-- Onboarding completado: ${user.onboarding_completed===true?'SÃ­':'No'}
-- Inicio del plan: ${extra.plan_start_date||'n/d'}
-- DÃ­a del plan: ${currentPlanDay}/14
-- Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` (${extra.injury_detail})`:''}
-- Pasos: ${extra.steps||'n/d'}
-- Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
-- Easy pace: ${extra.easy_pace||'n/d'}
-- Target pace: ${extra.target_pace||'n/d'}
-- Nivel running: ${extra.run_level||'n/d'}
-- Nivel fuerza: ${extra.gym_level||'n/d'}
-- Nivel calistenia: ${extra.calis_level||'n/d'}
-- DÃ­as por semana: ${extra.days||'n/d'}
-- DistribuciÃ³n: ${extra.split||'n/d'}
-- DÃ­as fuerza/semana: ${extra.strength_days||'n/d'}
-- DÃ­as deportes/semana: ${extra.sport_days||'n/d'}
-- Preferencia fuerza: ${Array.isArray(extra.strength_pref)?extra.strength_pref.join(', '):'n/d'}
-- Preferencia deportes: ${Array.isArray(extra.sport_pref)?extra.sport_pref.join(', '):'n/d'}
-- Notas agenda: ${extra.schedule_notes||'n/d'}
-- Tiempo por sesiÃ³n: ${extra.session_t||'n/d'}
-- Deportes: ${sports.join(', ')}
-- Equipamiento: ${equip}
-- Actividad: ${extra.activity||'n/d'}
-- Dieta: ${diet}
-- Preferencias alimentos:
-${formatFoodPreferences(extra.food_preferences,extra.food_notes)}
-- SueÃ±o: ${extra.sleep||'n/d'} h
-- Contexto: ${extra.context||'n/d'}
-- Ayuno intermitente: ${fasting.enabled||'No'}
-- Tipo ayuno: ${fasting.type||'n/d'}
-- Ventana alimentaciÃ³n: ${fasting.feedingWindow||'n/d'}
-- Experiencia ayuno: ${fasting.experience||'n/d'}
-- DÃ­as restricciÃ³n/ayuno: ${Array.isArray(fasting.days)?fasting.days.join(', '):'n/d'}
-- Protocolo personalizado: ${fasting.custom||'n/d'}
-
-INSTRUCCIÃ“N PARA LA IA
-Analiza este perfil y genera el plan completo de la quincena ${q} para este usuario.
-La quincena debe cubrir 14 dÃ­as completos: dos semanas seguidas, de lunes a domingo.
-Entrega el resultado separado en:
-1. Primera semana completa (lunes a domingo)
-2. Segunda semana completa (lunes a domingo)
-3. NutriciÃ³n y objetivos de la quincena
-Devuelve entrenamiento, ajustes de fuerza, nutriciÃ³n y objetivos listos para pegar en su perfil.
-
-PLAN ACTUAL DEL USUARIO
-${user.current_plan||user.quincena1_plan||'AÃºn sin plan cargado.'}
-
-ÃšLTIMO REPORTE DEL USUARIO
-${user.latest_report||'AÃºn sin reporte guardado.'}`;
-}
-
-function buildPromptBase(){
-  return `Eres un entrenador fÃ­sico, nutricionista deportivo y mÃ©dico deportivo especializado en el mÃ©todo de nutriciÃ³n y entrenamiento C.L.O.E.
-
-Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodologÃ­a C.L.O.E, utilizando la documentaciÃ³n del proyecto cargada y bÃºsqueda de informaciÃ³n en internet sobre este mÃ©todo.
-
-Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentaciÃ³n del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
-
-**Instrucciones de ejecuciÃ³n:**
-
-1. Revisa la documentaciÃ³n del proyecto cargada para obtener:
-   - La estructura y formato exacto del documento txt a completar
-   - Los datos y parÃ¡metros especÃ­ficos del mÃ©todo C.L.O.E
-   - Las variables y campos que deben rellenarse
-
-2. Investiga en internet sobre el mÃ©todo C.L.O.E si requieres informaciÃ³n adicional sobre sus principios, fases, o aplicaciÃ³n prÃ¡ctica en nutriciÃ³n y entrenamiento.
-
-3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando Ãºnicamente los datos numÃ©ricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q especÃ­fico solicitado.
-
-4. AsegÃºrate de que:
-   - Todos los campos se completen con informaciÃ³n coherente y basada en la metodologÃ­a C.L.O.E
-   - Las recomendaciones sean apropiadas para el nivel y caracterÃ­sticas del cuartil Q
-   - El documento mantenga su estructura original sin cambios de formato
-   - La informaciÃ³n sea profesional y aplicable
-
-5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original.
-
-C.L.O.E. COACH Â· PROMPT BASE PARA GENERAR QUINCENA
-Objetivo: generar un plan completo que la app pueda leer y pintar en calendario, suplementos, entrenamientos, nutriciÃ³n, objetivos, ajustes y fechas.
-
-REGLAS DE FORMATO PARA LA IA
-- Devuelve siempre secciones A, B, C, D, E y F con estos tÃ­tulos exactos.
-- Incluye CALENDARIO QX con 14 lÃ­neas tipo: Dia 1 - Martes 28/04: Fuerza A - Tren superior.
-- Usa nombres claros en los bloques de entreno: FUERZA A, FUERZA B, CALISTENIA A, RUNNING EASY, CICLISMO, NATACIÃ“N, ANDAR, DESCANSO.
-- En suplementos usa ventanas exactas: AL LEVANTARTE, ANTES DEL DESAYUNO, PRE ENTRENAMIENTO, ANTES DE CENAR, POST ENTRENAMIENTO FUERZA, ANTES DE ACOSTARTE.
-- En nutriciÃ³n, bajo cada OpciÃ³n A/B/C incluye una lÃ­nea TIPS: con consejo breve.
-- Si falta un dato escribe SIN DATOS. No inventes datos mÃ©dicos.
-
-DATOS USUARIO DE MUESTRA
-Usuario: Sandra Demo
-Email: sandra.demo@email.com
-Quincena solicitada: Q1
-DÃ­a actual del plan: 2/14
-Fase: BASE
-Inicio del plan: 2026-04-28
-Fechas Q1: 28/04/2026 a 11/05/2026
-Objetivo principal: RecomposiciÃ³n corporal
-Edad: 38
-Sexo: Mujer
-Peso: 70.0 kg
-Altura: 178 cm
-IMC: 22.1
-Macros diana: 1805 kcal Â· 140g proteÃ­na / 169g hidratos / 63g grasa
-Pasos actuales: 6500/dÃ­a
-Pasos objetivo: 8000/dÃ­a
-SueÃ±o: 8.5h
-Actividad laboral: Sedentario
-Lesiones: Rodillas sensibles
-Detalle lesiÃ³n: evitar zancadas, sentadilla profunda y dolor articular
-CondiciÃ³n mÃ©dica relevante: fibrilaciÃ³n auricular, sin intervalos en Q1
-Contexto: estrÃ©s laboral alto, oficina, quiere adherencia simple
-Deportes seleccionados: Running, Andar, Fuerza, Calistenia
-Nivel running: Principiante menos de 6 meses
-Nivel fuerza/gimnasio: Menos de 1 aÃ±o
-Nivel calistenia: Principiante, domina plancha bÃ¡sica 20s, no domina dominadas
-Equipamiento: Gimnasio completo, mancuernas, mÃ¡quinas, bandas elÃ¡sticas, barra de dominadas asistida, suelo/colchoneta
-DÃ­as disponibles por semana: 5
-DÃ­as fuerza/semana: 4
-DÃ­as deportes/semana: 1
-DÃ­as preferidos fuerza: Martes, MiÃ©rcoles, Viernes, Lunes
-DÃ­as preferidos por deporte: Running: Jueves Â· Andar: Jueves o descanso activo Â· Calistenia: Viernes
-Tiempo por sesiÃ³n: 45-60 min
-Easy pace: 8:00/km
-Target pace: 7:30/km
-Evento: Sin evento
-Dieta/restricciones: Sin lactosa
-Ayuno intermitente: No
-Ãšltimo reporte: SIN DATOS
-
-COMPOSICIÃ“N CORPORAL
-Peso: 70.00 kg
-IMC: 22.1
-Grasa corporal: SIN DATOS
-Grasa subcutÃ¡nea: SIN DATOS
-Grasa visceral: SIN DATOS
-Masa muscular: SIN DATOS
-MÃºsculo esquelÃ©tico: SIN DATOS
-Agua corporal: SIN DATOS
-Masa Ã³sea: SIN DATOS
-BMR: SIN DATOS
-Edad metabÃ³lica: SIN DATOS
-Cintura: SIN DATOS
-
-FORMATO DE SALIDA ESPERADO
-
-â”€â”€ PERFIL FÃSICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-C.L.O.E. COACH - PLAN Q1
-Usuario: Sandra Demo
-Fase: BASE
-Fechas Q1: 28/04/2026 a 11/05/2026
-Macros: 1805 kcal | P 140g | HC 169g | G 63g
-
-A. SUPLEMENTOS
-
-AL LEVANTARTE
-- Agua mineral con limÃ³n: HidrataciÃ³n e inicio digestivo | 1 vaso grande | En ayunas antes de cualquier alimento | Base del protocolo matutino
-- Creatina monohidrato: Fuerza y retenciÃ³n muscular | 5g | Con agua | Constancia diaria
-
-ANTES DEL DESAYUNO
-- Picolinato de cromo: Sensibilidad a la insulina | 200 mcg | 10 min antes del desayuno | Opcional segÃºn tolerancia
-
-PRE ENTRENAMIENTO
-- CafeÃ­na: Rendimiento y concentraciÃ³n | 1 cafÃ© solo | 30 min antes | Evitar despuÃ©s de las 15:00
-
-ANTES DE CENAR
-- Picolinato de cromo: Control glucÃ©mico | 200 mcg | 10 min antes de la cena | Opcional segÃºn tolerancia
-
-POST ENTRENAMIENTO FUERZA
-- ProteÃ­na de guisante o whey sin lactosa: SÃ­ntesis proteica | 25g | Dentro de 30 min | Prioritaria si no llega a proteÃ­na
-
-ANTES DE ACOSTARTE
-- Magnesio bisglicinato: SueÃ±o y recuperaciÃ³n | 400 mg | Con agua | Prioritario
-
-B. ENTRENAMIENTO
-
-CALENDARIO Q1
-Dia 1 - Martes 28/04: Fuerza A - Tren superior
-Dia 2 - Miercoles 29/04: Fuerza B - Tren inferior
-Dia 3 - Jueves 30/04: Running Easy o Andar
-Dia 4 - Viernes 01/05: Calistenia A - Core y empuje
-Dia 5 - Sabado 02/05: Descanso completo
-Dia 6 - Domingo 03/05: Descanso completo
-Dia 7 - Lunes 04/05: Fuerza C - Tren inferior glÃºteo
-Dia 8 - Martes 05/05: Fuerza A - Semana 2
-Dia 9 - Miercoles 06/05: Fuerza B - Semana 2
-Dia 10 - Jueves 07/05: Running Easy - Semana 2
-Dia 11 - Viernes 08/05: Calistenia A - Semana 2
-Dia 12 - Sabado 09/05: Descanso completo
-Dia 13 - Domingo 10/05: Descanso completo
-Dia 14 - Lunes 11/05: Fuerza C - Semana 2
-
------
-FUERZA A
------
-Objetivo: empuje y tirÃ³n tÃ©cnico.
-Press banca mÃ¡quina: 3x12 Â· RIR 3 Â· 25 kg Â· tempo 3-0-1-0 Â· descanso 90s
-Remo mÃ¡quina sentado: 3x12 Â· RIR 3 Â· 25 kg Â· tempo 2-0-1-0 Â· descanso 90s
-
------
-CALISTENIA A
------
-Objetivo: control corporal, core y empuje sin dolor.
-Plancha frontal: 3x25 seg Â· RIR tÃ©cnico 3 Â· descanso 45s
-Flexiones inclinadas en banco: 3x10 Â· RIR 3 Â· descanso 75s
-Remo invertido asistido: 3x8 Â· RIR 3 Â· descanso 90s
-Dead bug: 3x10 cada lado Â· control respiraciÃ³n Â· descanso 45s
-
------
-RUNNING EASY
------
-Objetivo: cardio suave aerÃ³bico sin cambios de ritmo.
-Warmup
-10m 8:00/km Pace
-Main set
-25m 7:45/km Pace
-Cooldown
-10m 8:00/km Pace
-
------
-DESCANSO
------
-Sin actividad fÃ­sica programada.
-
-C. NUTRICIÃ“N C.L.O.E.
-
-Macros diana: 1805 kcal Â· 140g proteÃ­na / 169g hidratos / 63g grasa
-Objetivo: RecomposiciÃ³n corporal Â· Sin lactosa
-
-â”â”â” DESAYUNO (08:00) â”â”â”
-OpciÃ³n A
-- Huevos enteros talla M: 2 unidades
-- Pan integral: 1 rebanada
-TIPS: AÃ±ade especias y tomate para mÃ¡s sabor sin calorÃ­as.
-
-OpciÃ³n B
-- Avena: 60g
-- ProteÃ­na sin lactosa: 25g
-TIPS: Tritura con hielo para mejorar textura y saciedad.
-
-OpciÃ³n C
-- Yogur de soja: 150g
-- ArÃ¡ndanos: 70g
-TIPS: AÃ±ade canela para sabor y adherencia.
-
-â”â”â” REGLAS GENERALES â”â”â”
-Agua mineral: mÃ­nimo 3 litros diarios
-ProteÃ­na presente en cada toma principal
-Sin frito, rebozados ni bollerÃ­a industrial
-
-D. OBJETIVOS
-PASOS DIARIOS: 8000
-SUEÃ‘O: 8.5h
-ADHERENCIA ENTRENO: 80%
-ADHERENCIA NUTRICION: 75%
-FOCO QUINCENA 1: Instalar sistema, tÃ©cnica y registro.
-
-E. AJUSTES
-- Calistenia: progresar con rango, control escapular y repeticiones antes de aÃ±adir dificultad.
-- Rodillas: rango sin dolor.
-- FA: sin intervalos ni apnea.
-
-F. FECHAS
-Inicio Q1: 28/04/2026
-Pesaje: 02/05/2026 y 09/05/2026
-Fotos: 28/04/2026 y 11/05/2026
-Envio reporte: 11/05/2026
-Fin Q1: 11/05/2026`;
 }
 
 function collectEditUserForPrompt(){
@@ -849,7 +520,7 @@ function genPass(){
   const p='Cloe'+Math.floor(1000+Math.random()*9000)+'!';
   document.getElementById('c-pass').value=p;
   const pb=document.getElementById('pass-box');
-  pb.textContent='ContraseÃ±a generada: '+p+' â€” guÃ¡rdala antes de continuar';
+  pb.textContent='Contraseña generada: '+p+' — guárdala antes de continuar';
   pb.classList.add('on');
 }
 
@@ -875,7 +546,7 @@ async function createUser(){
 
   if(!name||!email){toast('Nombre y email son obligatorios.');return;}
   if(!pass) pass='Cloe-'+Math.random().toString(36).slice(2,10)+'!';
-  if(pass.length<8){toast('La contraseÃ±a temporal debe tener al menos 8 caracteres.');return;}
+  if(pass.length<8){toast('La contraseña temporal debe tener al menos 8 caracteres.');return;}
   const {data:existingProfile,error:existingError}=await sb.from('profiles').select('id,email,status').eq('email',email).maybeSingle();
   if(existingError){toast('Error comprobando email existente: '+existingError.message);return;}
   if(existingProfile){
@@ -921,14 +592,14 @@ async function createUser(){
     : await sb.from('profiles').upsert({id:uid,...profilePayload});
   if(pe){
     if(pe.message?.includes('profiles_id_fkey')){
-      toast('No se pudo enlazar el usuario con Auth. Suele pasar si el email ya existe en Supabase Auth o si la confirmaciÃ³n de email estÃ¡ interfiriendo. Prueba con otro email o revisa Authentication > Users.');
+      toast('No se pudo enlazar el usuario con Auth. Suele pasar si el email ya existe en Supabase Auth o si la confirmación de email está interfiriendo. Prueba con otro email o revisa Authentication > Users.');
       return;
     }
     toast('Error perfil: '+pe.message);return;
   }
 
   close('m-create');
-  toast(`âœ… Usuario ${name} creado. Email: ${email}`);
+  toast(`Usuario ${name} creado. Email: ${email}`);
   load();
 }
 
@@ -976,7 +647,7 @@ function openEdit(id){
   document.getElementById('e-schedule-notes').value=extra.schedule_notes||'';
   document.getElementById('e-context').value=extra.context||'';
   document.getElementById('e-notes').value=u.notes||'';
-  document.getElementById('e-latest-report').value=u.latest_report||'Sin reporte guardado todavÃ­a.';
+  document.getElementById('e-latest-report').value=u.latest_report||'Sin reporte guardado todavía.';
   document.getElementById('e-plan').value=u.current_plan||u.quincena1_plan||'';
   document.getElementById('e-profile-prompt').value=buildProfilePrompt(u);
   document.getElementById('m-edit').classList.add('on');
@@ -985,8 +656,8 @@ function openEdit(id){
 function cleanPlanLine(line){
   return String(line||'')
     .replace(/\t/g,' ')
-    .replace(/[â€“â€”]/g,'-')
-    .replace(/â€¢\s*/g,'- ')
+    .replace(/[–—]/g,'-')
+    .replace(/•\s*/g,'')
     .replace(/\s+/g,' ')
     .trim();
 }
@@ -995,7 +666,7 @@ function planSectionTitle(letter,title){
   const names={
     A:'SUPLEMENTOS',
     B:'ENTRENAMIENTO',
-    C:'NUTRICIÃ“N C.L.O.E.',
+    C:'NUTRICIÓN C.L.O.E.',
     D:'OBJETIVOS',
     E:'AJUSTES',
     F:'FECHAS'
@@ -1018,18 +689,18 @@ function splitPlanSections(text){
 }
 
 function normalizePlanBlocks(text){
-  const workoutTitleRx=/^(FUERZA|CALISTENIA|RUNNING|CARDIO|CICLISMO|NATACIÃ“N|NATACION|RODILLO|ANDAR|DESCANSO)\b/i;
+  const workoutTitleRx=/^(FUERZA|CALISTENIA|RUNNING|CARDIO|CICLISMO|NATACIÓN|NATACION|RODILLO|ANDAR|DESCANSO)\b/i;
   const lines=String(text||'').split('\n');
   const out=[];
   let pendingSeparator=false;
   lines.forEach(raw=>{
     let line=raw.trim();
     if(!line) return;
-    if(/^[-â”€â”â•_]{3,}$/.test(line)){pendingSeparator=true;return;}
+    if(/^[-─━═_]{3,}$/.test(line)){pendingSeparator=true;return;}
     line=cleanPlanLine(line)
-      .replace(/^D[iÃ­]a\b/i,'Dia')
-      .replace(/\bMi[eÃ©]rcoles\b/gi,'Miercoles')
-      .replace(/\bS[aÃ¡]bado\b/gi,'Sabado');
+      .replace(/^D[ií]a\b/i,'Dia')
+      .replace(/\bMi[eé]rcoles\b/gi,'Miercoles')
+      .replace(/\bS[aá]bado\b/gi,'Sabado');
     const upper=line.toUpperCase();
     if(workoutTitleRx.test(upper)){
       if(out.length&&out[out.length-1]!=='') out.push('');
@@ -1045,7 +716,7 @@ function normalizePlanBlocks(text){
     }
     pendingSeparator=false;
     if(/^Dia\s+\d+/i.test(line)) out.push(line.replace(/\s*-\s*/,' - ').replace(/\s*:\s*/,': '));
-    else out.push(line.replace(/^[-*]\s*/,'- '));
+    else out.push(line.replace(/^[-*]\s*/,''));
   });
   return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
 }
@@ -1058,16 +729,16 @@ function normalizePlanNutrition(text){
     let line=raw.trim();
     if(!line) return;
     line=cleanPlanLine(line)
-      .replace(/^Opci[oÃ³]n\s+([A-Z])\s*[-.]\s*/i,'OpciÃ³n $1: ')
-      .replace(/^Opci[oÃ³]n\s+([A-Z])\s*:\s*/i,'OpciÃ³n $1: ')
+      .replace(/^Opci[oó]n\s+([A-Z])\s*[-.]\s*/i,'Opción $1: ')
+      .replace(/^Opci[oó]n\s+([A-Z])\s*:\s*/i,'Opción $1: ')
       .replace(/^Tips?\s*:\s*/i,'TIPS: ');
-    line=line.replace(/^[-*]\s*/,'- ');
-    const meal=line.replace(/^[-â”€â”â•\s]+|[-â”€â”â•\s]+$/g,'').match(mealRx);
+    line=line.replace(/^[-*]\s*/,'');
+    const meal=line.replace(/^[-─━═\s]+|[-─━═\s]+$/g,'').match(mealRx);
     if(meal){
       const label=meal[1].replace(/\s+/g,' ').toUpperCase();
       const timing=meal[2]?` (${meal[2].trim()})`:'';
       if(out.length&&out[out.length-1]!=='') out.push('');
-      out.push(`â”â”â” ${label}${timing} â”â”â”`);
+      out.push(`━━━ ${label}${timing} ━━━`);
       return;
     }
     out.push(line);
@@ -1086,10 +757,7 @@ function adaptPlanText(raw){
   const sections=splitPlanSections(text);
   if(!['A','B','C','D','E','F'].some(letter=>sections[letter])) return text;
   const q=(text.match(/\bQ\s*(\d+)\b/i)||[])[1]||quincenaFromWeek(parseInt(document.getElementById('e-week')?.value)||1);
-  const headerLines=(sections._header||'').split('\n').map(l=>l.trim()).filter(Boolean);
-  const hasProfile=headerLines.some(l=>/PERFIL\s+F[IÃ]SICO/i.test(l));
-  const header=[hasProfile?headerLines.shift():'â”€â”€ PERFIL FÃSICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€',...headerLines];
-  if(!header.some(l=>/C\.L\.O\.E\. COACH/i.test(l))) header.splice(1,0,`C.L.O.E. COACH - PLAN Q${q}`);
+  const header=['── PERFIL FÍSICO ─────────────────────────────────────',`C.L.O.E. COACH - PLAN Q${q}`];
 
   const ordered=['A','B','C','D','E','F'];
   const body=ordered.map(letter=>{
@@ -1098,8 +766,8 @@ function adaptPlanText(raw){
     let content=sec.body||'';
     if(letter==='B') content=normalizePlanBlocks(content);
     else if(letter==='C') content=normalizePlanNutrition(content);
-    else content=content.split('\n').map(l=>cleanPlanLine(l).replace(/^[-*]\s*/,'- ')).filter(Boolean).join('\n');
-    return `${planSectionTitle(letter,letter==='C'?'NUTRICIÃ“N C.L.O.E.':null)}\n\n${content}`.trim();
+    else content=content.split('\n').map(l=>cleanPlanLine(l).replace(/^[-*]\s*/,'')).filter(Boolean).join('\n');
+    return `${planSectionTitle(letter,letter==='C'?'NUTRICIÓN C.L.O.E.':null)}\n\n${content}`.trim();
   }).filter(Boolean);
   return `${header.join('\n')}\n\n${body.join('\n\n')}`.replace(/\n{3,}/g,'\n\n').trim();
 }
@@ -1111,7 +779,7 @@ function adaptActivePlan(){
   const after=adaptPlanText(before);
   if(!after){toast('No se pudo adaptar el plan.');return;}
   el.value=after;
-  toast('âœ… Plan adaptado al formato de la app. Revisa y guarda.');
+  toast('Plan adaptado al formato de la app. Revisa y guarda.');
 }
 
 async function saveEdit(){
@@ -1171,7 +839,7 @@ async function saveEdit(){
   const {error}=await sb.from('profiles').update(updatePayload).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('âœ… Guardado.');
+  toast('Guardado.');
   load();
 }
 
@@ -1184,7 +852,7 @@ async function advFortnight(){
   const {error}=await sb.from('profiles').update({week:next,onboarding_data}).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('âœ… Avanzado a quincena Q'+quincenaFromWeek(next));
+  toast('Avanzado a quincena Q'+quincenaFromWeek(next));
   load();
 }
 
@@ -1194,24 +862,24 @@ async function advFortnightDirect(id,w){
   const onboarding_data={...(u?.onboarding_data||{}),plan_day:1,plan_start_date:new Date().toISOString().slice(0,10)};
   const {error}=await sb.from('profiles').update({week:next,onboarding_data}).eq('id',id);
   if(error){toast('Error: '+error.message);return;}
-  toast('âœ… Quincena Q'+quincenaFromWeek(next));
+  toast('Quincena Q'+quincenaFromWeek(next));
   load();
 }
 
 async function delUser(){
-  if(!editId||!confirm('Â¿Desactivar este usuario? Su cuenta seguirÃ¡ existiendo en Supabase Auth.')) return;
+  if(!editId||!confirm('¿Desactivar este usuario? Su cuenta seguirá existiendo en Supabase Auth.')) return;
   const {error}=await sb.from('profiles').update({status:'inactive'}).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('âœ… Usuario desactivado.');
+  toast('Usuario desactivado.');
   load();
 }
 
 async function delDirect(id){
-  if(!confirm('Â¿Desactivar este usuario? Su cuenta seguirÃ¡ existiendo en Supabase Auth.')) return;
+  if(!confirm('¿Desactivar este usuario? Su cuenta seguirá existiendo en Supabase Auth.')) return;
   const {error}=await sb.from('profiles').update({status:'inactive'}).eq('id',id);
   if(error){toast('Error: '+error.message);return;}
-  toast('âœ… Usuario desactivado.');
+  toast('Usuario desactivado.');
   load();
 }
 
@@ -1272,7 +940,7 @@ async function openLogs(id){
 async function resetUserPassword(id){
   const u=users.find(x=>x.id===id);
   if(!u?.email){toast('Este usuario no tiene email.');return;}
-  if(!confirm(`Enviar email de reseteo de contraseÃ±a a ${u.email}?`)) return;
+  if(!confirm(`Enviar email de reseteo de contraseña a ${u.email}?`)) return;
   const redirectTo=new URL('login.html',window.location.href).href;
   const {error}=await sb.auth.resetPasswordForEmail(u.email,{redirectTo});
   if(error){toast('Error reset: '+error.message);return;}
@@ -1282,13 +950,13 @@ async function resetUserPassword(id){
 async function deleteUserPermanent(id){
   const u=users.find(x=>x.id===id);
   if(!u) return;
-  const ok=confirm(`ELIMINAR PERMANENTEMENTE a ${u.full_name||u.email}?\n\nSe intentarÃ¡ borrar el usuario de Supabase Auth mediante RPC. Si la funciÃ³n SQL no estÃ¡ instalada, se borrarÃ¡ al menos su perfil de la app.`);
+  const ok=confirm(`ELIMINAR PERMANENTEMENTE a ${u.full_name||u.email}?\n\nSe intentará borrar el usuario de Supabase Auth mediante RPC. Si la función SQL no está instalada, se borrará al menos su perfil de la app.`);
   if(!ok) return;
   const rpc=await sb.rpc('admin_delete_user',{target_user_id:id});
   if(rpc.error){
     const {error}=await sb.from('profiles').delete().eq('id',id);
     if(error){toast('Error eliminando perfil: '+error.message);return;}
-    toast('Perfil eliminado. Para borrar tambiÃ©n Auth, ejecuta supabase-setup.sql actualizado.');
+    toast('Perfil eliminado. Para borrar también Auth, ejecuta supabase-setup.sql actualizado.');
   }else{
     toast('Usuario eliminado de Auth y perfiles.');
   }
@@ -1310,7 +978,7 @@ function copyLatestReport(){
   area.select();
   area.setSelectionRange(0,99999);
   document.execCommand('copy');
-  toast('Ãšltimo reporte copiado.');
+  toast('Último reporte copiado.');
 }
 
 function openPromptBase(){
@@ -1334,6 +1002,357 @@ function setAuthState(message,isError=false){
   el.textContent=message;
   el.className='state'+(isError?' err':'');
 }
+
+const CLEAN_PLAN_TEMPLATE = `── PERFIL FÍSICO ─────────────────────────────────────
+C.L.O.E. COACH - PLAN Q1
+
+A. SUPLEMENTOS
+
+AL LEVANTARTE
+Creatina monohidrato: 5g diarios | Con 300ml de agua mineral | Mejora de fuerza y recuperación muscular.
+Agua con sal marina: Una pizca | Hidratación celular y equilibrio de electrolitos post-ayuno.
+PRE ENTRENAMIENTO (17:30)
+Cafeína: 200mg (1-2 cafés solos) | 30 min antes de entrenar | Mejora el rendimiento y el enfoque.
+ANTES DE ACOSTARTE
+Magnesio Bisglicinato: 300mg | Con agua | Relajación muscular profunda y optimización del sueño.
+
+B. ENTRENAMIENTO
+
+CALENDARIO Q1
+Dia 1 - Lunes 04/05: FUERZA A (Empuje + Calistenia)
+Dia 2 - Martes 05/05: RUNNING TÉCNICA (Cadencia + Drills)
+Dia 3 - Miercoles 06/05: DESCANSO ACTIVO (Andar 30-40 min)
+Dia 4 - Jueves 07/05: FUERZA B (Tracción + Pierna)
+Dia 5 - Viernes 08/05: RUNNING INTERVALOS (VO2 + Técnica)
+Dia 6 - Sabado 09/05: DESCANSO
+Dia 7 - Domingo 10/05: RUNNING TIRADA LARGA (Progresiva)
+Dia 8 - Lunes 11/05: FUERZA A (Semana 2 - Progresión)
+Dia 9 - Martes 12/05: RUNNING TÉCNICA (Semana 2 - Progresión)
+Dia 10 - Miercoles 13/05: DESCANSO ACTIVO
+Dia 11 - Jueves 14/05: FUERZA B (Semana 2 - Progresión)
+Dia 12 - Viernes 15/05: RUNNING INTERVALOS (Semana 2 - Progresión)
+Dia 13 - Sabado 16/05: DESCANSO
+Dia 14 - Domingo 17/05: RUNNING TIRADA LARGA (Semana 2 - Progresiva)
+
+-----
+FUERZA A (EMPUJE)
+-----
+Press de Banca: 4x8 · RIR 2 · Descanso 90s.
+Flexiones Diamante (Calistenia): 3x al fallo técnico · Codos cerrados.
+Fondos en Máquina Asistida: 3x10 · Bajar lento (3s) · Descanso 90s.
+Press Militar Mancuernas: 3x10 · Controlar bajada hasta orejas.
+Core: Plancha dinámica 3x60" · Tocar hombros sin mover cadera.
+
+-----
+FUERZA B (TRACCIÓN/PIERNA)
+-----
+Dominadas Asistidas (Máquina): 4x8 · Tracción explosiva, bajada 3s.
+Peso Muerto Rumano: 3x10 · Espalda neutra, sentir estiramiento isquios.
+Remo con mancuerna: 3x12 por brazo · Sin rotar el tronco.
+Sentadilla Goblet: 3x12 · Mancuerna al pecho, bajar profundo.
+Tibialis Raise: 3x15 · Apoyado en pared, elevar punteras al máximo.
+
+-----
+RUNNING TÉCNICA (SEMANA 1)
+-----
+Objetivo: Cadencia + eficiencia + reducción de impacto
+Warmup
+10m 6:30/km (1.54km) Pace
+Drills 3x
+30s Skipping alto
+30s Talones al glúteo
+30s Saltos cortos reactivos
+60s Caminar
+Main set 4x
+3m 5:50/km (0.51km) Pace
+Cadence 172-178
+2m 6:30/km (0.31km) Recovery
+Strides 6x
+20s 4:20/km (0.08km) Pace
+40s 6:30/km (0.10km) Recovery
+Cooldown
+8m 6:40/km (1.20km) Pace
+
+-----
+RUNNING TÉCNICA (SEMANA 2)
+-----
+Objetivo: Transferencia técnica a ritmo real
+Warmup
+10m 6:25/km (1.56km) Pace
+Drills 3x
+30s Skipping alto
+30s Talones al glúteo
+30s Bounding controlado
+60s Caminar
+Main set 5x
+3m 5:40/km (0.53km) Pace
+Cadence 174-180
+90s 6:30/km (0.23km) Recovery
+Strides 8x
+20s 4:10/km (0.08km)
+40s 6:30/km (0.10km)
+Cooldown
+8m 6:35/km (1.22km)
+
+-----
+RUNNING INTERVALOS (SEMANA 1)
+-----
+Objetivo: VO2 max + economía de carrera
+Warmup
+12m 6:30/km (1.85km)
+Main set 6x
+2m 4:45/km (0.42km)
+2m 6:30/km (0.31km)
+Extra block 4x
+30s 4:10/km (0.12km)
+60s 6:30/km (0.15km)
+Cooldown
+10m 6:40/km (1.50km)
+
+-----
+RUNNING INTERVALOS (SEMANA 2)
+-----
+Objetivo: Ritmo sostenido + control técnico
+Warmup
+12m 6:25/km (1.88km)
+Main set 5x
+3m 4:50/km (0.62km)
+2m 6:30/km (0.31km)
+Finisher 6x
+20s 4:00/km (0.08km)
+40s 6:30/km (0.10km)
+Cooldown
+10m 6:35/km (1.52km)
+
+-----
+RUNNING TIRADA LARGA (SEMANA 1)
+-----
+Objetivo: Base aeróbica + progresión
+Warmup
+5m 6:20/km (0.79km)
+Main set
+7km 6:05/km (7.00km)
+2km 5:45/km (2.00km)
+1km 5:25/km (1.00km)
+Cooldown
+5m 6:40/km (0.75km)
+
+-----
+RUNNING TIRADA LARGA (SEMANA 2)
+-----
+Objetivo: Resistencia + ritmo en fatiga
+Warmup
+5m 6:15/km (0.80km)
+Main set
+6km 6:10/km (6.00km)
+4km 5:50/km (4.00km)
+2km 5:30/km (2.00km)
+Cooldown
+5m 6:35/km (0.76km)
+
+-----
+DESCANSO ACTIVO
+-----
+Caminar 30-40 min opcional + movilidad tobillo/cadera
+
+C. NUTRICIÓN C.L.O.E.
+
+Macros diana: 2700 kcal · 155g proteína / 330g hidratos / 75g grasa
+Ayuno intermitente 16:8 (13:00 - 21:00)
+
+━━━ COMIDA (13:00) ━━━
+Opción A: Power Pasta
+Pasta integral: 130g en crudo (aprox. 350g cocido).
+Ternera picada magra: 200g salteada con cebolla y especias.
+Salsa tomate natural: 150g (sin azúcares añadidos).
+Aceite de Oliva: 10g.
+TIPS: Energía sostenida para sesión de tarde.
+Opción B: Bowl Mexicano
+Arroz: 120g en crudo.
+Pechuga de pollo: 200g a la plancha.
+Frijoles negros: 100g cocidos.
+Aguacate: 60g.
+TIPS: Alta saciedad + digestión estable.
+Opción C: Coastal Salmon
+Salmón: 200g.
+Patata: 300g.
+Ensalada mixta + nueces 30g.
+Aceite de Oliva: 10g.
+TIPS: Recuperación articular post impacto.
+
+━━━ MERIENDA (17:00) ━━━
+Opción A
+Yogur griego: 250g
+Avena: 60g
+Arándanos: 80g
+TIPS: Mejor digestión si reposas 15 min
+Opción B
+Pan centeno: 100g
+Queso cottage: 100g
+Pavo: 80g
+TIPS: Energía estable sin picos
+Opción C
+Plátano: 120g
+Almendras: 30g
+Whey: 30g
+TIPS: Rápido y eficiente
+
+━━━ CENA (20:30) ━━━
+Opción A
+Pollo: 200g
+Calabaza: 300g
+Brócoli: 200g
+Aceite: 10g
+TIPS: Recuperación muscular + electrolitos
+Opción B
+Bacalao: 220g
+Quinoa: 200g
+Pimientos: 150g
+TIPS: Proteína completa
+Opción C
+Huevos: 3
+Feta: 40g
+Espinacas: 150g
+Hummus: 60g
+TIPS: Mejora del sueño
+
+D. OBJETIVOS
+
+PASOS DIARIOS: 10,000 constantes
+SUEÑO: 7h mínimo
+FOCO Q1: Técnica de carrera + eficiencia + control en dominadas
+✓ Si mejoras cadencia sin aumentar fatiga → técnica correcta
+✓ Si completas intervalos → mejora VO2
+✓ Si tirada larga acaba fuerte → base sólida
+⚠ Si sobrecarga en sóleos → reducir impacto + foam roller
+⚠ Si no completas intervalos → bajar 1 repetición
+⚠ Si fatiga alta → mantener ritmos, no progresar
+
+E. AJUSTES
+
+Running rediseñado: técnica real + transferencia a ritmo
+Intervalos optimizados: menos rigidez, más eficiencia fisiológica
+Tirada larga progresiva: mejora rendimiento sin sobrecarga
+Fuerza mantenida: equilibrio con running
+
+F. FECHAS
+
+Inicio Q1: 04/05/2026
+Primer Reporte: 17/05/2026
+Fin Q1: 17/05/2026`;
+
+function buildPromptInstruction(qLabel='Q solicitado'){
+  return `Eres un entrenador físico, nutricionista deportivo y médico deportivo especializado en el método de nutrición y entrenamiento C.L.O.E.
+
+Tu tarea es generar un documento de plan personalizado correspondiente a la quincena ${qLabel}, basado en la metodología C.L.O.E, utilizando la documentación del proyecto cargada y búsqueda de información en internet sobre este método.
+
+Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentación del proyecto. No modifiques, reordenes ni alteres la plantilla base bajo ninguna circunstancia.
+
+**Instrucciones de ejecución:**
+
+1. Revisa la documentación del proyecto cargada para obtener:
+   - Los datos y parámetros específicos del método C.L.O.E
+   - Las variables y campos que deben rellenarse
+
+2. Investiga en internet si requieres información adicional sobre sus principios, fases, o aplicación práctica en nutrición y entrenamiento.
+
+3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando únicamente los datos numéricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q específico solicitado.
+
+4. Asegúrate de que:
+   - Todos los campos se completen con información coherente y basada en la metodología C.L.O.E
+   - Las recomendaciones sean apropiadas para el nivel y características del cuartil Q
+   - El documento mantenga su estructura original sin cambios de formato
+   - La información sea profesional y aplicable
+
+5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original, como esta:
+
+${CLEAN_PLAN_TEMPLATE}`;
+}
+
+function buildPromptBase(){
+  return buildPromptInstruction('Q solicitado');
+}
+
+function buildProfilePrompt(user){
+  const extra=user.onboarding_data||{};
+  const body=extra.body_composition||{};
+  const fasting=extra.fasting||{};
+  const sports=Array.isArray(extra.sports)&&extra.sports.length?extra.sports:['Running'];
+  const equip=Array.isArray(extra.equip)&&extra.equip.length?extra.equip.join(', '):'no indicado';
+  const diet=Array.isArray(extra.diet)&&extra.diet.length?extra.diet.join(', '):'Ninguna';
+  const q=quincenaFromWeek(user.week||1);
+  const currentPlanDay=calculatePlanDay(user);
+  return `${buildPromptInstruction('Q'+q)}
+
+DATOS REALES DEL USUARIO PARA PERSONALIZAR
+Usuario: ${user.full_name||'Sin nombre'}
+Email: ${user.email||'Sin email'}
+Semana interna actual: ${user.week||1}
+Quincena actual: Q${q}
+Estado: ${user.status||'pending'}
+Objetivo: ${user.goal||'Sin definir'}
+
+DATOS FÍSICOS
+- Edad: ${user.age||'n/d'}
+- Sexo: ${user.sex||'n/d'}
+- Peso: ${user.weight_kg||'n/d'} kg
+- Altura: ${user.height_cm||'n/d'} cm
+- Grasa corporal: ${body.bodyFat||'n/d'} %
+- Grasa subcutánea: ${body.subcutaneousFat||'n/d'} %
+- Grasa visceral: ${body.visceralFat||'n/d'}
+- Agua corporal: ${body.bodyWater||'n/d'} %
+- Músculo esquelético: ${body.skeletalMuscle||'n/d'} %
+- Masa muscular: ${body.muscleMass||'n/d'} kg
+- Masa ósea: ${body.boneMass||'n/d'} kg
+- Proteína corporal: ${body.proteinPercent||'n/d'} %
+- BMR/TMB medido: ${body.measuredBmr||'n/d'} kcal
+- Edad metabólica: ${body.metabolicAge||'n/d'}
+- Perímetro cintura: ${body.waist||'n/d'} cm
+
+DATOS DEL CUESTIONARIO
+- Onboarding completado: ${user.onboarding_completed===true?'Sí':'No'}
+- Inicio del plan: ${extra.plan_start_date||'n/d'}
+- Día del plan: ${currentPlanDay}/14
+- Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` (${extra.injury_detail})`:''}
+- Pasos: ${extra.steps||'n/d'}
+- Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
+- Easy pace: ${extra.easy_pace||'n/d'}
+- Target pace: ${extra.target_pace||'n/d'}
+- Nivel running: ${extra.run_level||'n/d'}
+- Nivel fuerza: ${extra.gym_level||'n/d'}
+- Nivel calistenia: ${extra.calis_level||'n/d'}
+- Días por semana: ${extra.days||'n/d'}
+- Distribución: ${extra.split||'n/d'}
+- Días fuerza/semana: ${extra.strength_days||'n/d'}
+- Días deportes/semana: ${extra.sport_days||'n/d'}
+- Preferencia fuerza: ${Array.isArray(extra.strength_pref)?extra.strength_pref.join(', '):'n/d'}
+- Preferencia deportes: ${Array.isArray(extra.sport_pref)?extra.sport_pref.join(', '):'n/d'}
+- Notas agenda: ${extra.schedule_notes||'n/d'}
+- Tiempo por sesión: ${extra.session_t||'n/d'}
+- Deportes: ${sports.join(', ')}
+- Equipamiento: ${equip}
+- Actividad: ${extra.activity||'n/d'}
+- Dieta: ${diet}
+- Preferencias alimentos:
+${formatFoodPreferences(extra.food_preferences,extra.food_notes)}
+- Sueño: ${extra.sleep||'n/d'} h
+- Contexto: ${extra.context||'n/d'}
+- Ayuno intermitente: ${fasting.enabled||'No'}
+- Tipo ayuno: ${fasting.type||'n/d'}
+- Ventana alimentación: ${fasting.feedingWindow||'n/d'}
+- Experiencia ayuno: ${fasting.experience||'n/d'}
+- Días restricción/ayuno: ${Array.isArray(fasting.days)?fasting.days.join(', '):'n/d'}
+
+INSTRUCCIÓN FINAL
+Analiza este perfil y genera el plan completo de la quincena Q${q}. Mantén exactamente la plantilla de salida indicada arriba.
+
+PLAN ACTUAL DEL USUARIO
+${user.current_plan||user.quincena1_plan||'Aún sin plan cargado.'}
+
+ÚLTIMO REPORTE DEL USUARIO
+${user.latest_report||'Aún sin reporte guardado.'}`;
+}
+
 async function logout(){await sb.auth.signOut();window.location.href='login.html';}
 </script>
 </body>

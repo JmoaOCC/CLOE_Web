@@ -388,13 +388,13 @@ function getTimelineInfo(){
   const manualDayOffset=Number.isFinite(manualDay)&&manualDay>=1&&manualDay<=14?manualDay-1:null;
   if(!start){
     const w=profile?.week||1;
-    return {start:null,today,q:getQuincena(w),week:w,dayOffset:manualDayOffset??(((w-1)%2)*7+todayPlanIdx()),beforeStart:false,qStart:null};
+    return {start:null,today,q:getQuincena(w),week:w,dayOffset:manualDayOffset?(((w-1)%2)*7+todayPlanIdx()),beforeStart:false,qStart:null};
   }
   const offset=diffDays(today,start);
   const beforeStart=offset<0;
   const q=beforeStart?1:Math.min(TOTAL_QUINCENAS,Math.floor(offset/14)+1);
   const week=beforeStart?1:Math.min(TOTAL_QUINCENAS*2,Math.floor(offset/7)+1);
-  const dayOffset=manualDayOffset??(beforeStart?offset:offset%14);
+  const dayOffset=manualDayOffset?(beforeStart?offset:offset%14);
   const qStart=beforeStart?start:addDays(start,(q-1)*14);
   return {start,today,q,week,dayOffset,beforeStart,qStart};
 }
@@ -858,7 +858,7 @@ function normalizeSupplementItem(item){
 
 function orderSupplementSections(sections){
   const order={levantarte:0,ayuno:0,antes_desayuno:1,pre_entreno:2,entreno_fuerza:2,entreno_running:2,antes_cenar:3,post_fuerza:4,dormir:5,acostarse:5};
-  return [...(sections||[])].sort((a,b)=>(order[a.key]??9)-(order[b.key]??9));
+  return [...(sections||[])].sort((a,b)=>(order[a.key]?9)-(order[b.key]?9));
 }
 function extractPlanNutritionData(text, fallbackMacros){
   if(!text) return null;
@@ -1234,7 +1234,7 @@ function extractPlanStrengthDays(text){
   const blocks = splitWorkoutBlocks(text).filter(b=>/FUERZA|CALISTENIA/i.test(b.title));
   blocks.forEach(b => {
     const km = b.title.match(/(?:FUERZA|CALISTENIA)\s+([ABCD])\b/i);
-    const key = km ? km[1].toUpperCase() : 'D'+(days.length+1);
+    const key = km  km[1].toUpperCase() : 'D'+(days.length+1);
     if(seenKeys.has(key)) return;
     seenKeys.add(key);
     days.push({title: b.title, content: trimTrainingContent(b.content), key});
@@ -1749,7 +1749,7 @@ function renderNutrition(q){
 
 function renderMealsVisual(meals){
   const order={DESAYUNO:0,ALMUERZO:1,COMIDA:2,MERIENDA:3,CENA:4};
-  const sorted=[...(meals||[])].sort((a,b)=>(order[String(a.name||'').toUpperCase()]??9)-(order[String(b.name||'').toUpperCase()]??9));
+  const sorted=[...(meals||[])].sort((a,b)=>(order[String(a.name||'').toUpperCase()]?9)-(order[String(b.name||'').toUpperCase()]?9));
   return sorted.map(meal=>{
     const mealName=String(meal.name||'Toma').replace(/\s+/g,' ').trim();
     const window=meal.timing?`Ventana: ${meal.timing}`:'Ventana diaria según tu plan';
@@ -2057,7 +2057,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function parsePlanStructured(text){
   if(!text) return {};
   const macroM=text.match(/(?:Macros|MACROS DIARIOS)[:\s]*([^\n]+)/i);
-  const macros=parseMacrosLine(macroM ? macroM[0] : '');
+  const macros=parseMacrosLine(macroM  macroM[0] : '');
   const faseM=text.match(/Fase:\s*([^\n\r]+)/i);
   const lines=text.split('\n');
   const starts = { A: -1, B: -1, C: -1, D: -1, E: -1, F: -1 };
@@ -2075,7 +2075,7 @@ function parsePlanStructured(text){
   for (let idx = 0; idx < found.length; idx++) {
     const key = found[idx][0];
     const startLine = found[idx][1];
-    const endLine = idx + 1 < found.length ? found[idx + 1][1] : lines.length;
+    const endLine = idx + 1 < found.length  found[idx + 1][1] : lines.length;
     secs[key] = lines.slice(startLine + 1, endLine).join('\n').trim();
   }
   if (found.length === 0) secs.B = text;
@@ -2158,7 +2158,7 @@ function planSupps(text){
           }
           html += `<div class="win-3d" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
               <div style="font-weight:800;color:var(--accent);font-size:12px;margin-bottom:4px">💊 ${esc(name)}</div>
-              ${desc ? `<div style="font-size:10px;color:var(--text);margin-bottom:8px;line-height:1.5">${esc(desc)}</div>` : ''}
+              ${desc  `<div style="font-size:10px;color:var(--text);margin-bottom:8px;line-height:1.5">${esc(desc)}</div>` : ''}
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:'DM Mono',monospace;font-size:9px;">
                   <div style="background:var(--bg);padding:8px;border-radius:8px;border:1px solid rgba(43,52,72,0.5)">
                       <span style="color:var(--muted);display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:1px">Dosis</span>
@@ -2169,7 +2169,7 @@ function planSupps(text){
                       <span style="color:var(--text)">${esc(parts[2])}</span>
                   </div>
               </div>
-              ${parts[3] ? `<div style="margin-top:8px;font-size:10px;color:var(--accent2);background:rgba(91,156,246,0.08);padding:6px 8px;border-radius:6px;line-height:1.5">💡 ${esc(parts[3])}</div>` : ''}
+              ${parts[3]  `<div style="margin-top:8px;font-size:10px;color:var(--accent2);background:rgba(91,156,246,0.08);padding:6px 8px;border-radius:6px;line-height:1.5">💡 ${esc(parts[3])}</div>` : ''}
           </div>`;
       } else if(!line.startsWith('-') && line.toUpperCase() === line && line.length < 60) {
           html += `<div style="font-weight:800;margin-top:16px;margin-bottom:8px;font-size:11px;color:var(--accent3);letter-spacing:1px">${esc(line)}</div>`;
