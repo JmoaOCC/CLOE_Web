@@ -1174,6 +1174,18 @@ function parsePlanPaces(text){
   if(!easyM) return null;
   return{easy:easyM[1],tempo:tempoM?tempoM[1]:null,interval:null};
 }
+function trimTrainingContent(content){
+  if(!content) return '';
+  const stopRx=/^(?:[A-F]|\d+)\.\s*(?:NUTRICI[ÓO]N|OBJETIVOS|AJUSTES|FECHAS|SUPLEMENTOS|ENTRENAMIENTO)\b/i;
+  const mealRx=/^(?:━━+|[-─━═]{3,})?\s*(?:COMIDA|MERIENDA|CENA|DESAYUNO|ALMUERZO|TOMA\s*\d+)\b/i;
+  const out=[];
+  for(const raw of String(content).split('\n')){
+    const line=cleanDecoratedTitle(raw);
+    if(stopRx.test(line)||mealRx.test(line)) break;
+    out.push(raw);
+  }
+  return out.join('\n').trim();
+}
 function extractPlanRunningSessions(text){
   if(!text) return {};
   const sessions={};const seen=new Set();
@@ -1181,9 +1193,10 @@ function extractPlanRunningSessions(text){
   blocks.forEach(b => {
     const title = b.title.toUpperCase();
     if(title.match(/FUERZA|DESCANSO|NATACI[ÓO]N|RODILLO/i)||title.match(/SEMANA\s+\d/i)) return;
-    if(!b.content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+|Duraci[óo]n:|Ritmo objetivo:/i)) return;
+    const content=trimTrainingContent(b.content);
+    if(!content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+|Duraci[óo]n:|Ritmo objetivo:/i)) return;
     const key=title.match(/INTERVAL/i)?'intervals':title.match(/TEMPO/i)?'tempo':title.match(/TIRADA|LARGA/i)?'long':'cardio';
-    if(!seen.has(key)){seen.add(key);sessions[key]=b.content;}
+    if(!seen.has(key)){seen.add(key);sessions[key]=content;}
   });
   return sessions;
 }
@@ -1196,7 +1209,7 @@ function extractPlanStrengthDays(text){
     const key = km ? km[1].toUpperCase() : 'D'+(days.length+1);
     if(seenKeys.has(key)) return;
     seenKeys.add(key);
-    days.push({title: b.title, content: b.content, key});
+    days.push({title: b.title, content: trimTrainingContent(b.content), key});
   });
   return days;
 }
@@ -1251,15 +1264,15 @@ function getCustomExercises(content) {
     // Parse plan structure at runtime
     const planText=getPlanText();
     if(planText){
+      const structured=parsePlanStructured(planText);
+      const trainingText=structured.B||planText;
       applyPlanData(planText);
-      const sched=parsePlanSchedule(planText);
+      const sched=parsePlanSchedule(trainingText);
       if(sched) sched.forEach((day,i)=>{if(day){DAYLABELS[i]=day.label;DAYTYPES[i]=day.type;}});
-      profile._paces=parsePlanPaces(planText);
-      if(!profile.plan_running||profile.plan_running==='null'||profile.plan_running==='{}'){
-        const rs=extractPlanRunningSessions(planText);
-        if(Object.keys(rs).length) profile.plan_running=JSON.stringify(rs);
-      }
-      const sd=extractPlanStrengthDays(planText);
+      profile._paces=parsePlanPaces(trainingText);
+      const rs=extractPlanRunningSessions(trainingText);
+      if(Object.keys(rs).length) profile.plan_running=JSON.stringify(rs);
+      const sd=extractPlanStrengthDays(trainingText);
       if(sd.length) profile._strengthDays=sd;
     }
 
