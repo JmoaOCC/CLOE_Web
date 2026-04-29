@@ -427,28 +427,28 @@ function buildProfilePrompt(user){
   const diet=Array.isArray(extra.diet)&&extra.diet.length?extra.diet.join(', '):'Ninguna';
   const q=quincenaFromWeek(user.week||1);
   const currentPlanDay=calculatePlanDay(user);
-  return `Eres un entrenador fÃ­sico, nutricionista deportivo y mÃ©dico deportivo especializado en el mÃ©todo de nutriciÃ³n y entrenamiento C.L.O.E.
+  return `Eres un entrenador físico, nutricionista deportivo y médico deportivo especializado en el método de nutrición y entrenamiento C.L.O.E.
 
-Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodologÃ­a C.L.O.E, utilizando la documentaciÃ³n del proyecto cargada y bÃºsqueda de informaciÃ³n en internet sobre este mÃ©todo.
+Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodología C.L.O.E, utilizando la documentación del proyecto cargada y búsqueda de información en internet sobre este método.
 
 Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentaciÃ³n del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
 
-**Instrucciones de ejecuciÃ³n:**
+**Instrucciones de ejecución:**
 
 1. Revisa la documentaciÃ³n del proyecto cargada para obtener:
    - La estructura y formato exacto del documento txt a completar
-   - Los datos y parÃ¡metros especÃ­ficos del mÃ©todo C.L.O.E
+   - Los datos y parámetros específicos del método C.L.O.E
    - Las variables y campos que deben rellenarse
 
-2. Investiga en internet sobre el mÃ©todo C.L.O.E si requieres informaciÃ³n adicional sobre sus principios, fases, o aplicaciÃ³n prÃ¡ctica en nutriciÃ³n y entrenamiento.
+2. Investiga en internet sobre el método C.L.O.E si requieres información adicional sobre sus principios, fases, o aplicación práctica en nutrición y entrenamiento.
 
-3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando Ãºnicamente los datos numÃ©ricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q especÃ­fico solicitado.
+3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando únicamente los datos numéricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q específico solicitado.
 
-4. AsegÃºrate de que:
-   - Todos los campos se completen con informaciÃ³n coherente y basada en la metodologÃ­a C.L.O.E
-   - Las recomendaciones sean apropiadas para el nivel y caracterÃ­sticas del cuartil Q
+4. Asegúrate de que:
+   - Todos los campos se completen con información coherente y basada en la metodología C.L.O.E
+   - Las recomendaciones sean apropiadas para el nivel y características del cuartil Q
    - El documento mantenga su estructura original sin cambios de formato
-   - La informaciÃ³n sea profesional y aplicable
+   - La información sea profesional y aplicable
 
 5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original.
 
@@ -466,22 +466,22 @@ DATOS FÃSICOS
 - Peso: ${user.weight_kg||'n/d'} kg
 - Altura: ${user.height_cm||'n/d'} cm
 - Grasa corporal: ${body.bodyFat||'n/d'} %
-- Grasa subcutÃ¡nea: ${body.subcutaneousFat||'n/d'} %
+  - Grasa subcutánea: ${body.subcutaneousFat||'n/d'} %
 - Grasa visceral: ${body.visceralFat||'n/d'}
 - Agua corporal: ${body.bodyWater||'n/d'} %
-- MÃºsculo esquelÃ©tico: ${body.skeletalMuscle||'n/d'} %
+- Músculo esquelético: ${body.skeletalMuscle||'n/d'} %
 - Masa muscular: ${body.muscleMass||'n/d'} kg
-- Masa Ã³sea: ${body.boneMass||'n/d'} kg
-- ProteÃ­na corporal: ${body.proteinPercent||'n/d'} %
+- Masa ósea: ${body.boneMass||'n/d'} kg
+- Proteína corporal: ${body.proteinPercent||'n/d'} %
 - BMR/TMB medido: ${body.measuredBmr||'n/d'} kcal
-- Edad metabÃ³lica: ${body.metabolicAge||'n/d'}
+- Edad metabólica: ${body.metabolicAge||'n/d'}
 - Capacidad almacenamiento muscular: ${body.muscleStorage||'n/d'}
-- PerÃ­metro cintura: ${body.waist||'n/d'} cm
+- Perímetro cintura: ${body.waist||'n/d'} cm
 
 DATOS DEL CUESTIONARIO
 - Onboarding completado: ${user.onboarding_completed===true?'SÃ­':'No'}
 - Inicio del plan: ${extra.plan_start_date||'n/d'}
-- DÃ­a del plan: ${currentPlanDay}/14
+- Día del plan: ${currentPlanDay}/14
 - Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` (${extra.injury_detail})`:''}
 - Pasos: ${extra.steps||'n/d'}
 - Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
@@ -490,10 +490,10 @@ DATOS DEL CUESTIONARIO
 - Nivel running: ${extra.run_level||'n/d'}
 - Nivel fuerza: ${extra.gym_level||'n/d'}
 - Nivel calistenia: ${extra.calis_level||'n/d'}
-- DÃ­as por semana: ${extra.days||'n/d'}
-- DistribuciÃ³n: ${extra.split||'n/d'}
-- DÃ­as fuerza/semana: ${extra.strength_days||'n/d'}
-- DÃ­as deportes/semana: ${extra.sport_days||'n/d'}
+- Días por semana: ${extra.days||'n/d'}
+- Distribución: ${extra.split||'n/d'}
+- Días fuerza/semana: ${extra.strength_days||'n/d'}
+- Días deportes/semana: ${extra.sport_days||'n/d'}
 - Preferencia fuerza: ${Array.isArray(extra.strength_pref)?extra.strength_pref.join(', '):'n/d'}
 - Preferencia deportes: ${Array.isArray(extra.sport_pref)?extra.sport_pref.join(', '):'n/d'}
 - Notas agenda: ${extra.schedule_notes||'n/d'}
@@ -504,73 +504,73 @@ DATOS DEL CUESTIONARIO
 - Dieta: ${diet}
 - Preferencias alimentos:
 ${formatFoodPreferences(extra.food_preferences,extra.food_notes)}
-- SueÃ±o: ${extra.sleep||'n/d'} h
+- Sueño: ${extra.sleep||'n/d'} h
 - Contexto: ${extra.context||'n/d'}
 - Ayuno intermitente: ${fasting.enabled||'No'}
 - Tipo ayuno: ${fasting.type||'n/d'}
-- Ventana alimentaciÃ³n: ${fasting.feedingWindow||'n/d'}
+- Ventana alimentación: ${fasting.feedingWindow||'n/d'}
 - Experiencia ayuno: ${fasting.experience||'n/d'}
-- DÃ­as restricciÃ³n/ayuno: ${Array.isArray(fasting.days)?fasting.days.join(', '):'n/d'}
+- Días restricción/ayuno: ${Array.isArray(fasting.days)?fasting.days.join(', '):'n/d'}
 - Protocolo personalizado: ${fasting.custom||'n/d'}
 
-INSTRUCCIÃ“N PARA LA IA
+INSTRUCCIÓN PARA LA IA
 Analiza este perfil y genera el plan completo de la quincena ${q} para este usuario.
-La quincena debe cubrir 14 dÃ­as completos: dos semanas seguidas, de lunes a domingo.
+La quincena debe cubrir 14 días completos: dos semanas seguidas, de lunes a domingo.
 Entrega el resultado separado en:
 1. Primera semana completa (lunes a domingo)
 2. Segunda semana completa (lunes a domingo)
-3. NutriciÃ³n y objetivos de la quincena
-Devuelve entrenamiento, ajustes de fuerza, nutriciÃ³n y objetivos listos para pegar en su perfil.
+3. Nutrición y objetivos de la quincena
+Devuelve entrenamiento, ajustes de fuerza, nutrición y objetivos listos para pegar en su perfil.
 
 PLAN ACTUAL DEL USUARIO
-${user.current_plan||user.quincena1_plan||'AÃºn sin plan cargado.'}
+${user.current_plan||user.quincena1_plan||'Aún sin plan cargado.'}
 
-ÃšLTIMO REPORTE DEL USUARIO
-${user.latest_report||'AÃºn sin reporte guardado.'}`;
+ÚLTIMO REPORTE DEL USUARIO
+${user.latest_report||'Aún sin reporte guardado.'}`;
 }
 
 function buildPromptBase(){
-  return `Eres un entrenador fÃ­sico, nutricionista deportivo y mÃ©dico deportivo especializado en el mÃ©todo de nutriciÃ³n y entrenamiento C.L.O.E.
+  return `Eres un entrenador físico, nutricionista deportivo y médico deportivo especializado en el método de nutrición y entrenamiento C.L.O.E.
 
-Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodologÃ­a C.L.O.E, utilizando la documentaciÃ³n del proyecto cargada y bÃºsqueda de informaciÃ³n en internet sobre este mÃ©todo.
+Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodología C.L.O.E, utilizando la documentación del proyecto cargada y búsqueda de información en internet sobre este método.
 
 Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentaciÃ³n del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
 
-**Instrucciones de ejecuciÃ³n:**
+**Instrucciones de ejecución:**
 
 1. Revisa la documentaciÃ³n del proyecto cargada para obtener:
    - La estructura y formato exacto del documento txt a completar
-   - Los datos y parÃ¡metros especÃ­ficos del mÃ©todo C.L.O.E
+   - Los datos y parámetros específicos del método C.L.O.E
    - Las variables y campos que deben rellenarse
 
-2. Investiga en internet sobre el mÃ©todo C.L.O.E si requieres informaciÃ³n adicional sobre sus principios, fases, o aplicaciÃ³n prÃ¡ctica en nutriciÃ³n y entrenamiento.
+2. Investiga en internet sobre el método C.L.O.E si requieres información adicional sobre sus principios, fases, o aplicación práctica en nutrición y entrenamiento.
 
-3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando Ãºnicamente los datos numÃ©ricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q especÃ­fico solicitado.
+3. Completa el documento txt siguiendo **estrictamente** la plantilla sin modificaciones, adaptando únicamente los datos numéricos, recomendaciones nutricionales, y programas de entrenamiento al cuartil Q específico solicitado.
 
-4. AsegÃºrate de que:
-   - Todos los campos se completen con informaciÃ³n coherente y basada en la metodologÃ­a C.L.O.E
-   - Las recomendaciones sean apropiadas para el nivel y caracterÃ­sticas del cuartil Q
+4. Asegúrate de que:
+   - Todos los campos se completen con información coherente y basada en la metodología C.L.O.E
+   - Las recomendaciones sean apropiadas para el nivel y características del cuartil Q
    - El documento mantenga su estructura original sin cambios de formato
-   - La informaciÃ³n sea profesional y aplicable
+   - La información sea profesional y aplicable
 
 5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original.
 
 C.L.O.E. COACH Â· PROMPT BASE PARA GENERAR QUINCENA
-Objetivo: generar un plan completo que la app pueda leer y pintar en calendario, suplementos, entrenamientos, nutriciÃ³n, objetivos, ajustes y fechas.
+Objetivo: generar un plan completo que la app pueda leer y pintar en calendario, suplementos, entrenamientos, nutrición, objetivos, ajustes y fechas.
 
 REGLAS DE FORMATO PARA LA IA
 - Devuelve siempre secciones A, B, C, D, E y F con estos tÃ­tulos exactos.
-- Incluye CALENDARIO QX con 14 lÃ­neas tipo: Dia 1 - Martes 28/04: Fuerza A - Tren superior.
+- Incluye CALENDARIO QX con 14 líneas tipo: Dia 1 - Martes 28/04: Fuerza A - Tren superior.
 - Usa nombres claros en los bloques de entreno: FUERZA A, FUERZA B, CALISTENIA A, RUNNING EASY, CICLISMO, NATACIÃ“N, ANDAR, DESCANSO.
 - En suplementos usa ventanas exactas: AL LEVANTARTE, ANTES DEL DESAYUNO, PRE ENTRENAMIENTO, ANTES DE CENAR, POST ENTRENAMIENTO FUERZA, ANTES DE ACOSTARTE.
-- En nutriciÃ³n, bajo cada OpciÃ³n A/B/C incluye una lÃ­nea TIPS: con consejo breve.
+- En nutrición, bajo cada Opción A/B/C incluye una línea TIPS: con consejo breve.
 - Si falta un dato escribe SIN DATOS. No inventes datos mÃ©dicos.
 
 DATOS USUARIO DE MUESTRA
 Usuario: Sandra Demo
 Email: sandra.demo@email.com
 Quincena solicitada: Q1
-DÃ­a actual del plan: 2/14
+Día actual del plan: 2/14
 Fase: BASE
 Inicio del plan: 2026-04-28
 Fechas Q1: 28/04/2026 a 11/05/2026
@@ -580,50 +580,50 @@ Sexo: Mujer
 Peso: 70.0 kg
 Altura: 178 cm
 IMC: 22.1
-Macros diana: 1805 kcal Â· 140g proteÃ­na / 169g hidratos / 63g grasa
-Pasos actuales: 6500/dÃ­a
-Pasos objetivo: 8000/dÃ­a
-SueÃ±o: 8.5h
+Macros diana: 1805 kcal · 140g proteína / 169g hidratos / 63g grasa
+Pasos actuales: 6500/día
+Pasos objetivo: 8000/día
+Sueño: 8.5h
 Actividad laboral: Sedentario
 Lesiones: Rodillas sensibles
-Detalle lesiÃ³n: evitar zancadas, sentadilla profunda y dolor articular
-CondiciÃ³n mÃ©dica relevante: fibrilaciÃ³n auricular, sin intervalos en Q1
-Contexto: estrÃ©s laboral alto, oficina, quiere adherencia simple
+Detalle lesión: evitar zancadas, sentadilla profunda y dolor articular
+Condición médica relevante: fibrilación auricular, sin intervalos en Q1
+Contexto: estrés laboral alto, oficina, quiere adherencia simple
 Deportes seleccionados: Running, Andar, Fuerza, Calistenia
 Nivel running: Principiante menos de 6 meses
 Nivel fuerza/gimnasio: Menos de 1 aÃ±o
 Nivel calistenia: Principiante, domina plancha bÃ¡sica 20s, no domina dominadas
 Equipamiento: Gimnasio completo, mancuernas, mÃ¡quinas, bandas elÃ¡sticas, barra de dominadas asistida, suelo/colchoneta
-DÃ­as disponibles por semana: 5
-DÃ­as fuerza/semana: 4
-DÃ­as deportes/semana: 1
-DÃ­as preferidos fuerza: Martes, MiÃ©rcoles, Viernes, Lunes
-DÃ­as preferidos por deporte: Running: Jueves Â· Andar: Jueves o descanso activo Â· Calistenia: Viernes
-Tiempo por sesiÃ³n: 45-60 min
+Días disponibles por semana: 5
+Días fuerza/semana: 4
+Días deportes/semana: 1
+Días preferidos fuerza: Martes, Miércoles, Viernes, Lunes
+Días preferidos por deporte: Running: Jueves · Andar: Jueves o descanso activo · Calistenia: Viernes
+Tiempo por sesión: 45-60 min
 Easy pace: 8:00/km
 Target pace: 7:30/km
 Evento: Sin evento
 Dieta/restricciones: Sin lactosa
 Ayuno intermitente: No
-Ãšltimo reporte: SIN DATOS
+Último reporte: SIN DATOS
 
 COMPOSICIÃ“N CORPORAL
 Peso: 70.00 kg
 IMC: 22.1
 Grasa corporal: SIN DATOS
-Grasa subcutÃ¡nea: SIN DATOS
+Grasa subcutánea: SIN DATOS
 Grasa visceral: SIN DATOS
 Masa muscular: SIN DATOS
-MÃºsculo esquelÃ©tico: SIN DATOS
+Músculo esquelético: SIN DATOS
 Agua corporal: SIN DATOS
-Masa Ã³sea: SIN DATOS
+Masa ósea: SIN DATOS
 BMR: SIN DATOS
-Edad metabÃ³lica: SIN DATOS
+Edad metabólica: SIN DATOS
 Cintura: SIN DATOS
 
 FORMATO DE SALIDA ESPERADO
 
-â”€â”€ PERFIL FÃSICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+── PERFIL FÍSICO ─────────────────────────────────────
 C.L.O.E. COACH - PLAN Q1
 Usuario: Sandra Demo
 Fase: BASE
@@ -633,23 +633,23 @@ Macros: 1805 kcal | P 140g | HC 169g | G 63g
 A. SUPLEMENTOS
 
 AL LEVANTARTE
-- Agua mineral con limÃ³n: HidrataciÃ³n e inicio digestivo | 1 vaso grande | En ayunas antes de cualquier alimento | Base del protocolo matutino
-- Creatina monohidrato: Fuerza y retenciÃ³n muscular | 5g | Con agua | Constancia diaria
+- Agua mineral con limón: Hidratación e inicio digestivo | 1 vaso grande | En ayunas antes de cualquier alimento | Base del protocolo matutino
+- Creatina monohidrato: Fuerza y retención muscular | 5g | Con agua | Constancia diaria
 
 ANTES DEL DESAYUNO
 - Picolinato de cromo: Sensibilidad a la insulina | 200 mcg | 10 min antes del desayuno | Opcional segÃºn tolerancia
 
 PRE ENTRENAMIENTO
-- CafeÃ­na: Rendimiento y concentraciÃ³n | 1 cafÃ© solo | 30 min antes | Evitar despuÃ©s de las 15:00
+- Cafeína: Rendimiento y concentración | 1 café solo | 30 min antes | Evitar después de las 15:00
 
 ANTES DE CENAR
-- Picolinato de cromo: Control glucÃ©mico | 200 mcg | 10 min antes de la cena | Opcional segÃºn tolerancia
+- Picolinato de cromo: Control glucémico | 200 mcg | 10 min antes de la cena | Opcional según tolerancia
 
 POST ENTRENAMIENTO FUERZA
-- ProteÃ­na de guisante o whey sin lactosa: SÃ­ntesis proteica | 25g | Dentro de 30 min | Prioritaria si no llega a proteÃ­na
+- Proteína de guisante o whey sin lactosa: Síntesis proteica | 25g | Dentro de 30 min | Prioritaria si no llega a proteína
 
 ANTES DE ACOSTARTE
-- Magnesio bisglicinato: SueÃ±o y recuperaciÃ³n | 400 mg | Con agua | Prioritario
+- Magnesio bisglicinato: Sueño y recuperación | 400 mg | Con agua | Prioritario
 
 B. ENTRENAMIENTO
 
@@ -662,7 +662,7 @@ Dia 5 - Sabado 02/05: Descanso completo
 Dia 6 - Domingo 03/05: Descanso completo
 Dia 7 - Lunes 04/05: Fuerza C - Tren inferior glÃºteo
 Dia 8 - Martes 05/05: Fuerza A - Semana 2
-Dia 9 - Miercoles 06/05: Fuerza B - Semana 2
+Dia 9 - Miércoles 06/05: Fuerza B - Semana 2
 Dia 10 - Jueves 07/05: Running Easy - Semana 2
 Dia 11 - Viernes 08/05: Calistenia A - Semana 2
 Dia 12 - Sabado 09/05: Descanso completo
@@ -672,23 +672,23 @@ Dia 14 - Lunes 11/05: Fuerza C - Semana 2
 -----
 FUERZA A
 -----
-Objetivo: empuje y tirÃ³n tÃ©cnico.
-Press banca mÃ¡quina: 3x12 Â· RIR 3 Â· 25 kg Â· tempo 3-0-1-0 Â· descanso 90s
-Remo mÃ¡quina sentado: 3x12 Â· RIR 3 Â· 25 kg Â· tempo 2-0-1-0 Â· descanso 90s
+Objetivo: empuje y tirón técnico.
+Press banca máquina: 3x12 · RIR 3 · 25 kg · tempo 3-0-1-0 · descanso 90s
+Remo máquina sentado: 3x12 · RIR 3 · 25 kg · tempo 2-0-1-0 · descanso 90s
 
 -----
 CALISTENIA A
 -----
 Objetivo: control corporal, core y empuje sin dolor.
-Plancha frontal: 3x25 seg Â· RIR tÃ©cnico 3 Â· descanso 45s
-Flexiones inclinadas en banco: 3x10 Â· RIR 3 Â· descanso 75s
-Remo invertido asistido: 3x8 Â· RIR 3 Â· descanso 90s
-Dead bug: 3x10 cada lado Â· control respiraciÃ³n Â· descanso 45s
+Plancha frontal: 3x25 seg · RIR técnico 3 · descanso 45s
+Flexiones inclinadas en banco: 3x10 · RIR 3 · descanso 75s
+Remo invertido asistido: 3x8 · RIR 3 · descanso 90s
+Dead bug: 3x10 cada lado · control respiración · descanso 45s
 
 -----
 RUNNING EASY
 -----
-Objetivo: cardio suave aerÃ³bico sin cambios de ritmo.
+Objetivo: cardio suave aeróbico sin cambios de ritmo.
 Warmup
 10m 8:00/km Pace
 Main set
@@ -701,38 +701,38 @@ DESCANSO
 -----
 Sin actividad fÃ­sica programada.
 
-C. NUTRICIÃ“N C.L.O.E.
+C. NUTRICIÓN C.L.O.E.
 
-Macros diana: 1805 kcal Â· 140g proteÃ­na / 169g hidratos / 63g grasa
-Objetivo: RecomposiciÃ³n corporal Â· Sin lactosa
+Macros diana: 1805 kcal · 140g proteína / 169g hidratos / 63g grasa
+Objetivo: Recomposición corporal · Sin lactosa
 
-â”â”â” DESAYUNO (08:00) â”â”â”
-OpciÃ³n A
+━━━ DESAYUNO (08:00) ━━━
+Opción A
 - Huevos enteros talla M: 2 unidades
 - Pan integral: 1 rebanada
-TIPS: AÃ±ade especias y tomate para mÃ¡s sabor sin calorÃ­as.
+TIPS: Añade especias y tomate para más sabor sin calorías.
 
-OpciÃ³n B
+Opción B
 - Avena: 60g
-- ProteÃ­na sin lactosa: 25g
+- Proteína sin lactosa: 25g
 TIPS: Tritura con hielo para mejorar textura y saciedad.
 
-OpciÃ³n C
+Opción C
 - Yogur de soja: 150g
-- ArÃ¡ndanos: 70g
+- Arándanos: 70g
 TIPS: AÃ±ade canela para sabor y adherencia.
 
-â”â”â” REGLAS GENERALES â”â”â”
+━━━ REGLAS GENERALES ━━━
 Agua mineral: mÃ­nimo 3 litros diarios
-ProteÃ­na presente en cada toma principal
-Sin frito, rebozados ni bollerÃ­a industrial
+Proteína presente en cada toma principal
+Sin frito, rebozados ni bollería industrial
 
 D. OBJETIVOS
 PASOS DIARIOS: 8000
-SUEÃ‘O: 8.5h
+SUEÑO: 8.5h
 ADHERENCIA ENTRENO: 80%
 ADHERENCIA NUTRICION: 75%
-FOCO QUINCENA 1: Instalar sistema, tÃ©cnica y registro.
+FOCO QUINCENA 1: Instalar sistema, técnica y registro.
 
 E. AJUSTES
 - Calistenia: progresar con rango, control escapular y repeticiones antes de aÃ±adir dificultad.
