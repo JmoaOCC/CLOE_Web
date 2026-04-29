@@ -318,6 +318,15 @@ function readPlanDayInput(){
   return Number.isFinite(n)?Math.min(14,Math.max(1,n)):null;
 }
 
+function formatFoodPreferences(preferences,notes=''){
+  const entries=preferences&&typeof preferences==='object'
+    ?Object.entries(preferences).filter(([,items])=>Array.isArray(items)&&items.length)
+    :[];
+  const lines=entries.map(([cat,items])=>`- ${cat}: ${items.join(', ')}`);
+  if(notes) lines.push(`- Notas: ${notes}`);
+  return lines.length?lines.join('\n'):'- Sin preferencias marcadas.';
+}
+
 function buildProfilePrompt(user){
   const extra=user.onboarding_data||{};
   const body=extra.body_composition||{};
@@ -401,6 +410,8 @@ DATOS DEL CUESTIONARIO
 - Equipamiento: ${equip}
 - Actividad: ${extra.activity||'n/d'}
 - Dieta: ${diet}
+- Preferencias alimentos:
+${formatFoodPreferences(extra.food_preferences,extra.food_notes)}
 - Sueño: ${extra.sleep||'n/d'} h
 - Contexto: ${extra.context||'n/d'}
 - Ayuno intermitente: ${fasting.enabled||'No'}
@@ -686,6 +697,8 @@ function collectEditUserForPrompt(){
       sports:textToList(document.getElementById('e-sports').value),
       equip:textToList(document.getElementById('e-equip').value),
       diet:textToList(document.getElementById('e-diet').value),
+      food_preferences:current.food_preferences||null,
+      food_notes:current.food_notes||null,
       sleep:parseFloat(document.getElementById('e-sleep').value)||null,
       context:document.getElementById('e-context').value.trim()||null
     }
@@ -1046,6 +1059,8 @@ async function saveEdit(){
     sports:textToList(document.getElementById('e-sports').value),
     equip:textToList(document.getElementById('e-equip').value),
     diet:textToList(document.getElementById('e-diet').value),
+    food_preferences:current.food_preferences||null,
+    food_notes:current.food_notes||null,
     sleep:parseFloat(document.getElementById('e-sleep').value)||null,
     context:document.getElementById('e-context').value.trim()||null
   };

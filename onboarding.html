@@ -42,6 +42,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 .cpill.msel{border-color:var(--accent2);background:rgba(91,156,246,.08)}
 .cpill-t{font-size:13px;font-weight:700;margin-bottom:4px}
 .cpill-s{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.5}
+.food-prefs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px}
+.food-cat{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px}
+.food-cat-title{font-size:13px;font-weight:800;margin-bottom:10px;color:var(--text)}
+.food-checks{display:grid;gap:8px}
+.food-check{display:flex;align-items:flex-start;gap:9px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.35;cursor:pointer}
+.food-check input{width:15px;height:15px;margin-top:0;accent-color:var(--accent);flex-shrink:0}
+.food-check span{display:block}
 .sl-wrap{display:flex;align-items:center;gap:12px;margin-top:6px}
 .sl-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:45px}
 input[type=range]{flex:1;accent-color:var(--accent)}
@@ -64,7 +71,7 @@ input[type=range]{flex:1;accent-color:var(--accent)}
 @media (max-width:720px){
   .hdr{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}
   .steps-row{padding:12px 16px}
-  .g2,.g3,.mgrid{grid-template-columns:1fr}
+  .g2,.g3,.mgrid,.food-prefs{grid-template-columns:1fr}
   .nav{flex-direction:column}
   .btn{width:100%}
 }
@@ -402,6 +409,82 @@ input[type=range]{flex:1;accent-color:var(--accent)}
       <div class="pill" data-key="diet" data-value="Vegetariano" onclick="multi(this,'diet','Vegetariano')">Vegetariano</div>
       <div class="pill" data-key="diet" data-value="Vegano" onclick="multi(this,'diet','Vegano')">Vegano</div>
     </div>
+  </div>
+
+  <div class="field">
+    <label class="fl">Preferencias de alimentos para crear menús</label>
+    <div class="psub" style="margin-bottom:12px">Marca los alimentos que quieres priorizar. C.L.O.E. los usará como base flexible para construir opciones intercambiables según macros, objetivo y restricciones.</div>
+    <div class="food-prefs">
+      <div class="food-cat"><div class="food-cat-title">Proteínas animales</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas animales" value="Pollo"><span>Pollo</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas animales" value="Pavo"><span>Pavo</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas animales" value="Ternera magra"><span>Ternera magra</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas animales" value="Huevos"><span>Huevos</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas animales" value="Salmón"><span>Salmón</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas animales" value="Atún"><span>Atún</span></label>
+      </div></div>
+      <div class="food-cat"><div class="food-cat-title">Proteínas vegetales</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas vegetales" value="Tofu"><span>Tofu</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas vegetales" value="Tempeh"><span>Tempeh</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas vegetales" value="Seitán"><span>Seitán</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas vegetales" value="Lentejas"><span>Lentejas</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas vegetales" value="Garbanzos"><span>Garbanzos</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Proteínas vegetales" value="Alubias"><span>Alubias</span></label>
+      </div></div>
+      <div class="food-cat"><div class="food-cat-title">Carbohidratos base</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Carbohidratos base" value="Arroz"><span>Arroz</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Carbohidratos base" value="Pasta"><span>Pasta</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Carbohidratos base" value="Patata"><span>Patata</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Carbohidratos base" value="Boniato"><span>Boniato</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Carbohidratos base" value="Avena"><span>Avena</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Carbohidratos base" value="Pan integral"><span>Pan integral</span></label>
+      </div></div>
+      <div class="food-cat"><div class="food-cat-title">Verduras y hortalizas</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Verduras y hortalizas" value="Brócoli"><span>Brócoli</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Verduras y hortalizas" value="Espinacas"><span>Espinacas</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Verduras y hortalizas" value="Calabacín"><span>Calabacín</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Verduras y hortalizas" value="Pimientos"><span>Pimientos</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Verduras y hortalizas" value="Ensalada variada"><span>Ensalada variada</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Verduras y hortalizas" value="Tomate"><span>Tomate</span></label>
+      </div></div>
+      <div class="food-cat"><div class="food-cat-title">Frutas</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Frutas" value="Plátano"><span>Plátano</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Frutas" value="Manzana"><span>Manzana</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Frutas" value="Frutos rojos"><span>Frutos rojos</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Frutas" value="Naranja"><span>Naranja</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Frutas" value="Kiwi"><span>Kiwi</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Frutas" value="Piña"><span>Piña</span></label>
+      </div></div>
+      <div class="food-cat"><div class="food-cat-title">Grasas saludables</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Grasas saludables" value="Aceite de oliva"><span>Aceite de oliva</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Grasas saludables" value="Aguacate"><span>Aguacate</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Grasas saludables" value="Nueces"><span>Nueces</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Grasas saludables" value="Almendras"><span>Almendras</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Grasas saludables" value="Crema de cacahuete"><span>Crema de cacahuete</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Grasas saludables" value="Semillas"><span>Semillas</span></label>
+      </div></div>
+      <div class="food-cat"><div class="food-cat-title">Lácteos y alternativas</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Lácteos y alternativas" value="Yogur griego"><span>Yogur griego</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Lácteos y alternativas" value="Queso fresco batido"><span>Queso fresco batido</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Lácteos y alternativas" value="Leche"><span>Leche</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Lácteos y alternativas" value="Bebida de soja"><span>Bebida de soja</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Lácteos y alternativas" value="Yogur de soja"><span>Yogur de soja</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Lácteos y alternativas" value="Proteína whey"><span>Proteína whey</span></label>
+      </div></div>
+      <div class="food-cat"><div class="food-cat-title">Flexibles 80/20</div><div class="food-checks">
+        <label class="food-check"><input type="checkbox" data-food-cat="Flexibles 80/20" value="Chocolate negro"><span>Chocolate negro</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Flexibles 80/20" value="Tortitas de arroz"><span>Tortitas de arroz</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Flexibles 80/20" value="Miel"><span>Miel</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Flexibles 80/20" value="Mermelada"><span>Mermelada</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Flexibles 80/20" value="Cereales"><span>Cereales</span></label>
+        <label class="food-check"><input type="checkbox" data-food-cat="Flexibles 80/20" value="Comida social semanal"><span>Comida social semanal</span></label>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="fl">Notas sobre alimentos que quieres evitar o añadir</label>
+    <textarea id="food-notes" rows="3" placeholder="Ej: no me gusta el pescado azul, quiero incluir tortillas, prefiero cenas ligeras, evito comidas muy picantes..."></textarea>
   </div>
 
   <div class="field">
@@ -799,6 +882,36 @@ function readTrim(id,fallback=''){
   return el ? (el.value.trim()||fallback) : fallback;
 }
 
+function collectFoodPreferences(){
+  const result={};
+  document.querySelectorAll('input[data-food-cat]:checked').forEach(input=>{
+    const cat=input.dataset.foodCat||'Otros';
+    if(!result[cat]) result[cat]=[];
+    result[cat].push(input.value);
+  });
+  return result;
+}
+
+function restoreFoodPreferences(preferences){
+  if(!preferences || typeof preferences!=='object') return;
+  const selected=new Set();
+  Object.values(preferences).forEach(values=>{
+    if(Array.isArray(values)) values.forEach(value=>selected.add(value));
+  });
+  document.querySelectorAll('input[data-food-cat]').forEach(input=>{
+    input.checked=selected.has(input.value);
+  });
+}
+
+function formatFoodPreferences(preferences,notes=''){
+  const entries=preferences&&typeof preferences==='object'
+    ?Object.entries(preferences).filter(([,items])=>Array.isArray(items)&&items.length)
+    :[];
+  const lines=entries.map(([cat,items])=>`- ${cat}: ${items.join(', ')}`);
+  if(notes) lines.push(`- Notas: ${notes}`);
+  return lines.length?lines.join('\n'):'- Sin preferencias marcadas. Prioriza adherencia, variedad y restricciones.';
+}
+
 function collectPayload(){
   return {
     name:document.getElementById('name').value.trim()||'Usuario',
@@ -845,6 +958,8 @@ function collectPayload(){
     sports:M.sports&&M.sports.size?[...M.sports]:['Running'],
     activity:F.activity||'Sedentario (oficina, poco movimiento)',
     dietList:M.diet&&M.diet.size?[...M.diet]:['Ninguna'],
+    foodPreferences:collectFoodPreferences(),
+    foodNotes:readTrim('food-notes',''),
     sleep:document.getElementById('sleep').value,
     context:document.getElementById('context').value.trim()||'ninguno',
     fasting:{
@@ -1026,11 +1141,14 @@ C. NUTRICIÓN C.L.O.E.
 
 Macros: ${mac.kcal} kcal · ${mac.protein}P / ${mac.carbs}HC / ${mac.fat}G
 Restricciones: ${diet}
+Preferencias de alimentos para construir menús:
+${formatFoodPreferences(payload.foodPreferences,payload.foodNotes)}
 Ayuno intermitente:
 ${formatFasting(payload.fasting)}
 
 Genera menús con cantidades exactas para cada día tipo.
 Para cada comida ofrece 3 opciones completas e intercambiables.
+Prioriza los alimentos marcados por categoría siempre que encajen con las restricciones, macros y regla 80/20. Si una preferencia entra en conflicto con una restricción, respeta la restricción.
 En la quincena siguiente, cambia o adapta las opciones según adherencia, hambre, preferencias y evolución.
 
 Usa sistema de intercambios C.L.O.E.
@@ -1108,6 +1226,8 @@ async function saveUserOnboarding(payload){
       sports:payload.sports,
       activity:payload.activity,
       diet:payload.dietList,
+      food_preferences:payload.foodPreferences,
+      food_notes:payload.foodNotes,
       sleep:payload.sleep,
       context:payload.context,
       fasting:payload.fasting
@@ -1236,6 +1356,8 @@ function applyProfileToForm(profile){
   restoreMulti('equip',extra.equip);
   restoreSingle('activity',extra.activity);
   restoreMulti('diet',extra.diet);
+  restoreFoodPreferences(extra.food_preferences);
+  setInput('food-notes',extra.food_notes);
   setSlider('sleep',extra.sleep||7,'h');
   setInput('context',extra.context);
   const fasting=extra.fasting||{};
