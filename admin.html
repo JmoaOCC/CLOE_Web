@@ -922,7 +922,7 @@ function normalizePlanBlocks(text){
       .replace(/\bMi[eé]rcoles\b/gi,'Miercoles')
       .replace(/\bS[aá]bado\b/gi,'Sabado');
     const upper=line.toUpperCase();
-    if(workoutTitleRx.test(upper) && !/^RUNNING\s+T[EÉ]CNICA/i.test(upper)){
+    if(workoutTitleRx.test(upper)){
       if(out.length&&out[out.length-1]!=='') out.push('');
       out.push('-----',upper,'-----');
       pendingSeparator=false;
