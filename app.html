@@ -1189,10 +1189,32 @@ function trimTrainingContent(content){
   }
   return out.join('\n').trim();
 }
+function splitWorkoutBlocks(text){
+  if(!text) return [];
+  const lines=String(text).split(/\r?\n/);
+  const blocks=[];
+  let i=0;
+  const sepRx=/^\s*[-─━═_]{3,}\s*$/;
+  while(i<lines.length){
+    if(!sepRx.test(lines[i])){i++;continue;}
+    const title=(lines[i+1]||'').trim();
+    if(!title||sepRx.test(title)){i++;continue;}
+    let j=i+2;
+    if(j<lines.length&&sepRx.test(lines[j])) j++;
+    const content=[];
+    while(j<lines.length&&!sepRx.test(lines[j])){
+      content.push(lines[j]);
+      j++;
+    }
+    blocks.push({title,content:content.join('\n').trim()});
+    i=j;
+  }
+  return blocks.length?blocks:splitPlanBlocks(text,null);
+}
 function extractPlanRunningSessions(text){
   if(!text) return {};
   const sessions={};
-  const blocks = splitPlanBlocks(text, null);
+  const blocks = splitWorkoutBlocks(text);
   blocks.forEach(b => {
     const title = b.title.toUpperCase();
     if(title.match(/FUERZA|DESCANSO|NATACI[ÓO]N|RODILLO/i)) return;
@@ -1209,7 +1231,7 @@ function extractPlanRunningSessions(text){
 function extractPlanStrengthDays(text){
   if(!text) return [];
   const days=[];const seenKeys=new Set();
-  const blocks = splitPlanBlocks(text, /FUERZA|CALISTENIA/i);
+  const blocks = splitWorkoutBlocks(text).filter(b=>/FUERZA|CALISTENIA/i.test(b.title));
   blocks.forEach(b => {
     const km = b.title.match(/(?:FUERZA|CALISTENIA)\s+([ABCD])\b/i);
     const key = km ? km[1].toUpperCase() : 'D'+(days.length+1);
@@ -1218,6 +1240,20 @@ function extractPlanStrengthDays(text){
     days.push({title: b.title, content: trimTrainingContent(b.content), key});
   });
   return days;
+}
+
+function refreshPlanRuntimeData(){
+  const planText=getPlanText();
+  if(!planText||!profile) return;
+  const structured=parsePlanStructured(planText);
+  const trainingText=structured.B||planText;
+  const sched=parsePlanSchedule(trainingText);
+  if(sched) sched.forEach((day,i)=>{if(day){DAYLABELS[i]=day.label;DAYTYPES[i]=day.type;}});
+  profile._paces=parsePlanPaces(trainingText);
+  const rs=extractPlanRunningSessions(trainingText);
+  profile.plan_running=Object.keys(rs).length?JSON.stringify(rs):null;
+  const sd=extractPlanStrengthDays(trainingText);
+  profile._strengthDays=sd.length?sd:[];
 }
 
 function getCustomExercises(content) {
@@ -1270,16 +1306,8 @@ function getCustomExercises(content) {
     // Parse plan structure at runtime
     const planText=getPlanText();
     if(planText){
-      const structured=parsePlanStructured(planText);
-      const trainingText=structured.B||planText;
       applyPlanData(planText);
-      const sched=parsePlanSchedule(trainingText);
-      if(sched) sched.forEach((day,i)=>{if(day){DAYLABELS[i]=day.label;DAYTYPES[i]=day.type;}});
-      profile._paces=parsePlanPaces(trainingText);
-      const rs=extractPlanRunningSessions(trainingText);
-      if(Object.keys(rs).length) profile.plan_running=JSON.stringify(rs);
-      const sd=extractPlanStrengthDays(trainingText);
-      if(sd.length) profile._strengthDays=sd;
+      refreshPlanRuntimeData();
     }
 
     const timeline=getTimelineInfo();
@@ -1548,6 +1576,7 @@ function renderSupplements(q){
 
 // ── TRAINING (formato Intervals) ──────────────────────────
 function renderTraining(q){
+  refreshPlanRuntimeData();
   const sd=profile?._strengthDays;
   if(sd&&sd.length>0){
     const sel=Math.min(trainingTab,sd.length-1);
@@ -1608,6 +1637,7 @@ function renderTraining(q){
 
 // ── RUNNING ───────────────────────────────────────────────
 function renderRunning(q){
+  refreshPlanRuntimeData();
   const p=getCurrentPaces(q);
   // Try custom plan sessions first
   let planSessions=null;
@@ -1804,6 +1834,7 @@ function renderTrainingCalendar(q){
 }
 
 function renderTrainingLog(q){
+  refreshPlanRuntimeData();
   return `
   <div class="ph"><h1>ENTRENAMIENTOS</h1><p>Calendario de la quincena · registros guardados automáticamente</p></div>
   <div class="training-tools">
@@ -2587,6 +2618,7 @@ function renderMobileDayBar(){
 function setMobDay(i){ mobDayIdx=i; renderMobileDayBar(); renderMobileDay(); }
 
 function renderMobileDay(){
+  refreshPlanRuntimeData();
   const timeline=getTimelineInfo();
   const q=timeline.q||getQuincena(profile?.week||1);
   const d=mobDayIdx; // 0-13
