@@ -208,7 +208,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <textarea id="e-profile-prompt" class="plan-area" rows="10" readonly></textarea>
     <div class="plan-hint">Resumen automático del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
 
-    <label>Plan Quincena activa (editar o pegar plan nuevo de CLOE)</label>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px">
+      <label style="margin:0">Plan Quincena activa (editar o pegar plan nuevo de CLOE)</label>
+      <button class="btn sec" style="padding:6px 12px;font-size:10px" onclick="adaptActivePlan()">Adaptar</button>
+    </div>
     <textarea id="e-plan" class="plan-area" rows="10"></textarea>
     <div class="plan-hint">💡 Para actualizar el plan: genera el reporte quincenal desde la app del usuario → pégalo en el chat → C.L.O.E. genera la quincena siguiente → pega aquí el resultado</div>
 
@@ -868,6 +871,138 @@ function openEdit(id){
   document.getElementById('e-plan').value=u.current_plan||u.quincena1_plan||'';
   document.getElementById('e-profile-prompt').value=buildProfilePrompt(u);
   document.getElementById('m-edit').classList.add('on');
+}
+
+function cleanPlanLine(line){
+  return String(line||'')
+    .replace(/\t/g,' ')
+    .replace(/[–—]/g,'-')
+    .replace(/•\s*/g,'- ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function planSectionTitle(letter,title){
+  const names={
+    A:'SUPLEMENTOS',
+    B:'ENTRENAMIENTO',
+    C:'NUTRICIÓN C.L.O.E.',
+    D:'OBJETIVOS',
+    E:'AJUSTES',
+    F:'FECHAS'
+  };
+  return `${letter}. ${title||names[letter]}`;
+}
+
+function splitPlanSections(text){
+  const sections={};
+  const starts=[];
+  const rx=/^([A-F])\.\s*([^\n\r]*)/gim;
+  let m;
+  while((m=rx.exec(text))!==null) starts.push({letter:m[1].toUpperCase(),title:cleanPlanLine(m[2]),index:m.index,end:rx.lastIndex});
+  starts.forEach((s,i)=>{
+    const next=i+1<starts.length?starts[i+1].index:text.length;
+    sections[s.letter]={title:s.title,body:text.slice(s.end,next).trim()};
+  });
+  sections._header=starts.length?text.slice(0,starts[0].index).trim():text.trim();
+  return sections;
+}
+
+function normalizePlanBlocks(text){
+  const workoutTitleRx=/^(FUERZA|CALISTENIA|RUNNING|CARDIO|CICLISMO|NATACIÓN|NATACION|RODILLO|ANDAR|DESCANSO)\b/i;
+  const lines=String(text||'').split('\n');
+  const out=[];
+  let pendingSeparator=false;
+  lines.forEach(raw=>{
+    let line=raw.trim();
+    if(!line) return;
+    if(/^[-─━═_]{3,}$/.test(line)){pendingSeparator=true;return;}
+    line=cleanPlanLine(line)
+      .replace(/^D[ií]a\b/i,'Dia')
+      .replace(/\bMi[eé]rcoles\b/gi,'Miercoles')
+      .replace(/\bS[aá]bado\b/gi,'Sabado');
+    const upper=line.toUpperCase();
+    if(workoutTitleRx.test(upper) && !/^RUNNING\s+T[EÉ]CNICA/i.test(upper)){
+      if(out.length&&out[out.length-1]!=='') out.push('');
+      out.push('-----',upper,'-----');
+      pendingSeparator=false;
+      return;
+    }
+    if(pendingSeparator&&workoutTitleRx.test(upper)){
+      if(out.length&&out[out.length-1]!=='') out.push('');
+      out.push('-----',upper,'-----');
+      pendingSeparator=false;
+      return;
+    }
+    pendingSeparator=false;
+    if(/^Dia\s+\d+/i.test(line)) out.push(line.replace(/\s*-\s*/,' - ').replace(/\s*:\s*/,': '));
+    else out.push(line.replace(/^[-*]\s*/,'- '));
+  });
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+function normalizePlanNutrition(text){
+  const mealRx=/^(COMIDA|MERIENDA|CENA|DESAYUNO|ALMUERZO|TOMA\s*\d+)\b(?:\s*\(([^)]*)\))?/i;
+  const lines=String(text||'').split('\n');
+  const out=[];
+  lines.forEach(raw=>{
+    let line=raw.trim();
+    if(!line) return;
+    line=cleanPlanLine(line)
+      .replace(/^Opci[oó]n\s+([A-Z])\s*[-.]\s*/i,'Opción $1: ')
+      .replace(/^Opci[oó]n\s+([A-Z])\s*:\s*/i,'Opción $1: ')
+      .replace(/^Tips?\s*:\s*/i,'TIPS: ');
+    line=line.replace(/^[-*]\s*/,'- ');
+    const meal=line.replace(/^[-─━═\s]+|[-─━═\s]+$/g,'').match(mealRx);
+    if(meal){
+      const label=meal[1].replace(/\s+/g,' ').toUpperCase();
+      const timing=meal[2]?` (${meal[2].trim()})`:'';
+      if(out.length&&out[out.length-1]!=='') out.push('');
+      out.push(`━━━ ${label}${timing} ━━━`);
+      return;
+    }
+    out.push(line);
+  });
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+function adaptPlanText(raw){
+  let text=String(raw||'')
+    .replace(/\r\n?/g,'\n')
+    .replace(/```[\w-]*\n?/g,'')
+    .replace(/```/g,'')
+    .replace(/\u00a0/g,' ')
+    .trim();
+  if(!text) return '';
+  const sections=splitPlanSections(text);
+  if(!['A','B','C','D','E','F'].some(letter=>sections[letter])) return text;
+  const q=(text.match(/\bQ\s*(\d+)\b/i)||[])[1]||quincenaFromWeek(parseInt(document.getElementById('e-week')?.value)||1);
+  const headerLines=(sections._header||'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const hasProfile=headerLines.some(l=>/PERFIL\s+F[IÍ]SICO/i.test(l));
+  const header=[hasProfile?headerLines.shift():'── PERFIL FÍSICO ─────────────────────────────────────',...headerLines];
+  if(!header.some(l=>/C\.L\.O\.E\. COACH/i.test(l))) header.splice(1,0,`C.L.O.E. COACH - PLAN Q${q}`);
+
+  const ordered=['A','B','C','D','E','F'];
+  const body=ordered.map(letter=>{
+    const sec=sections[letter];
+    if(!sec) return '';
+    let content=sec.body||'';
+    if(letter==='B') content=normalizePlanBlocks(content);
+    else if(letter==='C') content=normalizePlanNutrition(content);
+    else content=content.split('\n').map(l=>cleanPlanLine(l).replace(/^[-*]\s*/,'- ')).filter(Boolean).join('\n');
+    return `${planSectionTitle(letter,letter==='C'?'NUTRICIÓN C.L.O.E.':null)}\n\n${content}`.trim();
+  }).filter(Boolean);
+  return `${header.join('\n')}\n\n${body.join('\n\n')}`.replace(/\n{3,}/g,'\n\n').trim();
+}
+
+function adaptActivePlan(){
+  const el=document.getElementById('e-plan');
+  const before=el.value.trim();
+  if(!before){toast('Pega primero un plan en la ventana.');return;}
+  const after=adaptPlanText(before);
+  if(!after){toast('No se pudo adaptar el plan.');return;}
+  el.value=after;
+  toast('✅ Plan adaptado al formato de la app. Revisa y guarda.');
 }
 
 async function saveEdit(){
