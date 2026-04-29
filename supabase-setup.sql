@@ -34,7 +34,19 @@ alter table profiles add column if not exists plan_running jsonb;
 alter table profiles add column if not exists plan_nutrition jsonb;
 alter table profiles add column if not exists plan_supplements jsonb;
 
+create table if not exists user_logs (
+  id           bigint generated always as identity primary key,
+  user_id      uuid references profiles(id) on delete cascade,
+  actor_id     uuid references profiles(id) on delete set null,
+  event_type   text not null,
+  detail       text,
+  ip_address   text,
+  user_agent   text,
+  created_at   timestamptz default now()
+);
+
 alter table profiles enable row level security;
+alter table user_logs enable row level security;
 
 create or replace function is_admin()
 returns boolean
@@ -50,6 +62,7 @@ as $$
 $$;
 
 drop policy if exists "own profile" on profiles;
+drop policy if exists "own profile select" on profiles;
 create policy "own profile select"
   on profiles for select
   using (auth.uid() = id);
@@ -65,6 +78,22 @@ create policy "admin all"
   on profiles for all
   using (is_admin())
   with check (is_admin());
+
+drop policy if exists "own logs insert" on user_logs;
+create policy "own logs insert"
+  on user_logs for insert
+  with check (auth.uid() = user_id or public.is_admin());
+
+drop policy if exists "admin logs select" on user_logs;
+create policy "admin logs select"
+  on user_logs for select
+  using (public.is_admin());
+
+drop policy if exists "admin logs all" on user_logs;
+create policy "admin logs all"
+  on user_logs for all
+  using (public.is_admin())
+  with check (public.is_admin());
 
 create or replace function handle_new_user()
 returns trigger as $$

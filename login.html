@@ -159,6 +159,8 @@ async function redirect(uid) {
       data.onboarding_completed !== true ||
       !data.age || !data.sex || !data.weight_kg || !data.height_cm || !data.goal
     );
+
+    await recordLoginLog(data);
     
     if(data.role === 'admin') window.location.replace('admin.html');
     else if(needsOnboarding) window.location.replace('onboarding.html');
@@ -167,6 +169,21 @@ async function redirect(uid) {
   } catch(e) {
     showErr('Error crítico al redirigir: ' + e.message);
     reactivateBtn();
+  }
+}
+
+async function recordLoginLog(profile) {
+  if(!profile || !sb) return;
+  try {
+    await sb.from('user_logs').insert({
+      user_id: profile.id,
+      actor_id: profile.id,
+      event_type: profile.role === 'admin' ? 'admin_login' : 'user_login',
+      detail: profile.role === 'admin' ? 'Inicio de sesión admin' : 'Inicio de sesión usuario',
+      user_agent: navigator.userAgent
+    });
+  } catch(e) {
+    console.warn('No se pudo registrar el acceso', e);
   }
 }
 
