@@ -1234,7 +1234,7 @@ function extractPlanStrengthDays(text){
   const blocks = splitWorkoutBlocks(text).filter(b=>/FUERZA|CALISTENIA/i.test(b.title));
   blocks.forEach(b => {
     const km = b.title.match(/(?:FUERZA|CALISTENIA)\s+([ABCD])\b/i);
-    const key = km  km[1].toUpperCase() : 'D'+(days.length+1);
+    const key = km ? km[1].toUpperCase() : 'D'+(days.length+1);
     if(seenKeys.has(key)) return;
     seenKeys.add(key);
     days.push({title: b.title, content: trimTrainingContent(b.content), key});
@@ -1276,23 +1276,43 @@ function getCustomExercises(content) {
   return exList;
 }
 
-// ── INIT ─────────────────────────────────────────────────
+function withTimeout(promise,ms,message){
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))
+  ]);
+}
+
+// INIT
 (async()=>{
   try{
-    const {data:{session}}=await sb.auth.getSession();
+    const loading=document.getElementById('loading-screen');
+    if(!window.supabase||!sb?.auth){
+      loading.textContent='No se pudo cargar Supabase. Revisa la conexi?n y recarga la p?gina.';
+      return;
+    }
+    const {data:{session}}=await withTimeout(sb.auth.getSession(),12000,'Tiempo agotado al verificar sesi?n.');
     if(!session){window.location.href='login.html';return;}
-    let {data,error}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
+    let {data,error}=await withTimeout(
+      sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle(),
+      12000,
+      'Tiempo agotado al leer el perfil.'
+    );
     if(error||!data){
-      document.getElementById('loading-screen').textContent='Sesion iniciada, pero no se pudo leer el perfil. Revisa que el usuario exista en profiles.';
+      loading.textContent='Sesi?n iniciada, pero no se pudo leer el perfil. Revisa que el usuario exista en profiles.';
       return;
     }
     const adminUserId=new URLSearchParams(window.location.search).get('admin_user');
     const isAdminView=data.role==='admin'&&!!adminUserId;
     if(data.role==='admin'){
       if(!adminUserId){window.location.href='admin.html';return;}
-      const {data:target,error:targetError}=await sb.from('profiles').select('*').eq('id',adminUserId).maybeSingle();
+      const {data:target,error:targetError}=await withTimeout(
+        sb.from('profiles').select('*').eq('id',adminUserId).maybeSingle(),
+        12000,
+        'Tiempo agotado al leer el usuario solicitado desde admin.'
+      );
       if(targetError||!target){
-        document.getElementById('loading-screen').textContent='No se pudo cargar el usuario solicitado desde admin.';
+        loading.textContent='No se pudo cargar el usuario solicitado desde admin.';
         return;
       }
       data=target;
@@ -1303,32 +1323,35 @@ function getCustomExercises(content) {
     const saved=localStorage.getItem('cloe_chk_'+profile.id);
     if(saved) checklist=JSON.parse(saved);
 
-    // Parse plan structure at runtime
     const planText=getPlanText();
     if(planText){
-      applyPlanData(planText);
-      refreshPlanRuntimeData();
+      try{
+        applyPlanData(planText);
+        refreshPlanRuntimeData();
+      }catch(planError){
+        console.error('Plan parse error:',planError);
+      }
     }
 
     const timeline=getTimelineInfo();
     const w=timeline.week||profile.week||1;
     const q=timeline.q||getQuincena(w);
-    document.getElementById('sb-name').textContent=profile.full_name||'—';
-    document.getElementById('sb-goal').textContent=profile.goal||'—';
+    document.getElementById('sb-name').textContent=profile.full_name||'?';
+    document.getElementById('sb-goal').textContent=profile.goal||'?';
     document.getElementById('sb-week').textContent=`Q${q}`;
     document.getElementById('sb-day').textContent=timeline.dayOffset>=0?timeline.dayOffset+1:'PRE';
     document.getElementById('sb-phase').textContent=getPhase(q);
-    document.getElementById('loading-screen').style.display='none';
+    loading.style.display='none';
     document.getElementById('app-shell').style.display='grid';
     mobDayIdx=timeline.dayOffset>=0?timeline.dayOffset:0;
     view('dashboard');
   }catch(e){
     console.error('Init error:',e);
-    document.getElementById('loading-screen').textContent='Error al cargar. Recarga la página o vuelve a iniciar sesión.';
+    document.getElementById('loading-screen').textContent='Error al cargar: '+(e?.message||'recarga la p?gina o vuelve a iniciar sesi?n.');
   }
 })();
 
-// ── VIEW ROUTER ───────────────────────────────────────────
+// VIEW ROUTER
 function view(v){
   currentView=v;
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('on'));
@@ -2057,7 +2080,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function parsePlanStructured(text){
   if(!text) return {};
   const macroM=text.match(/(?:Macros|MACROS DIARIOS)[:\s]*([^\n]+)/i);
-  const macros=parseMacrosLine(macroM  macroM[0] : '');
+  const macros=parseMacrosLine(macroM ? macroM[0] : '');
   const faseM=text.match(/Fase:\s*([^\n\r]+)/i);
   const lines=text.split('\n');
   const starts = { A: -1, B: -1, C: -1, D: -1, E: -1, F: -1 };
@@ -2075,7 +2098,7 @@ function parsePlanStructured(text){
   for (let idx = 0; idx < found.length; idx++) {
     const key = found[idx][0];
     const startLine = found[idx][1];
-    const endLine = idx + 1 < found.length  found[idx + 1][1] : lines.length;
+    const endLine = idx + 1 < found.length ? found[idx + 1][1] : lines.length;
     secs[key] = lines.slice(startLine + 1, endLine).join('\n').trim();
   }
   if (found.length === 0) secs.B = text;
