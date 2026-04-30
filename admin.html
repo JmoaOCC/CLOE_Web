@@ -1,9 +1,9 @@
-﻿﻿<!doctype html>
+﻿<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>C.L.O.E. Â· Admin</title>
+<title>C.L.O.E. · Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -91,7 +91,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 </head>
 <body>
 <div class="hdr">
-  <div class="brand">C.L.O.E. <span>COACH</span> <span style="font-size:13px;color:var(--muted);font-weight:400">Â· Panel Admin</span></div>
+  <div class="brand">C.L.O.E. <span>COACH</span> <span style="font-size:13px;color:var(--muted);font-weight:400">· Panel Admin</span></div>
   <div style="display:flex;align-items:center;gap:12px">
     <span class="badge">ADMIN</span>
     <a href="onboarding.html" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);text-decoration:none">+ Cuestionario</a>
@@ -103,10 +103,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 
 <div class="main">
   <div class="cards">
-    <div class="kcard"><div class="klbl">Usuarios activos</div><div class="kval a" id="st-active">â€”</div></div>
-    <div class="kcard"><div class="klbl">Pendientes</div><div class="kval o" id="st-pending">â€”</div></div>
-    <div class="kcard"><div class="klbl">Total</div><div class="kval b" id="st-total">â€”</div></div>
-    <div class="kcard"><div class="klbl">Quincena media</div><div class="kval" id="st-week">â€”</div></div>
+    <div class="kcard"><div class="klbl">Usuarios activos</div><div class="kval a" id="st-active">—</div></div>
+    <div class="kcard"><div class="klbl">Pendientes</div><div class="kval o" id="st-pending">—</div></div>
+    <div class="kcard"><div class="klbl">Total</div><div class="kval b" id="st-total">—</div></div>
+    <div class="kcard"><div class="klbl">Quincena media</div><div class="kval" id="st-week">—</div></div>
   </div>
 
   <div class="stitle">Usuarios</div>
@@ -139,7 +139,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   <div class="modal">
     <h2>Crear usuario</h2>
     <label>Nombre completo</label>
-    <input id="c-name" placeholder="MarÃ­a GarcÃ­a">
+    <input id="c-name" placeholder="María García">
     <label>Email</label>
     <input type="email" id="c-email" placeholder="maria@email.com">
     <label>Contraseña inicial</label>
@@ -153,17 +153,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     </div>
     <label>Objetivo</label>
     <select id="c-goal">
-      <option>RecomposiciÃ³n corporal</option>
+      <option>Recomposición corporal</option>
       <option>Perder grasa</option>
-      <option>Ganar mÃºsculo</option>
+      <option>Ganar músculo</option>
       <option>Rendimiento deportivo</option>
     </select>
-    <label>Plan Quincena 1 (pega aquÃ­ el output de CLOE IA)</label>
-    <textarea id="c-plan" class="plan-area" rows="8" placeholder="Pega aquÃ­ el plan completo que ha generado CLOE despuÃ©s de analizar el cuestionario...&#10;&#10;Incluye las dos semanas completas de la quincena 1, con fuerza, deportes, nutriciÃ³n y objetivos."></textarea>
-    <div class="plan-hint">ðŸ’¡ Flujo: rellena el cuestionario en onboarding.html â†’ copia el prompt â†’ pÃ©galo en el chat de CLOE â†’ CLOE genera el plan â†’ cÃ³pialo aquÃ­</div>
+    <label>Plan Quincena 1 (pega aquí el output de CLOE IA)</label>
+    <textarea id="c-plan" class="plan-area" rows="8" placeholder="Pega aquí el plan completo que ha generado CLOE después de analizar el cuestionario...&#10;&#10;Incluye las dos semanas completas de la quincena 1, con fuerza, deportes, nutrición y objetivos."></textarea>
+    <div class="plan-hint">💡 Flujo: rellena el cuestionario en onboarding.html → copia el prompt → pégalo en el chat de CLOE → CLOE genera el plan → cópialo aquí</div>
     <div class="pass-box" id="pass-box"></div>
     <div class="mact">
-      <button class="btn" onclick="createUser()">âœ… Crear usuario</button>
+      <button class="btn" onclick="createUser()">✅ Crear usuario</button>
       <button class="btn sec" onclick="close('m-create')">Cancelar</button>
     </div>
   </div>
@@ -190,7 +190,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <div><label>Altura (cm)</label><input type="number" id="e-height"></div>
       <div><label>Objetivo</label><input id="e-goal"></div>
       <div><label>Semana interna</label><input type="number" id="e-week" min="1" max="16"></div>
-      <div><label>DÃ­a del plan manual</label><input type="number" id="e-plan-day" min="1" max="14" placeholder="Vacío = automático por fecha inicio"></div>
+      <div><label>Día del plan manual</label><input type="number" id="e-plan-day" min="1" max="14" placeholder="Vacío = automático por fecha inicio"></div>
       <div><label>Estado</label>
         <select id="e-status">
           <option value="active">Activo</option>
@@ -198,9 +198,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
           <option value="inactive">Inactivo</option>
         </select>
       </div>
-      <div><label>Onboarding completado</label><select id="e-onboarding-completed"><option value="true">SÃ­</option><option value="false">No</option></select></div>
-      <div><label>DÃ­as por semana</label><input type="number" id="e-days" min="1" max="7"></div>
-      <div><label>Horas de sueÃ±o</label><input type="number" step="0.5" id="e-sleep"></div>
+      <div><label>Onboarding completado</label><select id="e-onboarding-completed"><option value="true">Sí</option><option value="false">No</option></select></div>
+      <div><label>Días por semana</label><input type="number" id="e-days" min="1" max="7"></div>
+      <div><label>Horas de sueño</label><input type="number" step="0.5" id="e-sleep"></div>
       <div><label>Easy pace</label><input id="e-easy-pace"></div>
       <div><label>Target pace</label><input id="e-target-pace"></div>
       <div><label>Fecha evento</label><input type="date" id="e-event-date"></div>
@@ -212,14 +212,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <label>Datos del cuestionario</label>
     <div class="g2">
       <div><label>Lesiones</label><input id="e-injury"></div>
-      <div><label>Detalle lesiÃ³n</label><input id="e-injury-detail"></div>
+      <div><label>Detalle lesión</label><input id="e-injury-detail"></div>
       <div><label>Pasos</label><input id="e-steps"></div>
       <div><label>Evento</label><input id="e-event"></div>
       <div><label>Nivel running</label><input id="e-run-level"></div>
       <div><label>Nivel fuerza</label><input id="e-gym-level"></div>
       <div><label>Nivel calistenia</label><input id="e-calis-level"></div>
-      <div><label>DistribuciÃ³n</label><input id="e-split"></div>
-      <div><label>Tiempo por sesiÃ³n</label><input id="e-session-time"></div>
+      <div><label>Distribución</label><input id="e-split"></div>
+      <div><label>Tiempo por sesión</label><input id="e-session-time"></div>
       <div><label>Actividad</label><input id="e-activity"></div>
       <div><label>Deportes (coma separada)</label><input id="e-sports"></div>
       <div><label>Equipamiento (coma separada)</label><input id="e-equip"></div>
@@ -230,29 +230,29 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <div class="form-section-title">Disponibilidad y contexto</div>
     <label>Disponibilidad y agenda</label>
     <div class="g2">
-      <div><label>DÃ­as fuerza/semana</label><input type="number" id="e-strength-days" min="0" max="7"></div>
-      <div><label>DÃ­as deportes/semana</label><input type="number" id="e-sport-days" min="0" max="7"></div>
+      <div><label>Días fuerza/semana</label><input type="number" id="e-strength-days" min="0" max="7"></div>
+      <div><label>Días deportes/semana</label><input type="number" id="e-sport-days" min="0" max="7"></div>
       <div><label>Preferencia fuerza</label><input id="e-strength-pref" placeholder="Lunes, Jueves"></div>
-      <div><label>Preferencia deportes</label><input id="e-sport-pref" placeholder="Martes, SÃ¡bado"></div>
+      <div><label>Preferencia deportes</label><input id="e-sport-pref" placeholder="Martes, Sábado"></div>
     </div>
     <label>Notas de agenda</label>
     <textarea id="e-schedule-notes" rows="2"></textarea>
     <label>Contexto adicional</label>
-    <textarea id="e-context" rows="3" placeholder="Trabajo, estrÃ©s, horarios, viajes, hijos..."></textarea>
+    <textarea id="e-context" rows="3" placeholder="Trabajo, estrés, horarios, viajes, hijos..."></textarea>
     <label>Notas del coach</label>
     <textarea id="e-notes" rows="2" placeholder="Observaciones, ajustes, alertas..."></textarea>
 
     </div>
     <div class="form-section">
     <div class="form-section-title">Reportes y prompt</div>
-    <label>Ãšltimo reporte guardado por el usuario</label>
+    <label>Último reporte guardado por el usuario</label>
     <textarea id="e-latest-report" class="plan-area" rows="8" readonly></textarea>
-    <div class="plan-hint">Este reporte lo genera el usuario al terminar la quincena. CÃ³pialo a la IA para preparar la quincena siguiente.</div>
-    <div class="mact"><button class="btn sec" onclick="copyLatestReport()">Copiar Ãºltimo reporte</button></div>
+    <div class="plan-hint">Este reporte lo genera el usuario al terminar la quincena. Cópialo a la IA para preparar la quincena siguiente.</div>
+    <div class="mact"><button class="btn sec" onclick="copyLatestReport()">Copiar último reporte</button></div>
 
     <label>Prompt IA del perfil</label>
     <textarea id="e-profile-prompt" class="plan-area" rows="10" readonly></textarea>
-    <div class="plan-hint">Resumen automÃ¡tico del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
+    <div class="plan-hint">Resumen automático del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
 
     </div>
     <div class="form-section">
@@ -262,15 +262,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
       <button class="btn sec" style="padding:6px 12px;font-size:10px" onclick="adaptActivePlan()">Adaptar</button>
     </div>
     <textarea id="e-plan" class="plan-area" rows="10"></textarea>
-    <div class="plan-hint">ðŸ’¡ Para actualizar el plan: genera el reporte quincenal desde la app del usuario â†’ pÃ©galo en el chat â†’ C.L.O.E. genera la quincena siguiente â†’ pega aquÃ­ el resultado</div>
+    <div class="plan-hint">💡 Para actualizar el plan: genera el reporte quincenal desde la app del usuario → pégalo en el chat → C.L.O.E. genera la quincena siguiente → pega aquí el resultado</div>
 
     </div>
     <div class="mact">
       <button class="btn sec" onclick="copyProfilePrompt()">Copiar prompt IA</button>
       <button class="btn sec" onclick="accessUserApp(editId)">Entrar app usuario</button>
       <button class="btn sec" onclick="openLogs(editId)">Logs</button>
-      <button class="btn sec" onclick="resetUserPassword(editId)">Reset contraseÃ±a</button>
-      <button class="btn" onclick="saveEdit()">ðŸ’¾ Guardar</button>
+      <button class="btn sec" onclick="resetUserPassword(editId)">Reset contraseña</button>
+      <button class="btn" onclick="saveEdit()">💾 Guardar</button>
       <button class="btn sec" onclick="advFortnight()">Avanzar quincena</button>
       <button class="btn dan" onclick="delUser()">Desactivar</button>
       <button class="btn dan" onclick="deleteUserPermanent(editId)">Eliminar</button>
@@ -283,7 +283,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 <div class="overlay" id="m-prompt-base">
   <div class="modal wide">
     <h2>Prompt Base</h2>
-    <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">El prompt empieza con: â€œEres un entrenador fÃ­sico, nutricionista deportivo y mÃ©dico deportivo...â€</div>
+    <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">El prompt empieza con: “Eres un entrenador físico, nutricionista deportivo y médico deportivo...”</div>
     <textarea id="prompt-base-text" class="plan-area" rows="24" readonly></textarea>
     <div class="plan-hint">Plantilla con todos los campos que entiende la app. Puedes copiarla y usarla como base para pedir a la IA una quincena completa.</div>
     <div class="mact">
@@ -332,11 +332,11 @@ let authReady=false;
     return;
   }
   if(data?.role!=='admin'){
-    setAuthState('La sesiÃ³n existe, pero este usuario no tiene role = admin en profiles.',true);
+    setAuthState('La sesión existe, pero este usuario no tiene role = admin en profiles.',true);
     return;
   }
   authReady=true;
-  setAuthState(`SesiÃ³n activa como admin: ${data.email||session.user.email||'usuario'}`);
+  setAuthState(`Sesión activa como admin: ${data.email||session.user.email||'usuario'}`);
   load();
 })();
 
@@ -344,18 +344,18 @@ async function load(){
   if(!authReady) return;
   const {data,error}=await sb.from('profiles').select('*').neq('role','admin').order('created_at',{ascending:false});
   if(error){toast('Error: '+error.message);return;}
-  users=data||[];
+  users=(data||[]).map(cleanRecordText);
   const active=users.filter(u=>u.status==='active').length;
   const pending=users.filter(u=>u.status==='pending').length;
   document.getElementById('st-active').textContent=active;
   document.getElementById('st-pending').textContent=pending;
   document.getElementById('st-total').textContent=users.length;
   document.getElementById('st-week').textContent=users.length?
-    'Q'+(users.reduce((s,u)=>s+quincenaFromWeek(u.week||1),0)/users.length).toFixed(1):'â€”';
+    'Q'+(users.reduce((s,u)=>s+quincenaFromWeek(u.week||1),0)/users.length).toFixed(1):'—';
   renderTable();
 }
 
-function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÃFICO';}
+function phase(w){return w<=4?'BASE':w<=8?'VOLUMEN':w<=12?'RITMO':'ESPECÍFICO';}
 
 function listToText(value){
   return Array.isArray(value)?value.join(', '):(value||'');
@@ -374,12 +374,67 @@ function quincenaFromWeek(week){
   return Math.ceil((week||1)/2);
 }
 
+const CP1252_REVERSE={
+  0x20AC:0x80,0x201A:0x82,0x0192:0x83,0x201E:0x84,0x2026:0x85,0x2020:0x86,0x2021:0x87,
+  0x02C6:0x88,0x2030:0x89,0x0160:0x8A,0x2039:0x8B,0x0152:0x8C,0x017D:0x8E,0x2018:0x91,
+  0x2019:0x92,0x201C:0x93,0x201D:0x94,0x2022:0x95,0x2013:0x96,0x2014:0x97,0x02DC:0x98,
+  0x2122:0x99,0x0161:0x9A,0x203A:0x9B,0x0153:0x9C,0x017E:0x9E,0x0178:0x9F
+};
+const UTF8_DECODER=new TextDecoder('utf-8',{fatal:true});
+const MOJIBAKE_REPLACEMENTS=[
+  ['\u00c3\u00a1','á'],['\u00c3\u00a9','é'],['\u00c3\u00ad','í'],['\u00c3\u00b3','ó'],['\u00c3\u00ba','ú'],['\u00c3\u00bc','ü'],['\u00c3\u00b1','ñ'],
+  ['\u00c3\u0081','Á'],['\u00c3\u0089','É'],['\u00c3\u008d','Í'],['\u00c3\u0093','Ó'],['\u00c3\u009a','Ú'],['\u00c3\u009c','Ü'],['\u00c3\u0091','Ñ'],
+  ['\u00c2\u00b7','·'],['\u00c2\u00bf','¿'],['\u00c2\u00a1','¡'],['\u00c2\u00ba','º'],['\u00c2\u00aa','ª'],
+  ['\u00e2\u20ac\u201d','—'],['\u00e2\u20ac\u201c','–'],['\u00e2\u20ac\u00a2','•'],['\u00e2\u20ac\u2122','’'],['\u00e2\u20ac\u0153','“'],['\u00e2\u20ac\u009d','”']
+];
+
+function cp1252Bytes(value){
+  const bytes=[];
+  for(const ch of String(value??'')){
+    const code=ch.codePointAt(0);
+    if(code<=0xff) bytes.push(code);
+    else if(CP1252_REVERSE[code]) bytes.push(CP1252_REVERSE[code]);
+    else return null;
+  }
+  return new Uint8Array(bytes);
+}
+
+function mojibakeScore(value){
+  return (String(value).match(/[ÃÂâðÅ]/g)||[]).length;
+}
+
+function cleanText(value){
+  let text=String(value??'');
+  MOJIBAKE_REPLACEMENTS.forEach(([bad,good])=>{text=text.split(bad).join(good);});
+  for(let i=0;i<3&&/[ÃÂâðÅ]/.test(text);i++){
+    const bytes=cp1252Bytes(text);
+    if(!bytes) break;
+    try{
+      const fixed=UTF8_DECODER.decode(bytes);
+      if(fixed===text||mojibakeScore(fixed)>mojibakeScore(text)) break;
+      text=fixed;
+    }catch{
+      break;
+    }
+  }
+  MOJIBAKE_REPLACEMENTS.forEach(([bad,good])=>{text=text.split(bad).join(good);});
+  return text;
+}
+
+function cleanRecordText(value){
+  if(Array.isArray(value)) return value.map(cleanRecordText);
+  if(value&&typeof value==='object'){
+    return Object.fromEntries(Object.entries(value).map(([key,val])=>[key,cleanRecordText(val)]));
+  }
+  return typeof value==='string'?cleanText(value):value;
+}
+
 function esc(value){
-  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  return cleanText(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 
 function initials(name,email){
-  const base=String(name||email||'U').trim();
+  const base=cleanText(name||email||'U').trim();
   const parts=base.split(/\s+/).filter(Boolean);
   return ((parts[0]?.[0]||'U')+(parts[1]?.[0]||'')).toUpperCase();
 }
@@ -431,11 +486,11 @@ function buildProfilePrompt(user){
 
 Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodología C.L.O.E, utilizando la documentación del proyecto cargada y búsqueda de información en internet sobre este método.
 
-Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentaciÃ³n del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
+Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentación del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
 
 **Instrucciones de ejecución:**
 
-1. Revisa la documentaciÃ³n del proyecto cargada para obtener:
+1. Revisa la documentación del proyecto cargada para obtener:
    - La estructura y formato exacto del documento txt a completar
    - Los datos y parámetros específicos del método C.L.O.E
    - Las variables y campos que deben rellenarse
@@ -452,7 +507,7 @@ Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y est
 
 5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original.
 
-C.L.O.E. COACH Â· PERFIL USUARIO
+C.L.O.E. COACH · PERFIL USUARIO
 Usuario: ${user.full_name||'Sin nombre'}
 Email: ${user.email||'Sin email'}
 Semana interna actual: ${user.week||1}
@@ -460,7 +515,7 @@ Quincena actual: ${q}
 Estado: ${user.status||'pending'}
 Objetivo: ${user.goal||'Sin definir'}
 
-DATOS FÃSICOS
+DATOS FÍSICOS
 - Edad: ${user.age||'n/d'}
 - Sexo: ${user.sex||'n/d'}
 - Peso: ${user.weight_kg||'n/d'} kg
@@ -479,7 +534,7 @@ DATOS FÃSICOS
 - Perímetro cintura: ${body.waist||'n/d'} cm
 
 DATOS DEL CUESTIONARIO
-- Onboarding completado: ${user.onboarding_completed===true?'SÃ­':'No'}
+- Onboarding completado: ${user.onboarding_completed===true?'Sí':'No'}
 - Inicio del plan: ${extra.plan_start_date||'n/d'}
 - Día del plan: ${currentPlanDay}/14
 - Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` (${extra.injury_detail})`:''}
@@ -497,7 +552,7 @@ DATOS DEL CUESTIONARIO
 - Preferencia fuerza: ${Array.isArray(extra.strength_pref)?extra.strength_pref.join(', '):'n/d'}
 - Preferencia deportes: ${Array.isArray(extra.sport_pref)?extra.sport_pref.join(', '):'n/d'}
 - Notas agenda: ${extra.schedule_notes||'n/d'}
-- Tiempo por sesiÃ³n: ${extra.session_t||'n/d'}
+- Tiempo por sesión: ${extra.session_t||'n/d'}
 - Deportes: ${sports.join(', ')}
 - Equipamiento: ${equip}
 - Actividad: ${extra.activity||'n/d'}
@@ -534,11 +589,11 @@ function buildPromptBase(){
 
 Tu tarea es generar un documento de plan personalizado correspondiente al cuartil Q solicitado, basado en la metodología C.L.O.E, utilizando la documentación del proyecto cargada y búsqueda de información en internet sobre este método.
 
-Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentaciÃ³n del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
+Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y estructura proporcionada en la documentación del proyecto. No modifiques, reordeines ni alteres la plantilla base bajo ninguna circunstancia.
 
 **Instrucciones de ejecución:**
 
-1. Revisa la documentaciÃ³n del proyecto cargada para obtener:
+1. Revisa la documentación del proyecto cargada para obtener:
    - La estructura y formato exacto del documento txt a completar
    - Los datos y parámetros específicos del método C.L.O.E
    - Las variables y campos que deben rellenarse
@@ -555,16 +610,16 @@ Debes crear un archivo de texto (.txt) que siga **exactamente** el formato y est
 
 5. Entrega el documento txt final listo para usar, manteniendo la integridad de la plantilla original.
 
-C.L.O.E. COACH Â· PROMPT BASE PARA GENERAR QUINCENA
+C.L.O.E. COACH · PROMPT BASE PARA GENERAR QUINCENA
 Objetivo: generar un plan completo que la app pueda leer y pintar en calendario, suplementos, entrenamientos, nutrición, objetivos, ajustes y fechas.
 
 REGLAS DE FORMATO PARA LA IA
-- Devuelve siempre secciones A, B, C, D, E y F con estos tÃ­tulos exactos.
+- Devuelve siempre secciones A, B, C, D, E y F con estos títulos exactos.
 - Incluye CALENDARIO QX con 14 líneas tipo: Dia 1 - Martes 28/04: Fuerza A - Tren superior.
-- Usa nombres claros en los bloques de entreno: FUERZA A, FUERZA B, CALISTENIA A, RUNNING EASY, CICLISMO, NATACIÃ“N, ANDAR, DESCANSO.
+- Usa nombres claros en los bloques de entreno: FUERZA A, FUERZA B, CALISTENIA A, RUNNING EASY, CICLISMO, NATACIÓN, ANDAR, DESCANSO.
 - En suplementos usa ventanas exactas: AL LEVANTARTE, ANTES DEL DESAYUNO, PRE ENTRENAMIENTO, ANTES DE CENAR, POST ENTRENAMIENTO FUERZA, ANTES DE ACOSTARTE.
 - En nutrición, bajo cada Opción A/B/C incluye una línea TIPS: con consejo breve.
-- Si falta un dato escribe SIN DATOS. No inventes datos mÃ©dicos.
+- Si falta un dato escribe SIN DATOS. No inventes datos médicos.
 
 DATOS USUARIO DE MUESTRA
 Usuario: Sandra Demo
@@ -574,7 +629,7 @@ Día actual del plan: 2/14
 Fase: BASE
 Inicio del plan: 2026-04-28
 Fechas Q1: 28/04/2026 a 11/05/2026
-Objetivo principal: RecomposiciÃ³n corporal
+Objetivo principal: Recomposición corporal
 Edad: 38
 Sexo: Mujer
 Peso: 70.0 kg
@@ -591,9 +646,9 @@ Condición médica relevante: fibrilación auricular, sin intervalos en Q1
 Contexto: estrés laboral alto, oficina, quiere adherencia simple
 Deportes seleccionados: Running, Andar, Fuerza, Calistenia
 Nivel running: Principiante menos de 6 meses
-Nivel fuerza/gimnasio: Menos de 1 aÃ±o
-Nivel calistenia: Principiante, domina plancha bÃ¡sica 20s, no domina dominadas
-Equipamiento: Gimnasio completo, mancuernas, mÃ¡quinas, bandas elÃ¡sticas, barra de dominadas asistida, suelo/colchoneta
+Nivel fuerza/gimnasio: Menos de 1 año
+Nivel calistenia: Principiante, domina plancha básica 20s, no domina dominadas
+Equipamiento: Gimnasio completo, mancuernas, máquinas, bandas elásticas, barra de dominadas asistida, suelo/colchoneta
 Días disponibles por semana: 5
 Días fuerza/semana: 4
 Días deportes/semana: 1
@@ -607,7 +662,7 @@ Dieta/restricciones: Sin lactosa
 Ayuno intermitente: No
 Último reporte: SIN DATOS
 
-COMPOSICIÃ“N CORPORAL
+COMPOSICIÓN CORPORAL
 Peso: 70.00 kg
 IMC: 22.1
 Grasa corporal: SIN DATOS
@@ -637,7 +692,7 @@ AL LEVANTARTE
 - Creatina monohidrato: Fuerza y retención muscular | 5g | Con agua | Constancia diaria
 
 ANTES DEL DESAYUNO
-- Picolinato de cromo: Sensibilidad a la insulina | 200 mcg | 10 min antes del desayuno | Opcional segÃºn tolerancia
+- Picolinato de cromo: Sensibilidad a la insulina | 200 mcg | 10 min antes del desayuno | Opcional según tolerancia
 
 PRE ENTRENAMIENTO
 - Cafeína: Rendimiento y concentración | 1 café solo | 30 min antes | Evitar después de las 15:00
@@ -660,7 +715,7 @@ Dia 3 - Jueves 30/04: Running Easy o Andar
 Dia 4 - Viernes 01/05: Calistenia A - Core y empuje
 Dia 5 - Sabado 02/05: Descanso completo
 Dia 6 - Domingo 03/05: Descanso completo
-Dia 7 - Lunes 04/05: Fuerza C - Tren inferior glÃºteo
+Dia 7 - Lunes 04/05: Fuerza C - Tren inferior glúteo
 Dia 8 - Martes 05/05: Fuerza A - Semana 2
 Dia 9 - Miércoles 06/05: Fuerza B - Semana 2
 Dia 10 - Jueves 07/05: Running Easy - Semana 2
@@ -699,7 +754,7 @@ Cooldown
 -----
 DESCANSO
 -----
-Sin actividad fÃ­sica programada.
+Sin actividad física programada.
 
 C. NUTRICIÓN C.L.O.E.
 
@@ -720,10 +775,10 @@ TIPS: Tritura con hielo para mejorar textura y saciedad.
 Opción C
 - Yogur de soja: 150g
 - Arándanos: 70g
-TIPS: AÃ±ade canela para sabor y adherencia.
+TIPS: Añade canela para sabor y adherencia.
 
 ━━━ REGLAS GENERALES ━━━
-Agua mineral: mÃ­nimo 3 litros diarios
+Agua mineral: mínimo 3 litros diarios
 Proteína presente en cada toma principal
 Sin frito, rebozados ni bollería industrial
 
@@ -735,7 +790,7 @@ ADHERENCIA NUTRICION: 75%
 FOCO QUINCENA 1: Instalar sistema, técnica y registro.
 
 E. AJUSTES
-- Calistenia: progresar con rango, control escapular y repeticiones antes de aÃ±adir dificultad.
+- Calistenia: progresar con rango, control escapular y repeticiones antes de añadir dificultad.
 - Rodillas: rango sin dolor.
 - FA: sin intervalos ni apnea.
 
@@ -800,7 +855,7 @@ function collectEditUserForPrompt(){
 function renderTable(){
   const tb=document.getElementById('tbody');
   const query=(document.getElementById('user-search')?.value||'').trim().toLowerCase();
-  const visible=query?users.filter(u=>[u.full_name,u.email,u.goal,u.status,u.onboarding_data?.activity].some(v=>String(v||'').toLowerCase().includes(query))):users;
+  const visible=query?users.filter(u=>[u.full_name,u.email,u.goal,u.status,u.onboarding_data?.activity].some(v=>cleanText(v||'').toLowerCase().includes(query))):users;
   if(!visible.length){
     tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:24px">Sin usuarios para mostrar.</td></tr>';
     return;
@@ -849,7 +904,7 @@ function genPass(){
   const p='Cloe'+Math.floor(1000+Math.random()*9000)+'!';
   document.getElementById('c-pass').value=p;
   const pb=document.getElementById('pass-box');
-  pb.textContent='ContraseÃ±a generada: '+p+' â€” guÃ¡rdala antes de continuar';
+  pb.textContent='Contraseña generada: '+p+' — guárdala antes de continuar';
   pb.classList.add('on');
 }
 
@@ -875,7 +930,7 @@ async function createUser(){
 
   if(!name||!email){toast('Nombre y email son obligatorios.');return;}
   if(!pass) pass='Cloe-'+Math.random().toString(36).slice(2,10)+'!';
-  if(pass.length<8){toast('La contraseÃ±a temporal debe tener al menos 8 caracteres.');return;}
+  if(pass.length<8){toast('La contraseña temporal debe tener al menos 8 caracteres.');return;}
   const {data:existingProfile,error:existingError}=await sb.from('profiles').select('id,email,status').eq('email',email).maybeSingle();
   if(existingError){toast('Error comprobando email existente: '+existingError.message);return;}
   if(existingProfile){
@@ -921,14 +976,14 @@ async function createUser(){
     : await sb.from('profiles').upsert({id:uid,...profilePayload});
   if(pe){
     if(pe.message?.includes('profiles_id_fkey')){
-      toast('No se pudo enlazar el usuario con Auth. Suele pasar si el email ya existe en Supabase Auth o si la confirmaciÃ³n de email estÃ¡ interfiriendo. Prueba con otro email o revisa Authentication > Users.');
+      toast('No se pudo enlazar el usuario con Auth. Suele pasar si el email ya existe en Supabase Auth o si la confirmación de email está interfiriendo. Prueba con otro email o revisa Authentication > Users.');
       return;
     }
     toast('Error perfil: '+pe.message);return;
   }
 
   close('m-create');
-  toast(`âœ… Usuario ${name} creado. Email: ${email}`);
+  toast(`✅ Usuario ${name} creado. Email: ${email}`);
   load();
 }
 
@@ -937,15 +992,15 @@ function openEdit(id){
   if(!u) return;
   editId=id;
   const extra=u.onboarding_data||{};
-  document.getElementById('edit-title').textContent=u.full_name||'Editar usuario';
+  document.getElementById('edit-title').textContent=cleanText(u.full_name||'Editar usuario');
   document.getElementById('edit-subtitle').textContent=`${u.email||'sin email'} · Día ${calculatePlanDay(u)}/14 · Q${quincenaFromWeek(u.week||1)}`;
-  document.getElementById('e-name').value=u.full_name||'';
+  document.getElementById('e-name').value=cleanText(u.full_name||'');
   document.getElementById('e-email').value=u.email||'';
   document.getElementById('e-age').value=u.age||'';
   document.getElementById('e-sex').value=u.sex||'';
   document.getElementById('e-weight').value=u.weight_kg||'';
   document.getElementById('e-height').value=u.height_cm||'';
-  document.getElementById('e-goal').value=u.goal||'';
+  document.getElementById('e-goal').value=cleanText(u.goal||'');
   document.getElementById('e-week').value=u.week||1;
   document.getElementById('e-plan-day').value=extra.plan_day||'';
   document.getElementById('e-status').value=u.status||'pending';
@@ -965,19 +1020,19 @@ function openEdit(id){
   document.getElementById('e-calis-level').value=extra.calis_level||'';
   document.getElementById('e-split').value=extra.split||'';
   document.getElementById('e-session-time').value=extra.session_t||'';
-  document.getElementById('e-activity').value=extra.activity||'';
-  document.getElementById('e-sports').value=listToText(extra.sports);
-  document.getElementById('e-equip').value=listToText(extra.equip);
-  document.getElementById('e-diet').value=listToText(extra.diet);
+  document.getElementById('e-activity').value=cleanText(extra.activity||'');
+  document.getElementById('e-sports').value=cleanText(listToText(extra.sports));
+  document.getElementById('e-equip').value=cleanText(listToText(extra.equip));
+  document.getElementById('e-diet').value=cleanText(listToText(extra.diet));
   document.getElementById('e-strength-days').value=extra.strength_days||'';
   document.getElementById('e-sport-days').value=extra.sport_days||'';
-  document.getElementById('e-strength-pref').value=listToText(extra.strength_pref);
-  document.getElementById('e-sport-pref').value=listToText(extra.sport_pref);
-  document.getElementById('e-schedule-notes').value=extra.schedule_notes||'';
-  document.getElementById('e-context').value=extra.context||'';
-  document.getElementById('e-notes').value=u.notes||'';
-  document.getElementById('e-latest-report').value=u.latest_report||'Sin reporte guardado todavÃ­a.';
-  document.getElementById('e-plan').value=u.current_plan||u.quincena1_plan||'';
+  document.getElementById('e-strength-pref').value=cleanText(listToText(extra.strength_pref));
+  document.getElementById('e-sport-pref').value=cleanText(listToText(extra.sport_pref));
+  document.getElementById('e-schedule-notes').value=cleanText(extra.schedule_notes||'');
+  document.getElementById('e-context').value=cleanText(extra.context||'');
+  document.getElementById('e-notes').value=cleanText(u.notes||'');
+  document.getElementById('e-latest-report').value=cleanText(u.latest_report||'Sin reporte guardado todavía.');
+  document.getElementById('e-plan').value=cleanText(u.current_plan||u.quincena1_plan||'');
   document.getElementById('e-profile-prompt').value=buildProfilePrompt(u);
   document.getElementById('m-edit').classList.add('on');
 }
@@ -985,8 +1040,8 @@ function openEdit(id){
 function cleanPlanLine(line){
   return String(line||'')
     .replace(/\t/g,' ')
-    .replace(/[â€“â€”]/g,'-')
-    .replace(/â€¢\s*/g,'- ')
+    .replace(/[–—]/g,'-')
+    .replace(/•\s*/g,'- ')
     .replace(/\s+/g,' ')
     .trim();
 }
@@ -995,7 +1050,7 @@ function planSectionTitle(letter,title){
   const names={
     A:'SUPLEMENTOS',
     B:'ENTRENAMIENTO',
-    C:'NUTRICIÃ“N C.L.O.E.',
+    C:'NUTRICIÓN C.L.O.E.',
     D:'OBJETIVOS',
     E:'AJUSTES',
     F:'FECHAS'
@@ -1018,18 +1073,18 @@ function splitPlanSections(text){
 }
 
 function normalizePlanBlocks(text){
-  const workoutTitleRx=/^(FUERZA|CALISTENIA|RUNNING|CARDIO|CICLISMO|NATACIÃ“N|NATACION|RODILLO|ANDAR|DESCANSO)\b/i;
+  const workoutTitleRx=/^(FUERZA|CALISTENIA|RUNNING|CARDIO|CICLISMO|NATACIÓN|NATACION|RODILLO|ANDAR|DESCANSO)\b/i;
   const lines=String(text||'').split('\n');
   const out=[];
   let pendingSeparator=false;
   lines.forEach(raw=>{
     let line=raw.trim();
     if(!line) return;
-    if(/^[-â”€â”â•_]{3,}$/.test(line)){pendingSeparator=true;return;}
+    if(/^[-─━═_]{3,}$/.test(line)){pendingSeparator=true;return;}
     line=cleanPlanLine(line)
-      .replace(/^D[iÃ­]a\b/i,'Dia')
-      .replace(/\bMi[eÃ©]rcoles\b/gi,'Miercoles')
-      .replace(/\bS[aÃ¡]bado\b/gi,'Sabado');
+      .replace(/^D[ií]a\b/i,'Dia')
+      .replace(/\bMi[eé]rcoles\b/gi,'Miercoles')
+      .replace(/\bS[aá]bado\b/gi,'Sabado');
     const upper=line.toUpperCase();
     if(workoutTitleRx.test(upper)){
       if(out.length&&out[out.length-1]!=='') out.push('');
@@ -1058,16 +1113,16 @@ function normalizePlanNutrition(text){
     let line=raw.trim();
     if(!line) return;
     line=cleanPlanLine(line)
-      .replace(/^Opci[oÃ³]n\s+([A-Z])\s*[-.]\s*/i,'OpciÃ³n $1: ')
-      .replace(/^Opci[oÃ³]n\s+([A-Z])\s*:\s*/i,'OpciÃ³n $1: ')
+      .replace(/^Opci[oó]n\s+([A-Z])\s*[-.]\s*/i,'Opción $1: ')
+      .replace(/^Opci[oó]n\s+([A-Z])\s*:\s*/i,'Opción $1: ')
       .replace(/^Tips?\s*:\s*/i,'TIPS: ');
     line=line.replace(/^[-*]\s*/,'- ');
-    const meal=line.replace(/^[-â”€â”â•\s]+|[-â”€â”â•\s]+$/g,'').match(mealRx);
+    const meal=line.replace(/^[-─━═\s]+|[-─━═\s]+$/g,'').match(mealRx);
     if(meal){
       const label=meal[1].replace(/\s+/g,' ').toUpperCase();
       const timing=meal[2]?` (${meal[2].trim()})`:'';
       if(out.length&&out[out.length-1]!=='') out.push('');
-      out.push(`â”â”â” ${label}${timing} â”â”â”`);
+      out.push(`━━━ ${label}${timing} ━━━`);
       return;
     }
     out.push(line);
@@ -1087,8 +1142,8 @@ function adaptPlanText(raw){
   if(!['A','B','C','D','E','F'].some(letter=>sections[letter])) return text;
   const q=(text.match(/\bQ\s*(\d+)\b/i)||[])[1]||quincenaFromWeek(parseInt(document.getElementById('e-week')?.value)||1);
   const headerLines=(sections._header||'').split('\n').map(l=>l.trim()).filter(Boolean);
-  const hasProfile=headerLines.some(l=>/PERFIL\s+F[IÃ]SICO/i.test(l));
-  const header=[hasProfile?headerLines.shift():'â”€â”€ PERFIL FÃSICO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€',...headerLines];
+  const hasProfile=headerLines.some(l=>/PERFIL\s+F[ÍI]SICO/i.test(l));
+  const header=[hasProfile?headerLines.shift():'── PERFIL FÍSICO ─────────────────────────────────────',...headerLines];
   if(!header.some(l=>/C\.L\.O\.E\. COACH/i.test(l))) header.splice(1,0,`C.L.O.E. COACH - PLAN Q${q}`);
 
   const ordered=['A','B','C','D','E','F'];
@@ -1099,7 +1154,7 @@ function adaptPlanText(raw){
     if(letter==='B') content=normalizePlanBlocks(content);
     else if(letter==='C') content=normalizePlanNutrition(content);
     else content=content.split('\n').map(l=>cleanPlanLine(l).replace(/^[-*]\s*/,'- ')).filter(Boolean).join('\n');
-    return `${planSectionTitle(letter,letter==='C'?'NUTRICIÃ“N C.L.O.E.':null)}\n\n${content}`.trim();
+    return `${planSectionTitle(letter,letter==='C'?'NUTRICIÓN C.L.O.E.':null)}\n\n${content}`.trim();
   }).filter(Boolean);
   return `${header.join('\n')}\n\n${body.join('\n\n')}`.replace(/\n{3,}/g,'\n\n').trim();
 }
@@ -1111,7 +1166,7 @@ function adaptActivePlan(){
   const after=adaptPlanText(before);
   if(!after){toast('No se pudo adaptar el plan.');return;}
   el.value=after;
-  toast('âœ… Plan adaptado al formato de la app. Revisa y guarda.');
+  toast('✅ Plan adaptado al formato de la app. Revisa y guarda.');
 }
 
 async function saveEdit(){
@@ -1171,7 +1226,7 @@ async function saveEdit(){
   const {error}=await sb.from('profiles').update(updatePayload).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('âœ… Guardado.');
+  toast('✅ Guardado.');
   load();
 }
 
@@ -1184,7 +1239,7 @@ async function advFortnight(){
   const {error}=await sb.from('profiles').update({week:next,onboarding_data}).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('âœ… Avanzado a quincena Q'+quincenaFromWeek(next));
+  toast('✅ Avanzado a quincena Q'+quincenaFromWeek(next));
   load();
 }
 
@@ -1194,24 +1249,24 @@ async function advFortnightDirect(id,w){
   const onboarding_data={...(u?.onboarding_data||{}),plan_day:1,plan_start_date:new Date().toISOString().slice(0,10)};
   const {error}=await sb.from('profiles').update({week:next,onboarding_data}).eq('id',id);
   if(error){toast('Error: '+error.message);return;}
-  toast('âœ… Quincena Q'+quincenaFromWeek(next));
+  toast('✅ Quincena Q'+quincenaFromWeek(next));
   load();
 }
 
 async function delUser(){
-  if(!editId||!confirm('Â¿Desactivar este usuario? Su cuenta seguirÃ¡ existiendo en Supabase Auth.')) return;
+  if(!editId||!confirm('¿Desactivar este usuario? Su cuenta seguirá existiendo en Supabase Auth.')) return;
   const {error}=await sb.from('profiles').update({status:'inactive'}).eq('id',editId);
   if(error){toast('Error: '+error.message);return;}
   close('m-edit');
-  toast('âœ… Usuario desactivado.');
+  toast('✅ Usuario desactivado.');
   load();
 }
 
 async function delDirect(id){
-  if(!confirm('Â¿Desactivar este usuario? Su cuenta seguirÃ¡ existiendo en Supabase Auth.')) return;
+  if(!confirm('¿Desactivar este usuario? Su cuenta seguirá existiendo en Supabase Auth.')) return;
   const {error}=await sb.from('profiles').update({status:'inactive'}).eq('id',id);
   if(error){toast('Error: '+error.message);return;}
-  toast('âœ… Usuario desactivado.');
+  toast('✅ Usuario desactivado.');
   load();
 }
 
@@ -1272,7 +1327,7 @@ async function openLogs(id){
 async function resetUserPassword(id){
   const u=users.find(x=>x.id===id);
   if(!u?.email){toast('Este usuario no tiene email.');return;}
-  if(!confirm(`Enviar email de reseteo de contraseÃ±a a ${u.email}?`)) return;
+  if(!confirm(`Enviar email de reseteo de contraseña a ${u.email}?`)) return;
   const redirectTo=new URL('login.html',window.location.href).href;
   const {error}=await sb.auth.resetPasswordForEmail(u.email,{redirectTo});
   if(error){toast('Error reset: '+error.message);return;}
@@ -1282,13 +1337,13 @@ async function resetUserPassword(id){
 async function deleteUserPermanent(id){
   const u=users.find(x=>x.id===id);
   if(!u) return;
-  const ok=confirm(`ELIMINAR PERMANENTEMENTE a ${u.full_name||u.email}?\n\nSe intentarÃ¡ borrar el usuario de Supabase Auth mediante RPC. Si la funciÃ³n SQL no estÃ¡ instalada, se borrarÃ¡ al menos su perfil de la app.`);
+  const ok=confirm(`ELIMINAR PERMANENTEMENTE a ${u.full_name||u.email}?\n\nSe intentará borrar el usuario de Supabase Auth mediante RPC. Si la función SQL no está instalada, se borrará al menos su perfil de la app.`);
   if(!ok) return;
   const rpc=await sb.rpc('admin_delete_user',{target_user_id:id});
   if(rpc.error){
     const {error}=await sb.from('profiles').delete().eq('id',id);
     if(error){toast('Error eliminando perfil: '+error.message);return;}
-    toast('Perfil eliminado. Para borrar tambiÃ©n Auth, ejecuta supabase-setup.sql actualizado.');
+    toast('Perfil eliminado. Para borrar también Auth, ejecuta supabase-setup.sql actualizado.');
   }else{
     toast('Usuario eliminado de Auth y perfiles.');
   }
@@ -1310,7 +1365,7 @@ function copyLatestReport(){
   area.select();
   area.setSelectionRange(0,99999);
   document.execCommand('copy');
-  toast('Ãšltimo reporte copiado.');
+  toast('Último reporte copiado.');
 }
 
 function openPromptBase(){
