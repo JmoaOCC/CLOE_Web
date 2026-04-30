@@ -123,7 +123,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <div class="toolbar-actions">
     <button class="btn" onclick="openCreate()">+ Crear usuario</button>
     <button class="btn sec" onclick="load()">↻ Actualizar</button>
-    <button class="btn sec" onclick="openPromptQ()">CREAR PROMP Q</button>
+    <button class="btn sec" onclick="openPromptQ()">Crear Prompt Q</button>
     </div>
   </div>
 
@@ -287,10 +287,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   </div>
 </div>
 
-<!-- MODAL CREAR PROMP Q -->
+<!-- MODAL CREAR PROMPT Q -->
 <div class="overlay" id="m-prompt-base">
   <div class="modal xwide">
-    <h2>CREAR PROMP Q</h2>
+    <h2>Crear Prompt Q</h2>
     <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">Genera un prompt completo para la IA con perfil, dieta, plan anterior, reporte anterior, CSV de Intervals y notas libres. Después puedes pegar la respuesta y cargarla directamente en el usuario.</div>
 
     <div class="q-grid">
@@ -316,6 +316,42 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 
         <label>Texto libre para dirigir la respuesta de la IA</label>
         <textarea id="q-free-text" class="plan-area" rows="6" oninput="refreshPromptQ()" placeholder="Ej: prioriza adherencia, reduce volumen de pierna, cambia desayunos, añade trabajo de movilidad, evita intervalos..."></textarea>
+
+        <label>Parámetros báscula inteligente · Semana 1 del Q anterior</label>
+        <div class="g2">
+          <div><label>Peso kg</label><input type="number" step="0.01" id="q-s1-weight" oninput="refreshPromptQ()"></div>
+          <div><label>Grasa corporal %</label><input type="number" step="0.1" id="q-s1-fat" oninput="refreshPromptQ()"></div>
+          <div><label>Grasa subcutánea %</label><input type="number" step="0.1" id="q-s1-subfat" oninput="refreshPromptQ()"></div>
+          <div><label>Grasa visceral</label><input type="number" step="0.1" id="q-s1-visceral" oninput="refreshPromptQ()"></div>
+          <div><label>Agua corporal %</label><input type="number" step="0.1" id="q-s1-water" oninput="refreshPromptQ()"></div>
+          <div><label>Músculo esquelético %</label><input type="number" step="0.1" id="q-s1-skeletal" oninput="refreshPromptQ()"></div>
+          <div><label>Masa muscular kg</label><input type="number" step="0.1" id="q-s1-muscle" oninput="refreshPromptQ()"></div>
+          <div><label>Masa ósea kg</label><input type="number" step="0.1" id="q-s1-bone" oninput="refreshPromptQ()"></div>
+          <div><label>Proteína corporal %</label><input type="number" step="0.1" id="q-s1-protein" oninput="refreshPromptQ()"></div>
+          <div><label>BMR/TMB kcal</label><input type="number" id="q-s1-bmr" oninput="refreshPromptQ()"></div>
+          <div><label>Edad metabólica</label><input type="number" id="q-s1-metage" oninput="refreshPromptQ()"></div>
+          <div><label>Cintura cm</label><input type="number" step="0.1" id="q-s1-waist" oninput="refreshPromptQ()"></div>
+        </div>
+        <label>Notas pesaje semana 1</label>
+        <textarea id="q-s1-notes" rows="2" oninput="refreshPromptQ()" placeholder="Ej: pesaje en ayunas, retención por ciclo, cena salada, entreno fuerte previo..."></textarea>
+
+        <label>Parámetros báscula inteligente · Semana 2 del Q anterior</label>
+        <div class="g2">
+          <div><label>Peso kg</label><input type="number" step="0.01" id="q-s2-weight" oninput="refreshPromptQ()"></div>
+          <div><label>Grasa corporal %</label><input type="number" step="0.1" id="q-s2-fat" oninput="refreshPromptQ()"></div>
+          <div><label>Grasa subcutánea %</label><input type="number" step="0.1" id="q-s2-subfat" oninput="refreshPromptQ()"></div>
+          <div><label>Grasa visceral</label><input type="number" step="0.1" id="q-s2-visceral" oninput="refreshPromptQ()"></div>
+          <div><label>Agua corporal %</label><input type="number" step="0.1" id="q-s2-water" oninput="refreshPromptQ()"></div>
+          <div><label>Músculo esquelético %</label><input type="number" step="0.1" id="q-s2-skeletal" oninput="refreshPromptQ()"></div>
+          <div><label>Masa muscular kg</label><input type="number" step="0.1" id="q-s2-muscle" oninput="refreshPromptQ()"></div>
+          <div><label>Masa ósea kg</label><input type="number" step="0.1" id="q-s2-bone" oninput="refreshPromptQ()"></div>
+          <div><label>Proteína corporal %</label><input type="number" step="0.1" id="q-s2-protein" oninput="refreshPromptQ()"></div>
+          <div><label>BMR/TMB kcal</label><input type="number" id="q-s2-bmr" oninput="refreshPromptQ()"></div>
+          <div><label>Edad metabólica</label><input type="number" id="q-s2-metage" oninput="refreshPromptQ()"></div>
+          <div><label>Cintura cm</label><input type="number" step="0.1" id="q-s2-waist" oninput="refreshPromptQ()"></div>
+        </div>
+        <label>Notas pesaje semana 2</label>
+        <textarea id="q-s2-notes" rows="2" oninput="refreshPromptQ()" placeholder="Ej: mejor sueño, menstruación, menos sal, más pasos, medición posterior a descanso..."></textarea>
 
         <label>Prompt final para la IA</label>
         <textarea id="prompt-base-text" class="plan-area" rows="18" readonly></textarea>
@@ -1543,6 +1579,30 @@ ${user.latest_report||'SIN REPORTE GUARDADO'}
 ${summarizePreviousPlan(plan)}`;
 }
 
+function promptQScaleWeek(prefix,label){
+  const get=id=>document.getElementById(`${prefix}-${id}`)?.value.trim()||'SIN DATOS';
+  return `${label}
+Peso: ${get('weight')} kg
+Grasa corporal: ${get('fat')} %
+Grasa subcutanea: ${get('subfat')} %
+Grasa visceral: ${get('visceral')}
+Agua corporal: ${get('water')} %
+Musculo esqueletico: ${get('skeletal')} %
+Masa muscular: ${get('muscle')} kg
+Masa osea: ${get('bone')} kg
+Proteina corporal: ${get('protein')} %
+BMR/TMB: ${get('bmr')} kcal
+Edad metabolica: ${get('metage')}
+Cintura: ${get('waist')} cm
+Notas: ${get('notes')}`;
+}
+
+function buildPromptQScaleData(){
+  return `${promptQScaleWeek('q-s1','PESAJE BASCULA INTELIGENTE - SEMANA 1 DEL Q ANTERIOR')}
+
+${promptQScaleWeek('q-s2','PESAJE BASCULA INTELIGENTE - SEMANA 2 DEL Q ANTERIOR')}`;
+}
+
 function buildPromptQ(){
   const user=selectedPromptQUser();
   if(!user) return 'Selecciona un usuario.';
@@ -1550,6 +1610,7 @@ function buildPromptQ(){
   const targetQ=quincenaFromWeek(targetWeek);
   const csvText=document.getElementById('q-csv-text')?.value.trim()||'SIN CSV DE INTERVALS CARGADO';
   const freeText=document.getElementById('q-free-text')?.value.trim()||'SIN INDICACIONES LIBRES ADICIONALES';
+  const scaleText=buildPromptQScaleData();
   const summary=buildPromptQSummary(user);
   return `Eres C.L.O.E. COACH, entrenador fisico, nutricionista deportivo y medico deportivo.
 
@@ -1563,6 +1624,9 @@ ${summary}
 
 ENTRENOS REALIZADOS IMPORTADOS DESDE CSV DE INTERVALS
 ${csvText}
+
+PARAMETROS DEL PESAJE DE BASCULA INTELIGENTE
+${scaleText}
 
 INDICACIONES LIBRES DEL COACH
 ${freeText}
@@ -1623,7 +1687,8 @@ REGLAS C. NUTRICION C.L.O.E.
 
 REGLAS D/E/F
 - D. OBJETIVOS: pasos, sueno, adherencia entreno, adherencia nutricion, foco, metrica principal y senal de alerta.
-- E. AJUSTES: cambios respecto al Q anterior basados en reporte, CSV, dieta, adherencia y lesiones.
+- E. AJUSTES: cambios respecto al Q anterior basados en reporte, CSV, dieta, adherencia, lesiones y tendencia de bascula inteligente entre semana 1 y semana 2.
+- Al analizar bascula, compara peso, grasa, grasa visceral, agua, masa muscular, BMR y cintura. Si hay senales de retencion de liquidos o medicion irregular, indicalo y no hagas recortes agresivos solo por una lectura.
 - F. FECHAS: Inicio Q${targetQ}, Pesaje, Fotos, Envio reporte y Fin Q${targetQ}.
 
 Si falta un dato, escribe SIN DATOS. No rellenes huecos con fantasia. El resultado debe ser directamente pegable en la app.`;
@@ -1658,6 +1723,7 @@ function openPromptQ(){
   if(csvText) csvText.value='';
   const freeText=document.getElementById('q-free-text');
   if(freeText) freeText.value='';
+  clearPromptQScaleFields();
   const response=document.getElementById('q-ai-response');
   if(response) response.value='';
   const files=document.getElementById('q-files');
@@ -1675,12 +1741,22 @@ function openPromptQFor(id){
   if(csvText) csvText.value='';
   const freeText=document.getElementById('q-free-text');
   if(freeText) freeText.value='';
+  clearPromptQScaleFields();
   const response=document.getElementById('q-ai-response');
   if(response) response.value='';
   const files=document.getElementById('q-files');
   if(files) files.textContent='Sin CSV cargados.';
   onPromptQUserChange();
   document.getElementById('m-prompt-base').classList.add('on');
+}
+
+function clearPromptQScaleFields(){
+  ['s1','s2'].forEach(week=>{
+    ['weight','fat','subfat','visceral','water','skeletal','muscle','bone','protein','bmr','metage','waist','notes'].forEach(field=>{
+      const el=document.getElementById(`q-${week}-${field}`);
+      if(el) el.value='';
+    });
+  });
 }
 
 function openPromptBase(){
