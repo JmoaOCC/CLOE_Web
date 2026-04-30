@@ -518,211 +518,127 @@ function getRunSession(dayIdx,q){
   return null;
 }
 
-// ── NUTRICIÓN CON OPCIONES (sistema intercambio DOCE) ────
+// ── NUTRICIÓN CON OPCIONES (sistema 16:8 C.L.O.E.) ────
 function getNutrition(){
-  const kcal=profile?.kcal||2475;
-  const prot=profile?.protein||154;
-  const carbs=profile?.carbs||310;
-  const fat=profile?.fat||69;
+  const kcal=profile?.kcal||2500;
+  const prot=profile?.protein||175;
+  const carbs=profile?.carbs||280;
+  const fat=profile?.fat||70;
 
   const training={
     kcal,protein:prot,carbs,fat,
-    timing:'⏰ Pre-entreno (1-2h antes): HC + P, bajo grasa. Post (≤2h): HC + P para recuperación.',
+    timing:'¿CUÁNDO ENTRENAR?\n- MAÑANA (en ayunas): Toma tu suplementación base (agua, café, creatina). Tu Comida 1 servirá como tu Post-Entrenamiento.\n- TARDE (ej. 18:00h): Tu Comida 1 será tu base, la Comida 2 será tu Pre-Entreno ligero, y la Cena tu Post-Entreno.',
     meals:[
       {
-        key:'desayuno',name:'Desayuno',
-        timing:'Nada más levantarte, tras los suplementos',
+        key:'comida1',name:'Comida 1: Rompe-Ayuno',
+        timing:'13:00h - 14:00h',
         options:[
           {
-            label:'Opción A · Huevos',kcal:232,p:24,hc:20,g:7,
+            label:'Opción A · Alta Energía',kcal:480,p:46,hc:55,g:10,
             items:[
-              {f:'Huevos enteros M',a:'2 uds',note:'Revueltos o tortilla francesa'},
-              {f:'Pan de molde integral sin corteza',a:'1 rebanada'},
-              {f:'Tomate en rodajas',a:'a voluntad',note:'Opcional'},
-              {f:'Yogur proteínas Alipende stracciatella',a:'1 ud',note:'Postre'},
-            ]
+              {f:'Pechuga de pollo a la plancha',a:'160g',note:'Comida principal fuerte'},
+              {f:'Arroz blanco cocido',a:'220g (80g crudo)'},
+              {f:'Brócoli o espinacas',a:'150g'},
+              {f:'Aceite de oliva virgen extra',a:'10g',note:'Añadir en crudo al final'},
+            ],
+            tip:'Recarga tus depósitos de glucógeno perfectamente. Ideal para Post-Entreno de mañana.'
           },
           {
-            label:'Opción B · Avena',kcal:245,p:28,hc:28,g:6,
+            label:'Opción B · Dulce y Rápida',kcal:460,p:40,hc:45,g:12,
             items:[
-              {f:'Copos de avena',a:'70g seco'},
+              {f:'Yogur griego 0%',a:'250g'},
+              {f:'Whey Protein',a:'30g',note:'Mezclada con el yogur'},
+              {f:'Avena cruda o cocida',a:'60g'},
+              {f:'Plátano o Frutos rojos',a:'120g'},
+              {f:'Nueces o Crema cacahuete',a:'10g'},
+            ],
+            tip:'Ideal si a las 13:00h estás en la oficina y necesitas un desayuno contundente pero rápido.'
+          },
+          {
+            label:'Opción C · Más saciante',kcal:490,p:44,hc:50,g:14,
+            items:[
+              {f:'Ternera magra o Salmón',a:'150g'},
+              {f:'Patata cocida',a:'200g'},
+              {f:'Ensalada variada',a:'150g'},
+              {f:'Aceite de oliva',a:'10g'},
+            ],
+            tip:'En días de descanso, la patata cocida aporta gran saciedad con menos calorías que el arroz.'
+          },
+        ]
+      },
+      {
+        key:'comida2',name:'Comida 2: Snack / Pre-Entreno',
+        timing:'16:30h - 17:30h',
+        options:[
+          {
+            label:'Opción A · Sólido',kcal:250,p:24,hc:28,g:4,
+            items:[
+              {f:'Pan integral',a:'70g'},
+              {f:'Pechuga de pavo (90% carne)',a:'100g'},
+              {f:'Tomate natural y orégano',a:''},
+            ],
+            tip:'Si faltan 2h para entrenar. Tostar el pan mejora la digestión. Aporta carbohidratos complejos.'
+          },
+          {
+            label:'Opción B · Líquido',kcal:220,p:25,hc:22,g:3,
+            items:[
+              {f:'Whey Protein',a:'30g'},
+              {f:'Avena triturada',a:'30g'},
+              {f:'Bebida vegetal sin azúcar',a:'250ml'},
+            ],
+            tip:'Si falta 1h o menos para entrenar. Batido de fácil y rapidísima digestión.'
+          },
+          {
+            label:'Opción C · Ligero',kcal:200,p:20,hc:18,g:5,
+            items:[
+              {f:'Queso fresco batido o yogur proteico',a:'200g'},
+              {f:'Fruta (manzana o piña)',a:'150g'},
+              {f:'Almendras',a:'15g'},
+            ],
+            tip:'Snack equilibrado para mantener a raya el hambre hasta la cena en los días que no entrenes.'
+          },
+        ]
+      },
+      {
+        key:'comida3',name:'Comida 3: Cena / Cierre de Ventana',
+        timing:'20:00h - 20:45h',
+        options:[
+          {
+            label:'Opción A · Post-Entreno Tarde',kcal:420,p:38,hc:35,g:14,
+            items:[
+              {f:'Huevos enteros',a:'2 uds'},
               {f:'Claras de huevo',a:'100g'},
-              {f:'Plátano maduro',a:'1 ud · 120g'},
-              {f:'Leche de almendras sin azúcar',a:'200ml'},
-            ]
+              {f:'Patata cocida o Arroz',a:'150g'},
+              {f:'Verduras salteadas',a:'200g',note:'Calabacín, pimientos...'},
+            ],
+            tip:'Si entrenaste a última hora, necesitas carbohidratos para recuperar (patata/arroz). Alta saciedad.'
           },
           {
-            label:'Opción C · Tortitas',kcal:243,p:22,hc:30,g:5,
+            label:'Opción B · Baja en HC',kcal:350,p:36,hc:10,g:12,
             items:[
-              {f:'Huevo entero M',a:'1 ud'},
-              {f:'Claras de huevo',a:'70ml'},
-              {f:'Copos avena o harina avena',a:'30g',note:'No de chocolate en esta opción'},
-              {f:'Mermelada diet La Vieja Fábrica',a:'30g',note:'Topping'},
-            ]
-          },
-        ]
-      },
-      {
-        key:'almuerzo',name:'Almuerzo',
-        timing:'2-4 horas después del desayuno',
-        options:[
-          {
-            label:'Opción A · Pan + pollo',kcal:190,p:20,hc:16,g:5,
-            items:[
-              {f:'Tortilla trigo (tacos mexicanos)',a:'1 ud'},
-              {f:'Pechuga pollo asada embutido 90%',a:'60g'},
-              {f:'Queso untar light o guacamole',a:'40g'},
-            ]
+              {f:'Merluza o Pescado blanco',a:'180g'},
+              {f:'Brócoli o espárragos al vapor',a:'200g'},
+              {f:'Aceite de oliva',a:'8g',note:'Para aliñar'},
+            ],
+            tip:'La opción más ligera y digestiva para cerrar la ventana alimentaria. Ideal para días inactivos.'
           },
           {
-            label:'Opción B · Pan integral',kcal:201,p:18,hc:18,g:4,
+            label:'Opción C · Rápida y Fresca',kcal:380,p:38,hc:15,g:15,
             items:[
-              {f:'Pan de fibra y sésamo Mercadona',a:'2 uds'},
-              {f:'Jamón serrano (lo más magro)',a:'50g'},
-            ]
-          },
-          {
-            label:'Opción C · Batido proteínas',kcal:175,p:25,hc:12,g:3,
-            items:[
-              {f:'Yogur líquido proteínas Valio 250ml',a:'1 bote',note:'Sabor chocolate · Carrefour/Alcampo'},
-            ]
-          },
-        ]
-      },
-      {
-        key:'comida',name:'Comida principal',
-        timing:'Comida más importante del día · 12-14h',
-        options:[
-          {
-            label:'Opción A · Pollo + arroz',kcal:480,p:46,hc:55,g:10,
-            items:[
-              {f:'Pechuga pollo',a:'160g crudo',note:'A la plancha con espray'},
-              {f:'Arroz blanco',a:'70g seco (190g cocido)'},
-              {f:'Brócoli o judías verdes',a:'200g'},
-              {f:'AOVE',a:'10g · 1 cda'},
-            ]
-          },
-          {
-            label:'Opción B · Ternera + patata',kcal:495,p:44,hc:52,g:11,
-            items:[
-              {f:'Ternera magra filete',a:'150g crudo',note:'Pesa en crudo'},
-              {f:'Patata cocida',a:'250g'},
-              {f:'Ensalada hoja verde (canónigos/escarola/lechuga romana)',a:'150g libre'},
-              {f:'AOVE',a:'10g'},
-            ]
-          },
-          {
-            label:'Opción C · Salmón + quinoa',kcal:490,p:42,hc:50,g:13,
-            items:[
-              {f:'Salmón al horno/vapor',a:'150g',note:'Al vapor conserva mejor textura'},
-              {f:'Quinoa cocida',a:'60g seco'},
-              {f:'Espinacas o acelgas',a:'150g'},
-              {f:'AOVE',a:'8g'},
-            ]
-          },
-        ]
-      },
-      {
-        key:'merienda',name:'Merienda / Pre-entreno',
-        timing:'1-2 horas antes del entreno',
-        options:[
-          {
-            label:'Opción A · Yogur + avena',kcal:280,p:24,hc:38,g:5,
-            items:[
-              {f:'Yogur griego 0%',a:'200g'},
-              {f:'Avena en copos',a:'35g'},
-              {f:'Miel',a:'10g'},
-              {f:'Plátano maduro',a:'½ ud · 60g'},
-            ]
-          },
-          {
-            label:'Opción B · Whey + plátano',kcal:270,p:28,hc:35,g:4,
-            items:[
-              {f:'Whey protein',a:'30g (1 cacito)'},
-              {f:'Leche de almendras sin azúcar',a:'300ml'},
-              {f:'Plátano',a:'1 ud'},
-            ]
-          },
-          {
-            label:'Opción C · Bowl avena soja',kcal:245,p:18,hc:32,g:8,
-            items:[
-              {f:'Copos avena o muesli sin azúcar',a:'30g'},
-              {f:'Yogur soja ALPRO natural coco',a:'100g'},
-              {f:'Pepitas chocolate Mercadona',a:'5g'},
-              {f:'Crema cacahuete/almendras',a:'10g'},
-            ]
-          },
-        ]
-      },
-      {
-        key:'cena',name:'Cena / Post-entreno',
-        timing:'Dentro de las 2h post-entreno · picolinato de cromo antes',
-        options:[
-          {
-            label:'Opción A · Pescado blanco',kcal:210,p:28,hc:8,g:8,
-            items:[
-              {f:'Merluza / Sepia / Halibut / Gallo / Lenguado / Corvina',a:'100-130g'},
-              {f:'Verdura hoja verde (brócoli/acelgas/espinacas)',a:'100-150g'},
-              {f:'Aguacate o guacamole',a:'40g'},
-              {f:'Tomate cherry',a:'a voluntad'},
-              {f:'Yogur proteínas Alipende stracciatella',a:'1 ud',note:'Postre'},
-            ]
-          },
-          {
-            label:'Opción B · Huevos + gambas',kcal:200,p:30,hc:5,g:9,
-            items:[
-              {f:'Huevos enteros M',a:'2 uds'},
-              {f:'Gambas/langostinos sin cáscara o atún al natural',a:'50g'},
-              {f:'Verdura hoja verde',a:'100-150g'},
-              {f:'Fresas o yogur ligero Margui',a:'80g',note:'Postre'},
-            ]
-          },
-          {
-            label:'Opción C · Salmón + patata',kcal:380,p:36,hc:32,g:11,
-            items:[
-              {f:'Salmón al horno',a:'150g'},
-              {f:'Patata cocida',a:'200g',note:'Opción para días de entreno fuerte'},
-              {f:'Ensalada verde',a:'150g'},
-              {f:'AOVE',a:'8g'},
-            ]
-          },
-        ]
-      },
-      {
-        key:'postcena',name:'Post-cena',
-        timing:'30-60min antes de dormir',
-        options:[
-          {
-            label:'Opción A · Requesón',kcal:185,p:20,hc:10,g:6,
-            items:[
-              {f:'Requesón o cottage 0%',a:'180g',note:'Caseína de absorción lenta — preserva músculo'},
-              {f:'Nueces',a:'15g'},
-              {f:'Frutos rojos (arándanos/frambuesas)',a:'70g'},
-            ]
-          },
-          {
-            label:'Opción B · Natillas proteína',kcal:133,p:18,hc:10,g:3,
-            items:[
-              {f:'Natillas proteínas Danone Mercadona/Carrefour',a:'1 ud'},
-              {f:'Pepitas chocolate Mercadona',a:'8g'},
-            ]
-          },
-          {
-            label:'Opción C · Yogur soja',kcal:138,p:8,hc:14,g:5,
-            items:[
-              {f:'Yogur soja ALPRO natural de coco',a:'200g'},
-              {f:'Miel',a:'10g'},
-            ]
+              {f:'Pechuga de pollo a la plancha',a:'160g'},
+              {f:'Ensalada grande',a:'250g'},
+              {f:'Aceite de oliva',a:'8g'},
+            ],
+            tip:'Preparación en menos de 10 minutos. Añade vinagre de manzana o limón como aliño base.'
           },
         ]
       },
     ]
   };
 
-  // Descanso: menos HC (-55g), misma proteína
   const rest={
-    kcal:Math.round(kcal*.87),protein:prot,carbs:Math.round(carbs*.82),fat,
-    timing:'💤 Día descanso: −HC moderado, proteína intacta. Misma estructura de 6 tomas.',
+    kcal:Math.round(kcal*.88),protein:prot,carbs:Math.round(carbs*.8),fat,
+    timing: training.timing,
     meals: training.meals.map(m=>({
       ...m,
       options: m.options.map(o=>({...o,kcal:Math.round(o.kcal*.88),hc:Math.round(o.hc*.8)}))
@@ -944,7 +860,7 @@ function getTipFromMealContent(meal, optionIndex){
 function extractPlanNutritionDataClean(text, fallbackMacros){
   if(!text) return null;
   const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
-  const mealTitleRx=/^(DESAYUNO|ALMUERZO|COMIDA|MERIENDA|CENA|POST[\s-]*CENA|PRE[\s-]*ENTRENO|POST[\s-]*ENTRENO|TOMA\s*\d+)\b(?:\s*\(([^)]*)\))?/i;
+  const mealTitleRx=/^(DESAYUNO|ALMUERZO|COMIDA(?:\s*\d+)?|MERIENDA|CENA|POST[\s-]*CENA|PRE[\s-]*ENTRENO|POST[\s-]*ENTRENO|TOMA\s*\d+)\b(.*)/i;
   const optionRx=/^Opci[oó]n\s+([A-Z])(?:\s*[-:·]\s*(.*))?$/i;
   const stopRx=/D[IÍ]A\s+DESCANSO|REGLAS\s+GENERALES|ALCOHOL|SUPLEMENTOS|ENTRENAMIENTO|AJUSTES|NOTAS|AYUNO\s+INTERMITENTE/i;
   const separatorRx=/^[─━═_\-=]{3,}/;
@@ -985,7 +901,7 @@ function extractPlanNutritionDataClean(text, fallbackMacros){
     if(mt&&!/^Mismos men/i.test(line)){
       closeMeal();
       const base=mt[1].replace(/\s+/g,' ').trim();
-      const timing=mt[2]||'';
+      const timing=mt[2]?mt[2].replace(/^[ \-·:]+/,'').trim():'';
       cur={key:'plan_meal_'+meals.length,name:base,timing:timing||'',kcal:null,macros:null,contentLines:[],options:[]};
       return;
     }
@@ -1749,28 +1665,26 @@ function renderNutrition(q){
   const N=getNutrition();
   const nutr=N.training;
   return `
-  <div class="ph"><h1>Nutrición DOCE</h1><p>Sistema intercambios · Elige tu opción cada comida · Regla 80/20</p></div>
+  <div class="ph"><h1>Nutrición C.L.O.E.</h1><p>Protocolo 16:8 · Sistema intercambios · Regla 80/20</p></div>
   <div class="macro-bar">
     <div class="macro-item"><div class="macro-val">${nutr.kcal}</div><div class="macro-label">Kcal</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${nutr.protein}g</div><div class="macro-label">Proteína</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${nutr.carbs}g</div><div class="macro-label">HC</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${nutr.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>
-  <div class="win-3d" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${nutr.timing}</div>
+  <div class="win-3d" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7;white-space:pre-line">${nutr.timing}</div>
   <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Diferencia A, B y C para alternar sin rehacer el plan.</div>
   ${renderMealsVisual(nutr.meals)}
   <div class="meal-block" style="border-color:rgba(167,139,250,.3)">
-    <div class="meal-name" style="color:var(--accent4)">📋 REGLAS GENERALES DOCE</div>
+    <div class="meal-name" style="color:var(--accent4)">📋 REGLAS GENERALES C.L.O.E.</div>
     <br>
     ${[
-      'Pesar filetes en CRUDO · hidratos como indica la dieta',
-      'Beber 3 litros de agua mineral al día',
-      'Verdura libre: brócoli, alcachofas, judías verdes, acelgas, espinacas, espárragos',
-      'Hortalizas: calabacín, berenjena, pepino, champiñones, cebolla moderada',
-      'Espray para cocinar las carnes — nunca aceite en sartén',
-      'Sal rosa del Himalaya en todas las comidas',
-      'Refrescos sin azúcar: máximo 2 al día',
-      'Café: 3 máximo/día con leche de almendras sin azúcar o sin lactosa',
+      'Flexibilidad 16:8: Al principio es normal no tener mucha hambre a las 13:00h. No te fuerces.',
+      'Modulación HC: Los días de descanso recorta ligeramente arroz, patata o avena.',
+      'Beber 2.5-3 litros de agua mineral al día.',
+      'Sal rosa del Himalaya o electrolitos en los entrenamientos intensos.',
+      'Espray para cocinar las carnes — nunca aceite directo en sartén.',
+      'Señal de alerta: Si hay fatiga extrema, puedes abrir la ventana a las 12:00h.'
     ].map(r=>`<div class="food-row"><div class="food-name" style="font-size:11px">· ${r}</div></div>`).join('')}
   </div>`;
 }
@@ -2778,7 +2692,7 @@ function renderMobileDay(){
       <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${nutr.carbs||''}g</div><div class="macro-label">HC</div></div>
       <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${nutr.fat||''}g</div><div class="macro-label">Grasa</div></div>
     </div>
-    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7">${nutr.timing||''}</div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7;white-space:pre-line">${nutr.timing||''}</div>
     ${nutr.meals.map(meal=>{
       const done=!!(log.meals?.[meal.key]);
       if(!meal.options||meal.options.length===0){
