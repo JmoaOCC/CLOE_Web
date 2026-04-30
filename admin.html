@@ -1603,6 +1603,214 @@ function buildPromptQScaleData(){
 ${promptQScaleWeek('q-s2','PESAJE BASCULA INTELIGENTE - SEMANA 2 DEL Q ANTERIOR')}`;
 }
 
+function buildPromptQOutputFormat(targetQ){
+  return `── PERFIL FÍSICO ─────────────────────────────────────
+C.L.O.E. COACH - PLAN Q${targetQ}
+
+A. SUPLEMENTOS
+
+AL LEVANTARTE
+Agua mineral: 1 vaso grande | Hidratación en ayunas | Base diaria.
+Creatina monohidrato: 5g diarios | Con agua | Mejora fuerza y rendimiento.
+PRE ENTRENAMIENTO
+Cafeína: 1 café solo | 30 min antes de entrenar | Mejora rendimiento y foco.
+POST ENTRENAMIENTO
+Proteína whey: 30g | Inmediato post entreno | Síntesis y recuperación muscular.
+ANTES DE ACOSTARTE
+Magnesio Bisglicinato: 300-400mg | Con agua | Mejora descanso y recuperación.
+
+B. ENTRENAMIENTO
+
+CALENDARIO Q${targetQ}
+Dia 1 - Viernes 01/05: FUERZA A (Tren inferior base)
+Dia 2 - Sábado 02/05: RUNNING EASY
+Dia 3 - Domingo 03/05: DESCANSO
+Dia 4 - Lunes 04/05: FUERZA B (Tren superior)
+Dia 5 - Martes 05/05: ANDAR / CARDIO SUAVE
+Dia 6 - Miércoles 06/05: FUERZA C (Tren inferior hipertrofia)
+Dia 7 - Jueves 07/05: FUERZA D (Tren superior hipertrofia)
+Dia 8 - Viernes 08/05: FUERZA A (Semana 2 - Progresión)
+Dia 9 - Sábado 09/05: RUNNING EASY (Semana 2)
+Dia 10 - Domingo 10/05: DESCANSO
+Dia 11 - Lunes 11/05: FUERZA B (Semana 2 - Progresión)
+Dia 12 - Martes 12/05: ANDAR / CARDIO SUAVE
+Dia 13 - Miércoles 13/05: FUERZA C (Semana 2 - Progresión)
+Dia 14 - Jueves 14/05: FUERZA D (Semana 2 - Progresión)
+
+-----
+FUERZA A (TREN INFERIOR BASE)
+-----
+Sentadilla: 4x8 · RIR 2 · Descanso 90s.
+Peso muerto rumano: 3x10 · RIR 2.
+Prensa: 3x12.
+Curl femoral: 3x12.
+Gemelos: 3x15.
+
+-----
+FUERZA B (TREN SUPERIOR)
+-----
+Press banca: 4x8 · RIR 2.
+Jalón al pecho: 4x10.
+Press militar: 3x10.
+Remo: 3x10.
+Elevaciones laterales: 3x15.
+Bíceps + tríceps: 3x12.
+
+-----
+FUERZA C (HIPERTROFIA TREN INFERIOR)
+-----
+Hip thrust: 4x10.
+Zancadas: 3x12.
+Peso muerto ligero: 3x12.
+Extensión de cuádriceps: 3x15.
+Gemelos: 3x15.
+
+-----
+FUERZA D (HIPERTROFIA TREN SUPERIOR)
+-----
+Press inclinado: 4x10.
+Jalón estrecho: 3x12.
+Remo: 3x12.
+Elevaciones laterales: 3x15.
+Bíceps + tríceps: 3x12.
+
+-----
+RUNNING
+-----
+Warmup
+10m 5:50/km Pace
+Main set
+25m 5:45/km Pace
+Cooldown
+10m 6:00/km Pace
+
+-----
+ANDAR / CARDIO SUAVE
+-----
+8000-10000 pasos diarios | Recuperación activa.
+
+-----
+DESCANSO
+-----
+Sin actividad física.
+
+C. NUTRICIÓN C.L.O.E.
+
+Macros diana: 2600 kcal · 150g proteína / 300g hidratos / 75g grasa
+Objetivo: Recomposición corporal
+
+━━━ DESAYUNO ━━━
+Opción A
+Avena: 70g
+Whey: 30g
+Plátano: 120g
+Nueces: 10g
+TIPS: Añadir proteína cuando esté templado.
+Opción B
+Yogur griego: 250g
+Avena: 50g
+Frutos rojos: 100g
+Miel: 10g
+TIPS: Mayor saciedad si reposa 5-10 min.
+Opción C
+Pan integral: 80g
+Pavo: 100g
+Tomate: 100g
+Aceite oliva: 5g
+TIPS: Buena opción salada para adherencia.
+
+━━━ ALMUERZO ━━━
+Opción A
+Yogur: 200g
+Fruta: 150g
+Almendras: 15g
+TIPS: Controlar cantidad de frutos secos.
+Opción B
+Pan integral: 80g
+Pavo: 100g
+Queso fresco: 30g
+TIPS: Opción portátil.
+Opción C
+Whey: 30g
+Avena: 40g
+TIPS: Rápida digestión.
+━━━ COMIDA ━━━
+Opción A
+Pollo: 150g
+Arroz crudo: 80g
+Verduras: 150g
+Aceite oliva: 10g
+TIPS: Añadir aceite al final.
+Opción B
+Ternera: 150g
+Patata: 250g
+Ensalada: 150g
+Aceite: 10g
+TIPS: Patata mejora saciedad.
+Opción C
+Salmón: 150g
+Arroz: 70g
+Verduras: 150g
+TIPS: Ajustar grasas del día.
+
+━━━ MERIENDA ━━━
+Opción A
+Yogur: 200g
+Fruta: 150g
+TIPS: Buena pre-entreno.
+Opción B
+Whey: 30g
+Avena: 30g
+TIPS: Fácil digestión.
+Opción C
+Pan integral: 70g
+Pavo: 100g
+TIPS: Más saciante.
+
+━━━ CENA ━━━
+Opción A
+Pollo: 150g
+Ensalada: 200g
+Aceite: 5g
+TIPS: Cena ligera.
+Opción B
+Huevos: 2 + claras 150g
+Verduras: 150g
+TIPS: Alta saciedad.
+Opción C
+Merluza: 180g
+Verduras: 200g
+Aceite: 5g
+TIPS: Fácil digestión.
+━━━ REGLAS GENERALES ━━━
+Agua: 2-2.5L diarios
+Proteína en cada comida
+80/20 flexibilidad semanal
+
+D. OBJETIVOS
+
+PASOS DIARIOS: 8000-10000
+SUEÑO: 8h mínimo
+ADHERENCIA ENTRENAMIENTO: 85%
+ADHERENCIA NUTRICIÓN: 80%
+FOCO Q${targetQ}: Progresión de cargas + adherencia + consistencia
+
+E. AJUSTES
+
+Subir cargas si se completan repeticiones máximas
+Priorizar técnica sobre carga
+Ajustar ingesta según hambre real
+Mantener consistencia en cardio base
+
+F. FECHAS
+
+Inicio Q${targetQ}: 01/05/2026
+Pesaje: 05/05/2026 y 12/05/2026
+Fotos: 01/05/2026 y 14/05/2026
+Envío reporte: 14/05/2026
+Fin Q${targetQ}: 14/05/2026`;
+}
+
 function buildPromptQ(){
   const user=selectedPromptQUser();
   if(!user) return 'Selecciona un usuario.';
@@ -1633,31 +1841,22 @@ ${freeText}
 
 FORMATO OBLIGATORIO DE DEVOLUCION PARA QUE LA APP LO INTERPRETE
 
-Encabezado:
-C.L.O.E. COACH - PLAN Q${targetQ}
-Usuario: ${user.full_name||'Usuario'}
-Fase: BASE, VOLUMEN, RITMO o ESPECIFICO segun corresponda
-Fechas Q${targetQ}: DD/MM/YYYY a DD/MM/YYYY
-Macros: 0000 kcal | P 000g | HC 000g | G 000g
+La salida final debe respetar EXACTAMENTE esta estructura, orden, titulos, separadores y estilo. Adapta solo contenidos, fechas, ejercicios, comidas, cantidades, macros, suplementos, objetivos y ajustes al usuario real y a Q${targetQ}. No anadas bloques fuera de A-F, no uses markdown y no expliques nada antes ni despues del plan.
 
-Despues devuelve SIEMPRE estas secciones exactas:
-A. SUPLEMENTOS
-B. ENTRENAMIENTO
-C. NUTRICION C.L.O.E.
-D. OBJETIVOS
-E. AJUSTES
-F. FECHAS
+FORMATO FINAL EXACTO:
+
+${buildPromptQOutputFormat(targetQ)}
 
 REGLAS A. SUPLEMENTOS
-- Usa ventanas exactas que la app reconoce: AL LEVANTARTE, ANTES DEL DESAYUNO, PRE ENTRENAMIENTO, ANTES DE CENAR, POST ENTRENAMIENTO FUERZA, ANTES DE ACOSTARTE.
+- Usa ventanas exactas que la app reconoce y mantén el mismo estilo del formato final: AL LEVANTARTE, PRE ENTRENAMIENTO, POST ENTRENAMIENTO, ANTES DE ACOSTARTE. Si necesitas otra ventana, puede ser ANTES DEL DESAYUNO o ANTES DE CENAR, pero no cambies el titulo A. SUPLEMENTOS.
 - Cada suplemento debe ir en este formato:
-  - Nombre: descripcion amplia de cualidades, utilidad y por que se asigna a este usuario | dosis exacta | timing exacto | nota de uso, tolerancia o precaucion
+  Nombre: dosis exacta | timing exacto | descripcion de cualidades, utilidad, por que se asigna y nota de uso
 - La descripcion debe ser extensa y util: explica para que sirve, que cualidad aporta, que problema ayuda a cubrir y por que encaja con el objetivo/Q.
 - No inventes suplementos medicos ni dosis si hay contraindicaciones o SIN DATOS. Si hay duda, escribe "Consultar profesional sanitario".
 
 REGLAS B. ENTRENAMIENTO
 - Incluye CALENDARIO Q${targetQ} con 14 lineas exactas:
-  Dia 1 - Lunes 01/01: Fuerza A - Tren superior
+  Dia 1 - Lunes 01/01: FUERZA A (Tren superior)
 - Usa palabras detectables por la app: Fuerza, Gym, Calistenia, Running, Cardio, Correr, Carrera, Tempo, Tirada, Rodaje, Natacion, Piscina, Rodillo, Ciclismo, Bici, Andar, Descanso.
 - Despues del calendario, crea bloques con separadores:
   -----
@@ -1680,7 +1879,7 @@ REGLAS C. NUTRICION C.L.O.E.
 - Usa comidas con titulos reconocibles: DESAYUNO, ALMUERZO, COMIDA, MERIENDA, CENA, POST-CENA, PRE-ENTRENO o POST-ENTRENO.
 - Bajo cada comida crea Opcion A, Opcion B y Opcion C.
 - Cada opcion debe detallar alimentos y cantidades exactas en formato:
-  - Alimento: cantidad
+  Alimento: cantidad
 - Los TIPS deben ser mas completos: 2-4 consejos practicos por opcion sobre preparacion, saciedad, sustituciones equivalentes, digestion, timing, adherencia y ajuste si el usuario entrena o descansa.
 - Respeta restricciones y preferencias alimentarias. Si una preferencia contradice una restriccion, manda la restriccion.
 - Incluye REGLAS GENERALES al final de nutricion con agua, sal/electrolitos si procede, fibra, proteina por toma, flexibilidad 80/20 y criterio para dias de descanso.

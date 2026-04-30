@@ -1,0 +1,605 @@
+C.L.O.E. COACH - FORMATO MODELO DE DATOS DE USUARIO Y PLAN
+Version: app actual
+
+Este TXT resume todos los datos de usuario que la app guarda/usa y el formato de plan quincenal que la app es capaz de interpretar al pegarlo en admin.html > Plan del usuario.
+
+IMPORTANTE
+- La app NO importa automaticamente un perfil completo desde un TXT.
+- Los datos de usuario se guardan desde onboarding.html y admin.html en la tabla profiles.
+- El TXT que SI interpreta la app como plan es el bloque "PLAN QUINCENAL INTERPRETABLE" con secciones A, B, C, D, E y F.
+- Para que la app pinte calendario, suplementos, entrenos y nutricion, conserva los titulos y patrones indicados.
+
+======================================================================
+1. DATOS DE USUARIO QUE LA APP PUEDE ALIMENTAR/GUARDAR
+======================================================================
+
+TABLA profiles - campos principales
+
+id:
+  UUID del usuario en Supabase Auth.
+
+email:
+  Email de acceso del usuario.
+  Ejemplo: sandra.demo@email.com
+
+full_name:
+  Nombre visible del usuario.
+  Ejemplo: Sandra Demo
+
+role:
+  user o admin.
+  Ejemplo: user
+
+status:
+  pending, active o inactive.
+  Ejemplo: active
+
+age:
+  Edad en anos.
+  Ejemplo: 38
+
+sex:
+  Sexo.
+  Ejemplo: Mujer
+
+weight_kg:
+  Peso en kg.
+  Ejemplo: 70.0
+
+height_cm:
+  Altura en cm.
+  Ejemplo: 178
+
+goal:
+  Objetivo principal o lista de objetivos como texto.
+  Ejemplo: Recomposicion corporal, Mejorar fuerza
+
+week:
+  Semana interna del plan. La app calcula la quincena desde este valor.
+  Semana 1-2 = Q1, 3-4 = Q2, etc.
+  Ejemplo: 1
+
+onboarding_completed:
+  true o false.
+  Ejemplo: true
+
+quincena1_plan:
+  Plan inicial pegado para Q1. Texto libre, idealmente con el formato interpretable de la seccion 2.
+
+current_plan:
+  Plan actual pegado para la quincena en curso. Texto libre, idealmente con el formato interpretable de la seccion 2.
+
+latest_report:
+  Ultimo reporte generado por el usuario desde app.html al terminar una quincena.
+
+latest_report_at:
+  Fecha/hora del ultimo reporte.
+
+plan_strength:
+  JSON opcional de fuerza. Actualmente la app extrae fuerza principalmente desde el TXT del plan.
+
+plan_running:
+  JSON opcional de running. Actualmente la app extrae running principalmente desde el TXT del plan.
+
+plan_nutrition:
+  JSON opcional de nutricion. Actualmente la app extrae nutricion principalmente desde el TXT del plan.
+
+plan_supplements:
+  JSON opcional de suplementos. Actualmente la app extrae suplementos principalmente desde el TXT del plan.
+
+
+onboarding_data - campos internos guardados como JSON
+
+injury:
+  Lesiones o limitaciones generales.
+  Ejemplo: Rodillas sensibles
+
+injury_detail:
+  Detalle de la lesion.
+  Ejemplo: Evitar zancadas, sentadilla profunda y dolor articular.
+
+plan_start_date:
+  Fecha de inicio del plan en formato YYYY-MM-DD.
+  Ejemplo: 2026-04-28
+
+plan_day:
+  Dia manual del plan, 1 a 14. Si esta vacio, la app lo calcula desde plan_start_date.
+  Ejemplo: 2
+
+steps:
+  Pasos actuales.
+  Ejemplo: 6500/dia
+
+body_composition:
+  Objeto con datos avanzados de composicion corporal.
+
+body_composition.bodyFat:
+  Porcentaje de grasa corporal.
+  Ejemplo: 24
+
+body_composition.subcutaneousFat:
+  Porcentaje de grasa subcutanea.
+  Ejemplo: 21
+
+body_composition.visceralFat:
+  Grasa visceral.
+  Ejemplo: 7
+
+body_composition.bodyWater:
+  Porcentaje de agua corporal.
+  Ejemplo: 53
+
+body_composition.skeletalMuscle:
+  Porcentaje de musculo esqueletico.
+  Ejemplo: 42
+
+body_composition.muscleMass:
+  Masa muscular en kg.
+  Ejemplo: 48.5
+
+body_composition.boneMass:
+  Masa osea en kg.
+  Ejemplo: 2.8
+
+body_composition.proteinPercent:
+  Porcentaje de proteina corporal.
+  Ejemplo: 18
+
+body_composition.measuredBmr:
+  BMR/TMB medido en kcal.
+  Ejemplo: 1450
+
+body_composition.metabolicAge:
+  Edad metabolica.
+  Ejemplo: 36
+
+body_composition.muscleStorage:
+  Capacidad de almacenamiento muscular.
+  Ejemplo: 6/9
+
+body_composition.waist:
+  Perimetro de cintura en cm.
+  Ejemplo: 78
+
+event:
+  Evento o prueba objetivo.
+  Ejemplo: Carrera 10K Madrid
+
+event_date:
+  Fecha del evento en formato YYYY-MM-DD.
+  Ejemplo: 2026-06-14
+
+easy_pace:
+  Ritmo facil actual.
+  Ejemplo: 8:00
+
+target_pace:
+  Ritmo objetivo.
+  Ejemplo: 7:30
+
+run_level:
+  Nivel de running.
+  Ejemplo: Principiante menos de 6 meses
+
+gym_level:
+  Nivel de fuerza/gimnasio.
+  Ejemplo: Menos de 1 ano
+
+calis_level:
+  Nivel de calistenia.
+  Ejemplo: Principiante, plancha basica 20s, no domina dominadas
+
+days:
+  Dias disponibles por semana.
+  Ejemplo: 5
+
+goals:
+  Array de objetivos.
+  Ejemplo: ["Recomposicion corporal", "Mejorar fuerza"]
+
+strength_days:
+  Dias de fuerza por semana.
+  Ejemplo: 4
+
+sport_days:
+  Dias de deportes por semana.
+  Ejemplo: 1
+
+strength_pref:
+  Array de dias preferidos para fuerza.
+  Ejemplo: ["Martes", "Miercoles", "Viernes", "Lunes"]
+
+sports_day_prefs:
+  Objeto con preferencias de dias por deporte.
+  Ejemplo: {"Running":["Jueves"],"Andar":["Sabado"],"Calistenia":["Viernes"]}
+
+schedule_notes:
+  Notas de agenda.
+  Ejemplo: No puedo entrenar martes tarde, prefiero tirada larga sabado.
+
+split:
+  Distribucion del plan.
+  Ejemplo: Fuerza 4 dias; deportes 1 dias
+
+session_t:
+  Tiempo por sesion.
+  Ejemplo: 45-60 min
+
+equip:
+  Array de equipamiento.
+  Ejemplo: ["Gimnasio completo", "Mancuernas", "Maquinas", "Bandas elasticas"]
+
+sports:
+  Array de deportes seleccionados.
+  Ejemplo: ["Running", "Andar", "Fuerza", "Calistenia"]
+
+activity:
+  Actividad laboral/diaria.
+  Ejemplo: Sedentario oficina
+
+diet:
+  Array de restricciones o preferencias dieteticas.
+  Ejemplo: ["Sin lactosa"]
+
+food_preferences:
+  Objeto por categorias de alimentos.
+  Ejemplo:
+  {
+    "Proteinas": ["Huevos", "Pollo", "Pavo", "Proteina sin lactosa"],
+    "Hidratos": ["Avena", "Arroz", "Patata", "Pan integral"],
+    "Grasas": ["Aceite de oliva", "Aguacate", "Frutos secos"],
+    "Verduras": ["Tomate", "Espinaca", "Calabacin"],
+    "Frutas": ["Arandanos", "Platano", "Manzana"]
+  }
+
+food_notes:
+  Notas sobre alimentos.
+  Ejemplo: Prefiere cenas ligeras, evita comidas picantes.
+
+sleep:
+  Sueno habitual en horas.
+  Ejemplo: 8.5
+
+context:
+  Contexto vital/laboral.
+  Ejemplo: Estres laboral alto, oficina, hijos pequenos, quiere adherencia simple.
+
+fasting:
+  Objeto de ayuno intermitente.
+
+fasting.enabled:
+  Si o No.
+  Ejemplo: No
+
+fasting.type:
+  Tipo de ayuno.
+  Ejemplo: 16/8
+
+fasting.feedingWindow:
+  Ventana de alimentacion.
+  Ejemplo: 12:00-20:00
+
+fasting.experience:
+  Experiencia con ayuno.
+  Ejemplo: Principiante
+
+fasting.days:
+  Array de dias de ayuno/restriccion.
+  Ejemplo: ["Lunes", "Jueves"]
+
+fasting.custom:
+  Protocolo personalizado.
+  Ejemplo: Ayuno lunes y jueves hasta las 14:00.
+
+
+======================================================================
+2. PLAN QUINCENAL INTERPRETABLE POR LA APP
+======================================================================
+
+Reglas que la app reconoce:
+
+1. Macros globales:
+   Usa una linea con "Macros:" o "MACROS DIARIOS" y este patron:
+   Macros: 1805 kcal | P 140g | HC 169g | G 63g
+
+2. Fase:
+   Usa una linea:
+   Fase: BASE
+
+3. Secciones:
+   La app separa el plan por estos titulos:
+   A. SUPLEMENTOS
+   B. ENTRENAMIENTO
+   C. NUTRICION C.L.O.E.
+   D. OBJETIVOS
+   E. AJUSTES
+   F. FECHAS
+
+4. Calendario:
+   En B. ENTRENAMIENTO, usa 14 lineas con este patron:
+   Dia 1 - Martes 28/04: Fuerza A - Tren superior
+   La app detecta el tipo por palabras: Fuerza, Gym, Calistenia, Running, Cardio, Correr, Carrera, Tempo, Tirada, Rodaje, Natacion, Piscina, Rodillo, Ciclismo, Bici, Andar, Camin, Descanso.
+
+5. Bloques de entreno:
+   Usa separadores de guiones y titulo:
+   -----
+   FUERZA A
+   -----
+   Press banca maquina: 3x12 · RIR 3 · 25 kg · descanso 90s
+
+   La app extrae ejercicios si tienen:
+   Nombre ejercicio: 3x12 · resto de indicaciones
+   Nombre ejercicio - 4x8 · resto de indicaciones
+
+6. Running:
+   La app reconoce bloques con titulos como RUNNING EASY, INTERVALOS, TEMPO, TIRADA LARGA, TECNICA.
+   Dentro del bloque reconoce formato tipo:
+   Warmup
+   10m 8:00/km Pace
+   Main set
+   25m 7:45/km Pace
+   Cooldown
+   10m 8:00/km Pace
+
+7. Nutricion:
+   La app reconoce comidas con titulos como:
+   DESAYUNO, ALMUERZO, COMIDA, MERIENDA, CENA, POST-CENA, PRE-ENTRENO, POST-ENTRENO, TOMA 1.
+
+   Bajo cada comida reconoce:
+   Opcion A
+   - Alimento: cantidad
+   TIPS: consejo breve
+
+8. Suplementos:
+   La app reconoce estas ventanas:
+   AL LEVANTARTE
+   ANTES DEL DESAYUNO
+   PRE ENTRENAMIENTO
+   ANTES DE CENAR
+   POST ENTRENAMIENTO FUERZA
+   ANTES DE ACOSTARTE
+   EN AYUNAS
+
+   Formato recomendado:
+   - Nombre suplemento: Para que sirve | Dosis | Timing | Nota
+
+
+======================================================================
+3. PLAN MODELO PEGABLE EN ADMIN.HTML
+======================================================================
+
+-- Copia desde la linea "C.L.O.E. COACH - PLAN Q1" hasta "Fin Q1" y pegalo en el campo Plan del usuario.
+
+C.L.O.E. COACH - PLAN Q1
+Usuario: Sandra Demo
+Fase: BASE
+Fechas Q1: 28/04/2026 a 11/05/2026
+Macros: 1805 kcal | P 140g | HC 169g | G 63g
+
+A. SUPLEMENTOS
+
+AL LEVANTARTE
+- Agua mineral con limon: Hidratacion e inicio digestivo | 1 vaso grande | En ayunas antes de cualquier alimento | Base del protocolo matutino
+- Creatina monohidrato: Fuerza y retencion muscular | 5g | Con agua | Constancia diaria
+
+ANTES DEL DESAYUNO
+- Picolinato de cromo: Sensibilidad a la insulina | 200 mcg | 10 min antes del desayuno | Opcional segun tolerancia
+
+PRE ENTRENAMIENTO
+- Cafeina: Rendimiento y concentracion | 1 cafe solo | 30 min antes | Evitar despues de las 15:00
+
+ANTES DE CENAR
+- Picolinato de cromo: Control glucemico | 200 mcg | 10 min antes de la cena | Opcional segun tolerancia
+
+POST ENTRENAMIENTO FUERZA
+- Proteina sin lactosa: Sintesis proteica | 25g | Dentro de 30 min | Prioritaria si no llega a proteina
+
+ANTES DE ACOSTARTE
+- Magnesio bisglicinato: Sueno y recuperacion | 400 mg | Con agua | Prioritario
+
+B. ENTRENAMIENTO
+
+CALENDARIO Q1
+Dia 1 - Martes 28/04: Fuerza A - Tren superior
+Dia 2 - Miercoles 29/04: Fuerza B - Tren inferior
+Dia 3 - Jueves 30/04: Running Easy o Andar
+Dia 4 - Viernes 01/05: Calistenia A - Core y empuje
+Dia 5 - Sabado 02/05: Descanso completo
+Dia 6 - Domingo 03/05: Descanso completo
+Dia 7 - Lunes 04/05: Fuerza C - Tren inferior gluteo
+Dia 8 - Martes 05/05: Fuerza A - Semana 2
+Dia 9 - Miercoles 06/05: Fuerza B - Semana 2
+Dia 10 - Jueves 07/05: Running Easy - Semana 2
+Dia 11 - Viernes 08/05: Calistenia A - Semana 2
+Dia 12 - Sabado 09/05: Descanso completo
+Dia 13 - Domingo 10/05: Descanso completo
+Dia 14 - Lunes 11/05: Fuerza C - Semana 2
+
+-----
+FUERZA A
+-----
+Objetivo: empuje y tiron tecnico.
+Press banca maquina: 3x12 · RIR 3 · 25 kg · tempo 3-0-1-0 · descanso 90s
+Remo maquina sentado: 3x12 · RIR 3 · 25 kg · tempo 2-0-1-0 · descanso 90s
+Press militar mancuernas: 3x10 · RIR 3 · 8 kg por mano · descanso 90s
+Jalon al pecho: 3x12 · RIR 3 · 30 kg · descanso 90s
+Face pull polea: 2x15 · RIR 3 · 10 kg · descanso 60s
+
+-----
+FUERZA B
+-----
+Objetivo: tren inferior sin dolor de rodilla.
+Prensa inclinada rango comodo: 3x12 · RIR 3 · 60 kg · descanso 120s
+Peso muerto rumano mancuernas: 3x10 · RIR 3 · 14 kg por mano · descanso 120s
+Curl femoral maquina: 3x12 · RIR 3 · 25 kg · descanso 90s
+Elevacion de gemelos: 3x15 · RIR 2 · 25 kg · descanso 60s
+Pallof press: 3x12 cada lado · control · descanso 45s
+
+-----
+FUERZA C
+-----
+Objetivo: gluteo, bisagra y estabilidad.
+Hip thrust maquina: 3x12 · RIR 3 · 45 kg · descanso 120s
+Peso muerto rumano barra: 3x8 · RIR 3 · 35 kg · descanso 120s
+Abduccion de cadera maquina: 3x15 · RIR 2 · 30 kg · descanso 60s
+Step-up bajo asistido: 2x10 cada pierna · RIR 4 · peso corporal · descanso 75s
+Plancha lateral: 3x20 seg cada lado · control · descanso 45s
+
+-----
+CALISTENIA A
+-----
+Objetivo: control corporal, core y empuje sin dolor.
+Plancha frontal: 3x25 seg · RIR tecnico 3 · descanso 45s
+Flexiones inclinadas en banco: 3x10 · RIR 3 · descanso 75s
+Remo invertido asistido: 3x8 · RIR 3 · descanso 90s
+Dead bug: 3x10 cada lado · control respiracion · descanso 45s
+Hollow hold regresion: 3x15 seg · RIR tecnico 3 · descanso 45s
+
+-----
+RUNNING EASY
+-----
+Objetivo: cardio suave aerobico sin cambios de ritmo.
+Ritmo Easy: 8:00/km
+Ritmo conversacional: 8:00/km
+Warmup
+10m 8:00/km Pace
+Main set
+25m 7:45/km Pace
+Cooldown
+10m 8:00/km Pace
+
+-----
+DESCANSO
+-----
+Sin actividad fisica programada.
+Opcional: paseo suave 20-30 min si mejora recuperacion.
+
+C. NUTRICION C.L.O.E.
+
+Macros diana: 1805 kcal · 140g proteina / 169g hidratos / 63g grasa
+MACROS DIA ENTRENO: 1805 kcal | P 140g | HC 169g | G 63g
+MACROS DIA DESCANSO: 1570 kcal | P 140g | HC 139g | G 63g
+Objetivo: Recomposicion corporal · Sin lactosa
+
+DESAYUNO (08:00)
+Opcion A
+- Huevos enteros talla M: 2 unidades
+- Pan integral: 1 rebanada
+- Tomate natural: 100g
+TIPS: Anade especias y tomate para mas sabor sin calorias.
+
+Opcion B
+- Avena: 60g
+- Proteina sin lactosa: 25g
+- Arandanos: 70g
+TIPS: Tritura con hielo para mejorar textura y saciedad.
+
+Opcion C
+- Yogur de soja alto en proteina: 200g
+- Platano: 1 unidad pequena
+- Nueces: 15g
+TIPS: Anade canela para sabor y adherencia.
+
+COMIDA (14:00)
+Opcion A
+- Pechuga de pollo: 160g crudo
+- Arroz basmati: 70g crudo
+- Ensalada variada: 250g
+- Aceite de oliva: 10g
+TIPS: Cocina doble racion de arroz para ahorrar tiempo.
+
+Opcion B
+- Pavo: 170g crudo
+- Patata cocida: 300g
+- Calabacin: 200g
+- Aceite de oliva: 10g
+TIPS: Mantiene volumen alto y digestivo facil.
+
+Opcion C
+- Merluza: 200g crudo
+- Pan integral: 80g
+- Verduras salteadas: 250g
+- Aguacate: 50g
+TIPS: Opcion ligera para dias de mas hambre nocturna.
+
+MERIENDA (17:30)
+Opcion A
+- Proteina sin lactosa: 25g
+- Manzana: 1 unidad
+TIPS: Facil de tomar si hay poco tiempo.
+
+Opcion B
+- Tortitas de arroz: 3 unidades
+- Crema de cacahuete: 15g
+- Pavo lonchas: 80g
+TIPS: Buena opcion pre entreno si entrenas tarde.
+
+Opcion C
+- Yogur de soja alto en proteina: 200g
+- Arandanos: 100g
+TIPS: Elige esta si prefieres algo dulce y frio.
+
+CENA (21:00)
+Opcion A
+- Tortilla: 2 huevos + 150g claras
+- Ensalada verde: 250g
+- Aceite de oliva: 10g
+TIPS: Cena simple, saciante y alta en proteina.
+
+Opcion B
+- Ternera magra: 150g crudo
+- Verduras al horno: 300g
+- Patata: 180g
+TIPS: Usa corte magro para mantener grasas controladas.
+
+Opcion C
+- Tofu firme: 220g
+- Arroz jazmin: 50g crudo
+- Verduras wok: 250g
+TIPS: Alternativa vegetal completa sin lactosa.
+
+POST-CENA (22:30)
+Opcion A
+- Infusion sin azucar: 1 taza
+- Chocolate negro 85%: 10g
+TIPS: Mantiene ritual dulce sin romper macros.
+
+Opcion B
+- Kiwi: 1 unidad
+- Magnesio segun pauta: 400 mg
+TIPS: Opcion orientada a descanso.
+
+Opcion C
+- Gelatina sin azucar: 1 racion
+TIPS: Usa esta opcion en dias de hambre alta.
+
+REGLAS GENERALES
+Agua mineral: minimo 3 litros diarios
+Proteina presente en cada toma principal
+Sin fritos, rebozados ni bolleria industrial
+80% alimentos densos, 20% flexible si macros y adherencia estan controlados
+
+D. OBJETIVOS
+
+PASOS DIARIOS: 8000
+SUENO: 8.5h
+ADHERENCIA ENTRENO: 80%
+ADHERENCIA NUTRICION: 75%
+FOCO QUINCENA 1: Instalar sistema, tecnica y registro.
+PESO OBJETIVO Q1: mantener 69.5-70.0 kg con mejor adherencia y fuerza.
+
+E. AJUSTES
+
+- Calistenia: progresar con rango, control escapular y repeticiones antes de anadir dificultad.
+- Rodillas: rango sin dolor, evitar zancada profunda y sentadilla profunda.
+- Running: solo intensidad conversacional en Q1, sin intervalos.
+- Fuerza: si completa reps con RIR correcto, subir 2.5 kg tren superior y 5 kg tren inferior.
+- Nutricion: si adherencia baja de 75%, no recortar calorias; simplificar opciones.
+
+F. FECHAS
+
+Inicio Q1: 28/04/2026
+Pesaje: 02/05/2026 y 09/05/2026
+Fotos: 28/04/2026 y 11/05/2026
+Envio reporte: 11/05/2026
+Fin Q1: 11/05/2026
