@@ -76,6 +76,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
 .pass-box.on{display:block}
 .state{max-width:1200px;margin:24px auto 0;padding:0 28px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)}
 .state.err{color:#f46}
+.q-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.q-panel{background:#101827;border:1px solid var(--border);border-radius:12px;padding:14px}
+.q-panel h3{font-size:13px;margin-bottom:8px;color:var(--accent2)}
+.q-drop{border:1px dashed rgba(91,156,246,.65);border-radius:12px;background:rgba(91,156,246,.06);padding:18px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;transition:all .2s}
+.q-drop.drag{border-color:var(--accent);background:rgba(200,241,53,.08);color:var(--accent)}
+.q-files{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;margin-top:8px}
+.q-mini{min-height:120px;font-size:10px;line-height:1.7;color:var(--muted)}
 
 /* Efectos 3D y Sombreados para ventanas */
 .kcard, .modal, .toast, .pass-box, .tbl { box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
@@ -84,6 +91,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   .hdr{padding:14px 16px;align-items:flex-start;gap:10px;flex-direction:column}
   .main{padding:18px 14px}
   .g2{grid-template-columns:1fr}
+  .q-grid{grid-template-columns:1fr}
   .table-wrap{overflow-x:auto}
   .tbl{min-width:920px}
 }
@@ -115,7 +123,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <div class="toolbar-actions">
     <button class="btn" onclick="openCreate()">+ Crear usuario</button>
     <button class="btn sec" onclick="load()">↻ Actualizar</button>
-    <button class="btn sec" onclick="openPromptBase()">Prompt Base</button>
+    <button class="btn sec" onclick="openPromptQ()">CREAR PROMP Q</button>
     </div>
   </div>
 
@@ -279,15 +287,58 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
   </div>
 </div>
 
-<!-- MODAL PROMPT BASE -->
+<!-- MODAL CREAR PROMP Q -->
 <div class="overlay" id="m-prompt-base">
-  <div class="modal wide">
-    <h2>Prompt Base</h2>
-    <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">El prompt empieza con: “Eres un entrenador físico, nutricionista deportivo y médico deportivo...”</div>
-    <textarea id="prompt-base-text" class="plan-area" rows="24" readonly></textarea>
-    <div class="plan-hint">Plantilla con todos los campos que entiende la app. Puedes copiarla y usarla como base para pedir a la IA una quincena completa.</div>
+  <div class="modal xwide">
+    <h2>CREAR PROMP Q</h2>
+    <div class="plan-hint" style="margin-top:0;margin-bottom:10px;color:var(--accent)">Genera un prompt completo para la IA con perfil, dieta, plan anterior, reporte anterior, CSV de Intervals y notas libres. Después puedes pegar la respuesta y cargarla directamente en el usuario.</div>
+
+    <div class="q-grid">
+      <div class="q-panel">
+        <h3>Ventana 1 · Datos para la IA</h3>
+        <label>Usuario</label>
+        <select id="q-user" onchange="onPromptQUserChange()"></select>
+        <div class="g2">
+          <div><label>Semana interna destino</label><input type="number" id="q-week" min="1" max="16" onchange="refreshPromptQ()"></div>
+          <div><label>Quincena destino</label><input id="q-label" readonly></div>
+        </div>
+        <label>Datos automáticos detectados</label>
+        <textarea id="q-auto-summary" class="plan-area q-mini" readonly></textarea>
+
+        <label>CSV de Intervals / entrenos realizados Q anterior</label>
+        <div class="q-drop" id="q-drop" onclick="document.getElementById('q-csv-input').click()">
+          Arrastra aquí archivos CSV o haz clic para seleccionarlos
+        </div>
+        <input id="q-csv-input" type="file" accept=".csv,text/csv" multiple style="display:none" onchange="handlePromptQFiles(this.files)">
+        <div class="q-files" id="q-files">Sin CSV cargados.</div>
+        <label>CSV convertido a texto interpretable por la IA</label>
+        <textarea id="q-csv-text" class="plan-area" rows="8" oninput="refreshPromptQ()" placeholder="Aquí aparecerán los entrenos realizados convertidos desde CSV..."></textarea>
+
+        <label>Texto libre para dirigir la respuesta de la IA</label>
+        <textarea id="q-free-text" class="plan-area" rows="6" oninput="refreshPromptQ()" placeholder="Ej: prioriza adherencia, reduce volumen de pierna, cambia desayunos, añade trabajo de movilidad, evita intervalos..."></textarea>
+
+        <label>Prompt final para la IA</label>
+        <textarea id="prompt-base-text" class="plan-area" rows="18" readonly></textarea>
+        <div class="mact">
+          <button class="btn" onclick="copyPromptBase()">Copiar prompt Q</button>
+          <button class="btn sec" onclick="refreshPromptQ()">Regenerar</button>
+        </div>
+      </div>
+
+      <div class="q-panel">
+        <h3>Ventana 2 · Cargar respuesta IA</h3>
+        <label>Respuesta de la IA / plan Q completo</label>
+        <textarea id="q-ai-response" class="plan-area" rows="24" placeholder="Pega aquí la respuesta completa de la IA con secciones A, B, C, D, E y F..."></textarea>
+        <div class="plan-hint">Al cargar, el texto se adapta al formato que interpreta la app y se guarda como plan activo del usuario seleccionado. Revisa que incluya calendario de 14 días, suplementos, entrenos, nutrición, objetivos, ajustes y fechas.</div>
+        <div class="mact">
+          <button class="btn sec" onclick="adaptPromptQResponse()">Adaptar respuesta</button>
+          <button class="btn" onclick="savePromptQResponse()">Cargar plan en usuario</button>
+          <button class="btn sec" onclick="close('m-prompt-base')">Cerrar</button>
+        </div>
+      </div>
+    </div>
+
     <div class="mact">
-      <button class="btn" onclick="copyPromptBase()">Copiar Prompt Base</button>
       <button class="btn sec" onclick="close('m-prompt-base')">Cerrar</button>
     </div>
   </div>
@@ -317,6 +368,7 @@ let users=[];
 let editId=null;
 let adminSession=null;
 let authReady=false;
+let promptQCsvFiles=[];
 
 (async()=>{
   let {data:{session}}=await sb.auth.getSession();
@@ -877,6 +929,7 @@ function renderTable(){
       <td><span style="font-family:'DM Mono',monospace;font-size:10px;color:${hasPlan?'var(--accent)':'var(--muted)'}">${hasPlan?'OK':'Pendiente'}</span></td>
       <td><div class="actions">
         <button class="abtn p" onclick="openEdit('${u.id}')">Editar</button>
+        <button class="abtn p" onclick="openPromptQFor('${u.id}')">Crear Q</button>
         <button class="abtn g" onclick="accessUserApp('${u.id}')">Entrar app</button>
         <button class="abtn" onclick="openLogs('${u.id}')">Logs</button>
         <button class="abtn w" onclick="resetUserPassword('${u.id}')">Reset pass</button>
@@ -1368,18 +1421,398 @@ function copyLatestReport(){
   toast('Último reporte copiado.');
 }
 
-function openPromptBase(){
-  document.getElementById('prompt-base-text').value=buildPromptBase();
+function selectedPromptQUser(){
+  const id=document.getElementById('q-user')?.value;
+  return users.find(x=>x.id===id)||null;
+}
+
+function fillPromptQUsers(selectedId=''){
+  const sel=document.getElementById('q-user');
+  if(!sel) return;
+  sel.innerHTML=users.map(u=>`<option value="${esc(u.id)}">${esc(u.full_name||u.email||'Usuario sin nombre')} · Q${quincenaFromWeek(u.week||1)}</option>`).join('');
+  if(selectedId&&users.some(u=>u.id===selectedId)) sel.value=selectedId;
+  else if(editId&&users.some(u=>u.id===editId)) sel.value=editId;
+  else if(users[0]) sel.value=users[0].id;
+}
+
+function extractBetweenSections(text,letter){
+  const rx=new RegExp(`^${letter}\\.\\s*[^\\n]*\\n([\\s\\S]*?)(?=^[A-F]\\.\\s|$)`,'im');
+  return (String(text||'').match(rx)||[])[1]?.trim()||'';
+}
+
+function summarizePreviousPlan(plan){
+  if(!plan) return 'SIN PLAN ANTERIOR';
+  const training=extractBetweenSections(plan,'B')||'SIN DATOS';
+  const nutrition=extractBetweenSections(plan,'C')||'SIN DATOS';
+  const supps=extractBetweenSections(plan,'A')||'SIN DATOS';
+  return [
+    'SUPLEMENTOS DEL PLAN ANTERIOR',
+    supps.slice(0,5000),
+    '',
+    'ENTRENAMIENTO / EJERCICIOS MANDADOS EN EL PLAN ANTERIOR',
+    training.slice(0,9000),
+    '',
+    'NUTRICION Y DIETA MARCADA EN EL PLAN ANTERIOR',
+    nutrition.slice(0,9000)
+  ].join('\n');
+}
+
+function formatSportsPrefs(extra){
+  const prefs=extra.sports_day_prefs||extra.sport_pref||{};
+  if(Array.isArray(prefs)) return prefs.join(', ');
+  if(prefs&&typeof prefs==='object'){
+    return Object.entries(prefs).map(([sport,days])=>`${sport}: ${Array.isArray(days)?days.join(', '):days}`).join(' · ')||'n/d';
+  }
+  return prefs||'n/d';
+}
+
+function buildPromptQSummary(user){
+  if(!user) return '';
+  const extra=user.onboarding_data||{};
+  const body=extra.body_composition||{};
+  const fasting=extra.fasting||{};
+  const plan=user.current_plan||user.quincena1_plan||'';
+  const currentQ=quincenaFromWeek(user.week||1);
+  const targetWeek=parseInt(document.getElementById('q-week')?.value)||Math.min((user.week||1)+2,16);
+  const targetQ=quincenaFromWeek(targetWeek);
+  return `USUARIO SELECCIONADO
+Nombre: ${user.full_name||'Sin nombre'}
+Email: ${user.email||'Sin email'}
+Q actual en app: Q${currentQ}
+Q destino solicitado: Q${targetQ}
+Semana interna destino: ${targetWeek}
+Dia actual del plan: ${calculatePlanDay(user)}/14
+Estado: ${user.status||'n/d'}
+
+PERFIL
+Edad: ${user.age||'n/d'}
+Sexo: ${user.sex||'n/d'}
+Peso: ${user.weight_kg||'n/d'} kg
+Altura: ${user.height_cm||'n/d'} cm
+Objetivo: ${user.goal||'n/d'}
+Pasos: ${extra.steps||'n/d'}
+Sueno: ${extra.sleep||'n/d'} h
+Actividad: ${extra.activity||'n/d'}
+Contexto: ${extra.context||'n/d'}
+Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` - ${extra.injury_detail}`:''}
+Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
+
+COMPOSICION CORPORAL
+Grasa corporal: ${body.bodyFat||'n/d'} %
+Grasa subcutanea: ${body.subcutaneousFat||'n/d'} %
+Grasa visceral: ${body.visceralFat||'n/d'}
+Agua corporal: ${body.bodyWater||'n/d'} %
+Musculo esqueletico: ${body.skeletalMuscle||'n/d'} %
+Masa muscular: ${body.muscleMass||'n/d'} kg
+Masa osea: ${body.boneMass||'n/d'} kg
+Proteina corporal: ${body.proteinPercent||'n/d'} %
+BMR/TMB: ${body.measuredBmr||'n/d'} kcal
+Edad metabolica: ${body.metabolicAge||'n/d'}
+Cintura: ${body.waist||'n/d'} cm
+
+ENTRENAMIENTO Y DISPONIBILIDAD
+Deportes: ${Array.isArray(extra.sports)?extra.sports.join(', '):'Running'}
+Nivel running: ${extra.run_level||'n/d'}
+Easy pace: ${extra.easy_pace||'n/d'}
+Target pace: ${extra.target_pace||'n/d'}
+Nivel fuerza: ${extra.gym_level||'n/d'}
+Nivel calistenia: ${extra.calis_level||'n/d'}
+Dias disponibles/semana: ${extra.days||'n/d'}
+Dias fuerza/semana: ${extra.strength_days||'n/d'}
+Dias deportes/semana: ${extra.sport_days||'n/d'}
+Preferencia fuerza: ${Array.isArray(extra.strength_pref)?extra.strength_pref.join(', '):'n/d'}
+Preferencia deportes: ${formatSportsPrefs(extra)}
+Tiempo por sesion: ${extra.session_t||'n/d'}
+Equipamiento: ${Array.isArray(extra.equip)?extra.equip.join(', '):'n/d'}
+Notas agenda: ${extra.schedule_notes||'n/d'}
+
+DIETA
+Restricciones/dieta: ${Array.isArray(extra.diet)?extra.diet.join(', '):'Ninguna'}
+Preferencias alimentos:
+${formatFoodPreferences(extra.food_preferences,extra.food_notes)}
+Ayuno intermitente: ${fasting.enabled||'No'}
+Tipo ayuno: ${fasting.type||'n/d'}
+Ventana alimentacion: ${fasting.feedingWindow||'n/d'}
+Experiencia ayuno: ${fasting.experience||'n/d'}
+Dias ayuno/restriccion: ${Array.isArray(fasting.days)?fasting.days.join(', '):'n/d'}
+Protocolo personalizado: ${fasting.custom||'n/d'}
+
+ULTIMO REPORTE DEL USUARIO
+${user.latest_report||'SIN REPORTE GUARDADO'}
+
+${summarizePreviousPlan(plan)}`;
+}
+
+function buildPromptQ(){
+  const user=selectedPromptQUser();
+  if(!user) return 'Selecciona un usuario.';
+  const targetWeek=parseInt(document.getElementById('q-week')?.value)||Math.min((user.week||1)+2,16);
+  const targetQ=quincenaFromWeek(targetWeek);
+  const csvText=document.getElementById('q-csv-text')?.value.trim()||'SIN CSV DE INTERVALS CARGADO';
+  const freeText=document.getElementById('q-free-text')?.value.trim()||'SIN INDICACIONES LIBRES ADICIONALES';
+  const summary=buildPromptQSummary(user);
+  return `Eres C.L.O.E. COACH, entrenador fisico, nutricionista deportivo y medico deportivo.
+
+OBJETIVO
+Genera el PLAN Q${targetQ} completo para el usuario seleccionado. Debe ser un TXT final listo para pegar en admin.html y que app.html lo interprete y lo dibuje correctamente en calendario, suplementos, entrenamientos, nutricion, objetivos, ajustes y fechas.
+
+NO DEVUELVAS explicaciones fuera del plan. NO uses markdown con triples comillas. NO cambies los titulos principales.
+
+DATOS DEL USUARIO Y Q ANTERIOR
+${summary}
+
+ENTRENOS REALIZADOS IMPORTADOS DESDE CSV DE INTERVALS
+${csvText}
+
+INDICACIONES LIBRES DEL COACH
+${freeText}
+
+FORMATO OBLIGATORIO DE DEVOLUCION PARA QUE LA APP LO INTERPRETE
+
+Encabezado:
+C.L.O.E. COACH - PLAN Q${targetQ}
+Usuario: ${user.full_name||'Usuario'}
+Fase: BASE, VOLUMEN, RITMO o ESPECIFICO segun corresponda
+Fechas Q${targetQ}: DD/MM/YYYY a DD/MM/YYYY
+Macros: 0000 kcal | P 000g | HC 000g | G 000g
+
+Despues devuelve SIEMPRE estas secciones exactas:
+A. SUPLEMENTOS
+B. ENTRENAMIENTO
+C. NUTRICION C.L.O.E.
+D. OBJETIVOS
+E. AJUSTES
+F. FECHAS
+
+REGLAS A. SUPLEMENTOS
+- Usa ventanas exactas que la app reconoce: AL LEVANTARTE, ANTES DEL DESAYUNO, PRE ENTRENAMIENTO, ANTES DE CENAR, POST ENTRENAMIENTO FUERZA, ANTES DE ACOSTARTE.
+- Cada suplemento debe ir en este formato:
+  - Nombre: descripcion amplia de cualidades, utilidad y por que se asigna a este usuario | dosis exacta | timing exacto | nota de uso, tolerancia o precaucion
+- La descripcion debe ser extensa y util: explica para que sirve, que cualidad aporta, que problema ayuda a cubrir y por que encaja con el objetivo/Q.
+- No inventes suplementos medicos ni dosis si hay contraindicaciones o SIN DATOS. Si hay duda, escribe "Consultar profesional sanitario".
+
+REGLAS B. ENTRENAMIENTO
+- Incluye CALENDARIO Q${targetQ} con 14 lineas exactas:
+  Dia 1 - Lunes 01/01: Fuerza A - Tren superior
+- Usa palabras detectables por la app: Fuerza, Gym, Calistenia, Running, Cardio, Correr, Carrera, Tempo, Tirada, Rodaje, Natacion, Piscina, Rodillo, Ciclismo, Bici, Andar, Descanso.
+- Despues del calendario, crea bloques con separadores:
+  -----
+  FUERZA A
+  -----
+  Ejercicio: 3x12 · RIR 3 · 25 kg · tempo 3-0-1-0 · descanso 90s
+- Cada ejercicio de fuerza/calistenia debe tener nombre, series x reps, RIR o criterio tecnico, carga sugerida si procede, tempo o control, descanso y ajuste si hay lesion.
+- Running debe usar bloques tipo Intervals:
+  Warmup
+  10m 8:00/km Pace
+  Main set
+  25m 7:45/km Pace
+  Cooldown
+  10m 8:00/km Pace
+
+REGLAS C. NUTRICION C.L.O.E.
+- Incluye:
+  MACROS DIA ENTRENO: 0000 kcal | P 000g | HC 000g | G 000g
+  MACROS DIA DESCANSO: 0000 kcal | P 000g | HC 000g | G 000g
+- Usa comidas con titulos reconocibles: DESAYUNO, ALMUERZO, COMIDA, MERIENDA, CENA, POST-CENA, PRE-ENTRENO o POST-ENTRENO.
+- Bajo cada comida crea Opcion A, Opcion B y Opcion C.
+- Cada opcion debe detallar alimentos y cantidades exactas en formato:
+  - Alimento: cantidad
+- Los TIPS deben ser mas completos: 2-4 consejos practicos por opcion sobre preparacion, saciedad, sustituciones equivalentes, digestion, timing, adherencia y ajuste si el usuario entrena o descansa.
+- Respeta restricciones y preferencias alimentarias. Si una preferencia contradice una restriccion, manda la restriccion.
+- Incluye REGLAS GENERALES al final de nutricion con agua, sal/electrolitos si procede, fibra, proteina por toma, flexibilidad 80/20 y criterio para dias de descanso.
+
+REGLAS D/E/F
+- D. OBJETIVOS: pasos, sueno, adherencia entreno, adherencia nutricion, foco, metrica principal y senal de alerta.
+- E. AJUSTES: cambios respecto al Q anterior basados en reporte, CSV, dieta, adherencia y lesiones.
+- F. FECHAS: Inicio Q${targetQ}, Pesaje, Fotos, Envio reporte y Fin Q${targetQ}.
+
+Si falta un dato, escribe SIN DATOS. No rellenes huecos con fantasia. El resultado debe ser directamente pegable en la app.`;
+}
+
+function refreshPromptQ(){
+  const user=selectedPromptQUser();
+  const weekInput=document.getElementById('q-week');
+  const label=document.getElementById('q-label');
+  if(user&&weekInput&&!weekInput.value) weekInput.value=Math.min((user.week||1)+2,16);
+  const targetWeek=parseInt(weekInput?.value)||1;
+  if(label) label.value='Q'+quincenaFromWeek(targetWeek);
+  const summary=buildPromptQSummary(user);
+  const summaryEl=document.getElementById('q-auto-summary');
+  if(summaryEl) summaryEl.value=summary;
+  const promptEl=document.getElementById('prompt-base-text');
+  if(promptEl) promptEl.value=buildPromptQ();
+}
+
+function onPromptQUserChange(){
+  const user=selectedPromptQUser();
+  const weekInput=document.getElementById('q-week');
+  if(user&&weekInput) weekInput.value=Math.min((user.week||1)+2,16);
+  refreshPromptQ();
+}
+
+function openPromptQ(){
+  setupPromptQDrop();
+  fillPromptQUsers(editId||'');
+  promptQCsvFiles=[];
+  const csvText=document.getElementById('q-csv-text');
+  if(csvText) csvText.value='';
+  const freeText=document.getElementById('q-free-text');
+  if(freeText) freeText.value='';
+  const response=document.getElementById('q-ai-response');
+  if(response) response.value='';
+  const files=document.getElementById('q-files');
+  if(files) files.textContent='Sin CSV cargados.';
+  onPromptQUserChange();
   document.getElementById('m-prompt-base').classList.add('on');
+}
+
+function openPromptQFor(id){
+  editId=id;
+  setupPromptQDrop();
+  fillPromptQUsers(id);
+  promptQCsvFiles=[];
+  const csvText=document.getElementById('q-csv-text');
+  if(csvText) csvText.value='';
+  const freeText=document.getElementById('q-free-text');
+  if(freeText) freeText.value='';
+  const response=document.getElementById('q-ai-response');
+  if(response) response.value='';
+  const files=document.getElementById('q-files');
+  if(files) files.textContent='Sin CSV cargados.';
+  onPromptQUserChange();
+  document.getElementById('m-prompt-base').classList.add('on');
+}
+
+function openPromptBase(){
+  openPromptQ();
 }
 
 function copyPromptBase(){
   const area=document.getElementById('prompt-base-text');
-  if(!area.value) area.value=buildPromptBase();
+  if(!area.value) area.value=buildPromptQ();
   area.select();
   area.setSelectionRange(0,99999);
   document.execCommand('copy');
-  toast('Prompt Base copiado.');
+  toast('Prompt Q copiado.');
+}
+
+function parseCsvRows(text){
+  const rows=[];
+  let row=[],cell='',quote=false;
+  const src=String(text||'').replace(/\r\n?/g,'\n');
+  for(let i=0;i<src.length;i++){
+    const ch=src[i], next=src[i+1];
+    if(ch==='"'&&quote&&next==='"'){cell+='"';i++;continue;}
+    if(ch==='"'){quote=!quote;continue;}
+    if(!quote&&(ch===','||ch===';'||ch==='\t')){row.push(cell.trim());cell='';continue;}
+    if(!quote&&ch==='\n'){row.push(cell.trim());if(row.some(Boolean)) rows.push(row);row=[];cell='';continue;}
+    cell+=ch;
+  }
+  row.push(cell.trim());
+  if(row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function csvToAiText(filename,text){
+  const rows=parseCsvRows(text);
+  if(!rows.length) return `ARCHIVO ${filename}: sin filas legibles.`;
+  const header=rows[0].map(h=>cleanText(h||'').trim());
+  const body=rows.slice(1).filter(r=>r.some(Boolean));
+  const keyFor=(names)=>{
+    const lower=header.map(h=>h.toLowerCase());
+    for(const n of names){
+      const idx=lower.findIndex(h=>h.includes(n));
+      if(idx>=0) return idx;
+    }
+    return -1;
+  };
+  const idx={
+    date:keyFor(['date','fecha','day','start']),
+    name:keyFor(['name','title','workout','actividad','activity']),
+    type:keyFor(['type','sport','deporte']),
+    duration:keyFor(['duration','time','duracion','tiempo']),
+    distance:keyFor(['distance','distancia']),
+    pace:keyFor(['pace','ritmo']),
+    power:keyFor(['power','potencia']),
+    hr:keyFor(['heart','hr','pulso','fc']),
+    tss:keyFor(['tss','trimp','load','carga']),
+    notes:keyFor(['note','description','comentario','observacion'])
+  };
+  const lines=body.slice(0,80).map((r,i)=>{
+    const pick=k=>idx[k]>=0?cleanText(r[idx[k]]||''):'';
+    const parts=[
+      pick('date')&&`fecha ${pick('date')}`,
+      pick('name')&&`sesion ${pick('name')}`,
+      pick('type')&&`tipo ${pick('type')}`,
+      pick('duration')&&`duracion ${pick('duration')}`,
+      pick('distance')&&`distancia ${pick('distance')}`,
+      pick('pace')&&`ritmo ${pick('pace')}`,
+      pick('power')&&`potencia ${pick('power')}`,
+      pick('hr')&&`FC ${pick('hr')}`,
+      pick('tss')&&`carga/TSS ${pick('tss')}`,
+      pick('notes')&&`notas ${pick('notes')}`
+    ].filter(Boolean);
+    return `- Entreno ${i+1}: ${parts.length?parts.join(' | '):r.map(cleanText).filter(Boolean).join(' | ')}`;
+  });
+  return `ARCHIVO CSV: ${filename}
+Columnas detectadas: ${header.join(' | ')}
+Sesiones realizadas:
+${lines.join('\n')}`;
+}
+
+async function handlePromptQFiles(fileList){
+  const files=[...(fileList||[])].filter(f=>/\.csv$/i.test(f.name)||/csv/i.test(f.type||''));
+  if(!files.length){toast('Selecciona archivos CSV.');return;}
+  const texts=[];
+  for(const file of files){
+    const text=await file.text();
+    texts.push(csvToAiText(file.name,text));
+  }
+  promptQCsvFiles=promptQCsvFiles.concat(files.map(f=>f.name));
+  const csvEl=document.getElementById('q-csv-text');
+  csvEl.value=[csvEl.value.trim(),...texts].filter(Boolean).join('\n\n');
+  document.getElementById('q-files').textContent=`CSV cargados: ${promptQCsvFiles.join(', ')}`;
+  refreshPromptQ();
+  toast('CSV convertido para la IA.');
+}
+
+function setupPromptQDrop(){
+  const drop=document.getElementById('q-drop');
+  if(!drop||drop.dataset.ready==='1') return;
+  drop.dataset.ready='1';
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');}));
+  drop.addEventListener('drop',e=>handlePromptQFiles(e.dataTransfer.files));
+}
+
+function adaptPromptQResponse(){
+  const el=document.getElementById('q-ai-response');
+  const text=el.value.trim();
+  if(!text){toast('Pega primero la respuesta de la IA.');return;}
+  const adapted=adaptPlanText(text);
+  if(!adapted){toast('No se pudo adaptar la respuesta.');return;}
+  el.value=adapted;
+  toast('Respuesta adaptada al formato de la app.');
+}
+
+async function savePromptQResponse(){
+  const user=selectedPromptQUser();
+  if(!user){toast('Selecciona un usuario.');return;}
+  const raw=document.getElementById('q-ai-response').value.trim();
+  if(!raw){toast('Pega la respuesta de la IA antes de cargar.');return;}
+  const plan=adaptPlanText(raw)||raw;
+  const targetWeek=parseInt(document.getElementById('q-week')?.value)||user.week||1;
+  const onboarding_data={...(user.onboarding_data||{}),plan_day:1};
+  const {error}=await sb.from('profiles').update({
+    week:targetWeek,
+    onboarding_data,
+    current_plan:plan,
+    quincena1_plan:plan
+  }).eq('id',user.id);
+  if(error){toast('Error cargando plan: '+error.message);return;}
+  document.getElementById('q-ai-response').value=plan;
+  toast('✅ Plan cargado en '+(user.full_name||user.email||'usuario'));
+  await load();
 }
 
 function close(id){document.getElementById(id).classList.remove('on');}
