@@ -861,6 +861,29 @@ function orderSupplementSections(sections){
   const order={levantarte:0,ayuno:0,antes_desayuno:1,pre_entreno:2,entreno_fuerza:2,entreno_running:2,antes_cenar:3,post_fuerza:4,dormir:5,acostarse:5};
   return [...(sections||[])].sort((a,b)=>(order[a.key] ?? 9)-(order[b.key] ?? 9));
 }
+
+function renderPlanSupplementsCompact(sections){
+  const ordered=orderSupplementSections(sections||[]);
+  if(!ordered.length) return '';
+  return `<div class="meal-block" style="border-color:rgba(200,241,53,.25)">
+    <div class="meal-header">
+      <div>
+        <div class="meal-name">💊 Suplementos del plan</div>
+        <div class="meal-macros">Sección A · visibles también en la pestaña Suplementos</div>
+      </div>
+    </div>
+    ${ordered.map(sec=>`
+      <div style="margin-top:10px">
+        <div class="meal-option-badge" style="display:inline-block;margin-bottom:6px">${sec.icon||'💊'} ${esc(sec.title)}</div>
+        ${(sec.items||[]).map(rawItem=>{
+          const item=normalizeSupplementItem(rawItem);
+          const raw=item.raw||rawItem.raw||`${item.name}: ${item.dose}${item.does?` | ${item.does}`:''}${item.timing?` | ${item.timing}`:''}`;
+          return `<div class="food-row"><div class="food-name">${esc(raw)}</div></div>`;
+        }).join('')}
+      </div>`).join('')}
+  </div>`;
+}
+
 function extractPlanNutritionData(text, fallbackMacros){
   if(!text) return null;
   const meals=splitPlanBlocks(text,/TOMA|DESAYUNO|ALMUERZO|COMIDA|MERIENDA|CENA|POST/i).map((b,i)=>{
@@ -1109,10 +1132,10 @@ function getPlanRunningSessionForDay(dayIdx){
     if(pr&&typeof pr==='object'&&Object.keys(pr).length>0) sessions=pr;
   }catch(e){}
   if(!sessions) return null;
-  const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/T[ÉE]CNICA|CADENCIA/i)?'technique':label.match(/CARDIO|SUAVE|RODAJE/i)?'cardio':null;
+  const key=label.match(/INTERVAL/i)?'intervals':label.match(/TEMPO/i)?'tempo':label.match(/TIRADA|LARGA/i)?'long':label.match(/T[ÉE]CNICA|CADENCIA/i)?'technique':label.match(/RUNNING|EASY|CARDIO|SUAVE|RODAJE/i)?'cardio':null;
   const weekKey=key?`${key}_w${dayIdx>=7?2:1}`:null;
-  const found=(weekKey&&sessions[weekKey])?weekKey:(key&&sessions[key]?key:null);
-  const names={intervals:'INTERVALOS',tempo:'TEMPO',long:'TIRADA LARGA',technique:'TÉCNICA',cardio:'CARDIO'};
+  const found=(weekKey&&sessions[weekKey])?weekKey:(key&&sessions[key]?key:(key==='cardio'&&sessions.running?'running':null));
+  const names={intervals:'INTERVALOS',tempo:'TEMPO',long:'TIRADA LARGA',technique:'TÉCNICA',cardio:'RUNNING EASY',running:'RUNNING EASY'};
   const base=found?found.replace(/_w\d+$/,''):key;
   const weekLabel=found&&found.match(/_w(\d+)$/)?` · Semana ${found.match(/_w(\d+)$/)[1]}`:'';
   return found?{label:(names[base]||base.toUpperCase())+weekLabel,fmt:sessions[found],goal:'Plan personalizado de MI PLAN'}
@@ -1221,11 +1244,12 @@ function extractPlanRunningSessions(text){
     if(title.match(/FUERZA|DESCANSO|NATACI[ÓO]N|RODILLO/i)) return;
     const content=trimTrainingContent(b.content);
     if(!content.match(/Warmup|Main set|Pace|\/km|\d+m\s+\d+:\d+|Duraci[óo]n:|Ritmo objetivo:|S\d+\s*:|T[ÉE]CNICA|CADENCIA|DRILL|SKIPPING|ZONA\s*\d|RODAJE|KM\b/i)) return;
-    const base=title.match(/INTERVAL/i)?'intervals':title.match(/TEMPO/i)?'tempo':title.match(/TIRADA|LARGA/i)?'long':title.match(/T[ÉE]CNICA|CADENCIA/i)?'technique':'cardio';
+    const base=title.match(/INTERVAL/i)?'intervals':title.match(/TEMPO/i)?'tempo':title.match(/TIRADA|LARGA/i)?'long':title.match(/T[ÉE]CNICA|CADENCIA/i)?'technique':title.match(/RUNNING|EASY/i)?'running':'cardio';
     const week=(title.match(/SEMANA\s*(\d+)/i)||[])[1];
     const key=week?`${base}_w${week}`:base;
     if(!sessions[key]) sessions[key]=content;
     if(!sessions[base]) sessions[base]=content;
+    if((base==='running'||base==='cardio')&&!sessions.cardio) sessions.cardio=content;
   });
   return sessions;
 }
@@ -1740,6 +1764,7 @@ function renderNutrition(q){
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${macros.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>`:''}
   <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Elige una opción por toma según preferencia y adherencia.</div>
+  ${renderPlanSupplementsCompact(profile._planSupplements)}
   ${renderMealsVisual(data.meals)}`;
   }
   const N=getNutrition();
@@ -2658,7 +2683,13 @@ function renderMobileDay(){
 
   let html='';
 
-  // Los suplementos se consultan en NUTRICIÓN.
+  const planSupplementsHtml=renderPlanSupplementsCompact(profile?._planSupplements);
+  if(planSupplementsHtml){
+    html+=`<div class="mob-section">
+      <div class="mob-section-title">💊 Suplementos del plan</div>
+      ${planSupplementsHtml}
+    </div>`;
+  }
 
   // ── FUERZA ──
   if(type==='strength'||type==='calisthenics'){
