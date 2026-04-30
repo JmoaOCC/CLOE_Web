@@ -791,7 +791,7 @@ function calcMacros(){
   const goalList=M.goals&&M.goals.size?[...M.goals]:['Recomposición corporal'];
   const goal=goalList[0]||'Recomposición corporal';
 
-  const tmb=sex==='Hombre'  10*weight+6.25*height-5*age+5 : 10*weight+6.25*height-5*age-161;
+  const tmb=sex==='Hombre' ? 10*weight+6.25*height-5*age+5 : 10*weight+6.25*height-5*age-161;
   const factors={'Sedentario':1.375,'Ligero':1.55,'Moderado':1.65,'Activo':1.725};
   const factor=Object.entries(factors).find(([label])=>activity.startsWith(label))?.[1]||1.375;
   const tdee=Math.round(tmb*factor);
@@ -874,12 +874,12 @@ function updateFastingFields(){
 
 function readValue(id,fallback=''){
   const el=document.getElementById(id);
-  return el  (el.value||fallback) : fallback;
+  return el ? (el.value||fallback) : fallback;
 }
 
 function readTrim(id,fallback=''){
   const el=document.getElementById(id);
-  return el  (el.value.trim()||fallback) : fallback;
+  return el ? (el.value.trim()||fallback) : fallback;
 }
 
 function collectFoodPreferences(){
@@ -1042,7 +1042,7 @@ function formatBodyComposition(body){
     ['Perímetro cintura',body.waist,'cm']
   ];
   const lines=labels.filter(([,value])=>value!==undefined && value!==null && value!=='')
-    .map(([label,value,unit])=>`- ${label}: ${value}${unit  ' '+unit : ''}`);
+    .map(([label,value,unit])=>`- ${label}: ${value}${unit ? ' '+unit : ''}`);
   return lines.length?lines.join('\n'):'- Sin datos avanzados de composición corporal.';
 }
 
@@ -1074,7 +1074,7 @@ Nombre:  ${payload.name}
 Edad:    ${payload.age} años · Sexo: ${payload.sex}
 Peso:    ${payload.weight} kg · Altura: ${payload.height} cm
 Pasos actuales: ${payload.steps}
-Lesiones: ${payload.injury}${payload.injuryDetail  ' - '+payload.injuryDetail : ''}
+Lesiones: ${payload.injury}${payload.injuryDetail ? ' - '+payload.injuryDetail : ''}
 Sueño habitual: ${payload.sleep}h/noche
 Contexto: ${payload.context}
 
@@ -1082,7 +1082,7 @@ Composición corporal avanzada:
 ${formatBodyComposition(payload.bodyComposition)}
 
 Objetivo principal: ${payload.goal}
-Evento / prueba: ${payload.event}${payload.eventDate  ' ('+payload.eventDate+')' : ''}
+Evento / prueba: ${payload.event}${payload.eventDate ? ' ('+payload.eventDate+')' : ''}
 Deportes: ${payload.sports.join(', ')}
 Disponibilidad: ${payload.strengthDays} días fuerza · ${payload.sportDays} días deportes
 Días preferidos fuerza: ${payload.strengthPref.length?payload.strengthPref.join(', '):'sin preferencia'}
