@@ -812,9 +812,9 @@ function parseSupplementLine(line){
   if(!item) return null;
   return {
     name:item.f,
-    does:item.a||'',
-    dose:main[0]||'Según pauta del plan',
-    timing:[main[1],main[2]].filter(Boolean).join(' · '),
+    dose:item.a||main[0]||'Según pauta del plan',
+    timing:main[0]||'',
+    does:main[1]||'',
     raw
   };
 }
@@ -850,7 +850,8 @@ function normalizeSupplementItem(item){
       name:item.name||item.raw||'Suplemento',
       does:item.does||supplementDoes(item.name||item.raw),
       dose:item.dose||item.a||'Según pauta del plan',
-      timing:item.timing||'Tomar según la ventana indicada.'
+      timing:item.timing||'Tomar según la ventana indicada.',
+      raw:item.raw||''
     };
   }
   const parsed=parseSupplementLine(item)||{name:String(item||'Suplemento'),dose:'Según pauta del plan'};
@@ -860,28 +861,6 @@ function normalizeSupplementItem(item){
 function orderSupplementSections(sections){
   const order={levantarte:0,ayuno:0,antes_desayuno:1,pre_entreno:2,entreno_fuerza:2,entreno_running:2,antes_cenar:3,post_fuerza:4,dormir:5,acostarse:5};
   return [...(sections||[])].sort((a,b)=>(order[a.key] ?? 9)-(order[b.key] ?? 9));
-}
-
-function renderPlanSupplementsCompact(sections){
-  const ordered=orderSupplementSections(sections||[]);
-  if(!ordered.length) return '';
-  return `<div class="meal-block" style="border-color:rgba(200,241,53,.25)">
-    <div class="meal-header">
-      <div>
-        <div class="meal-name">💊 Suplementos del plan</div>
-        <div class="meal-macros">Sección A · visibles también en la pestaña Suplementos</div>
-      </div>
-    </div>
-    ${ordered.map(sec=>`
-      <div style="margin-top:10px">
-        <div class="meal-option-badge" style="display:inline-block;margin-bottom:6px">${sec.icon||'💊'} ${esc(sec.title)}</div>
-        ${(sec.items||[]).map(rawItem=>{
-          const item=normalizeSupplementItem(rawItem);
-          const raw=item.raw||rawItem.raw||`${item.name}: ${item.dose}${item.does?` | ${item.does}`:''}${item.timing?` | ${item.timing}`:''}`;
-          return `<div class="food-row"><div class="food-name">${esc(raw)}</div></div>`;
-        }).join('')}
-      </div>`).join('')}
-  </div>`;
 }
 
 function extractPlanNutritionData(text, fallbackMacros){
@@ -1591,6 +1570,7 @@ function renderSupplements(q){
         <div class="supp-card-dose"><span style="color:var(--muted)">Qué hace:</span> ${esc(item.does)}</div>
         <div class="supp-card-dose"><span style="color:var(--muted)">Cantidad:</span> ${esc(item.dose)}</div>
         <div class="supp-card-time"><span style="color:var(--muted)">Cómo tomarlo:</span> ${esc(item.timing)}</div>
+        ${item.raw?`<div class="food-note" style="margin-top:8px">${esc(item.raw)}</div>`:''}
       </div>`;
       }).join('')}
     </div>`).join('')}`;
@@ -1764,7 +1744,6 @@ function renderNutrition(q){
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${macros.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>`:''}
   <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Elige una opción por toma según preferencia y adherencia.</div>
-  ${renderPlanSupplementsCompact(profile._planSupplements)}
   ${renderMealsVisual(data.meals)}`;
   }
   const N=getNutrition();
@@ -2682,14 +2661,6 @@ function renderMobileDay(){
   document.getElementById('mob-date-label').textContent=`Día ${d+1} · ${dayNamesLong[wd]} · ${getDayLabelRaw(d)} · Q${q}`;
 
   let html='';
-
-  const planSupplementsHtml=renderPlanSupplementsCompact(profile?._planSupplements);
-  if(planSupplementsHtml){
-    html+=`<div class="mob-section">
-      <div class="mob-section-title">💊 Suplementos del plan</div>
-      ${planSupplementsHtml}
-    </div>`;
-  }
 
   // ── FUERZA ──
   if(type==='strength'||type==='calisthenics'){
