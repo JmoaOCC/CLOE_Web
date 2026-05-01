@@ -261,6 +261,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
     <label>Prompt IA del perfil</label>
     <textarea id="e-profile-prompt" class="plan-area" rows="10" readonly></textarea>
     <div class="plan-hint">Resumen automático del cuestionario y perfil para copiarlo a la IA y pedir el plan de la quincena correspondiente.</div>
+    <div class="mact">
+      <button class="btn sec" onclick="generateUserDataText()">Datos de usuario</button>
+    </div>
+    <label>Datos de usuario IA</label>
+    <textarea id="e-user-data-text" class="plan-area" rows="10" readonly></textarea>
+    <div class="plan-hint">Texto completo con datos del usuario, cuestionario, plan activo y reportes para generar reportes con IA.</div>
 
     </div>
     <div class="form-section">
@@ -672,6 +678,90 @@ ${user.current_plan||user.quincena1_plan||'Aún sin plan cargado.'}
 ${user.latest_report||'Aún sin reporte guardado.'}`;
 }
 
+function buildUserDataText(user){
+  const extra=user.onboarding_data||{};
+  const body=extra.body_composition||{};
+  const fasting=extra.fasting||{};
+  const q=quincenaFromWeek(user.week||1);
+  const rawExtra=JSON.stringify(cleanRecordText(extra),null,2);
+  return `DATOS DE USUARIO PARA IA C.L.O.E.
+Fecha de generacion: ${new Date().toISOString().slice(0,10)}
+
+IDENTIFICACION
+- Nombre: ${user.full_name||'Sin nombre'}
+- Email: ${user.email||'Sin email'}
+- Estado: ${user.status||'n/d'}
+- Onboarding completado: ${user.onboarding_completed===true?'Si':'No'}
+- Semana interna: ${user.week||1}
+- Quincena actual: Q${q}
+- Dia actual del plan: ${calculatePlanDay(user)}/14
+
+OBJETIVO Y CONTEXTO
+- Objetivo: ${user.goal||'n/d'}
+- Contexto: ${extra.context||'n/d'}
+- Actividad diaria: ${extra.activity||'n/d'}
+- Sueno: ${extra.sleep||'n/d'} h
+- Pasos: ${extra.steps||'n/d'}
+- Notas coach: ${user.notes||'n/d'}
+
+DATOS FISICOS Y COMPOSICION CORPORAL
+- Edad: ${user.age||'n/d'}
+- Sexo: ${user.sex||'n/d'}
+- Peso: ${user.weight_kg||'n/d'} kg
+- Altura: ${user.height_cm||'n/d'} cm
+- Grasa corporal: ${body.bodyFat||'n/d'} %
+- Grasa subcutanea: ${body.subcutaneousFat||'n/d'} %
+- Grasa visceral: ${body.visceralFat||'n/d'}
+- Agua corporal: ${body.bodyWater||'n/d'} %
+- Musculo esqueletico: ${body.skeletalMuscle||'n/d'} %
+- Masa muscular: ${body.muscleMass||'n/d'} kg
+- Masa osea: ${body.boneMass||'n/d'} kg
+- Proteina corporal: ${body.proteinPercent||'n/d'} %
+- BMR/TMB: ${body.measuredBmr||'n/d'} kcal
+- Edad metabolica: ${body.metabolicAge||'n/d'}
+- Capacidad almacenamiento muscular: ${body.muscleStorage||'n/d'}
+- Cintura: ${body.waist||'n/d'} cm
+
+ENTRENAMIENTO Y DISPONIBILIDAD
+- Lesiones: ${extra.injury||'Ninguna'}${extra.injury_detail?` - ${extra.injury_detail}`:''}
+- Evento: ${extra.event||'Sin evento'}${extra.event_date?` (${extra.event_date})`:''}
+- Deportes: ${Array.isArray(extra.sports)?extra.sports.join(', '):'n/d'}
+- Equipamiento: ${Array.isArray(extra.equip)?extra.equip.join(', '):'n/d'}
+- Nivel running: ${extra.run_level||'n/d'}
+- Easy pace: ${extra.easy_pace||'n/d'}
+- Target pace: ${extra.target_pace||'n/d'}
+- Nivel fuerza: ${extra.gym_level||'n/d'}
+- Nivel calistenia: ${extra.calis_level||'n/d'}
+- Dias disponibles/semana: ${extra.days||'n/d'}
+- Distribucion: ${extra.split||'n/d'}
+- Dias fuerza/semana: ${extra.strength_days||'n/d'}
+- Dias deportes/semana: ${extra.sport_days||'n/d'}
+- Preferencia fuerza: ${Array.isArray(extra.strength_pref)?extra.strength_pref.join(', '):'n/d'}
+- Preferencia deportes: ${formatSportsPrefs(extra)}
+- Tiempo por sesion: ${extra.session_t||'n/d'}
+- Notas agenda: ${extra.schedule_notes||'n/d'}
+
+NUTRICION
+- Dieta/restricciones: ${Array.isArray(extra.diet)?extra.diet.join(', '):'Ninguna'}
+- Preferencias alimentos:
+${formatFoodPreferences(extra.food_preferences,extra.food_notes)}
+- Ayuno intermitente: ${fasting.enabled||'No'}
+- Tipo ayuno: ${fasting.type||'n/d'}
+- Ventana alimentacion: ${fasting.feedingWindow||'n/d'}
+- Experiencia ayuno: ${fasting.experience||'n/d'}
+- Dias restriccion/ayuno: ${Array.isArray(fasting.days)?fasting.days.join(', '):'n/d'}
+- Protocolo personalizado: ${fasting.custom||'n/d'}
+
+PLAN ACTIVO / QUINCENA ACTUAL
+${user.current_plan||user.quincena1_plan||'SIN PLAN ACTIVO'}
+
+ULTIMO REPORTE GUARDADO POR EL USUARIO
+${user.latest_report||'SIN REPORTE GUARDADO'}
+
+DATOS CRUDOS DEL CUESTIONARIO
+${rawExtra}`;
+}
+
 function buildPromptBase(){
   return `Eres un entrenador físico, nutricionista deportivo y médico deportivo especializado en el método de nutrición y entrenamiento C.L.O.E.
 
@@ -902,6 +992,7 @@ function collectEditUserForPrompt(){
     goal:document.getElementById('e-goal').value.trim()||null,
     week:parseInt(document.getElementById('e-week').value)||1,
     status:document.getElementById('e-status').value,
+    notes:document.getElementById('e-notes').value.trim()||null,
     onboarding_completed:document.getElementById('e-onboarding-completed').value==='true',
     current_plan:document.getElementById('e-plan').value.trim()||null,
     latest_report:document.getElementById('e-latest-report').value.trim()||null,
@@ -1123,6 +1214,7 @@ function openEdit(id){
   document.getElementById('e-latest-report').value=cleanText(u.latest_report||'Sin reporte guardado todavía.');
   document.getElementById('e-plan').value=cleanText(u.current_plan||u.quincena1_plan||'');
   document.getElementById('e-profile-prompt').value=buildProfilePrompt(u);
+  document.getElementById('e-user-data-text').value=buildUserDataText(u);
   document.getElementById('m-edit').classList.add('on');
 }
 
@@ -1447,6 +1539,16 @@ function copyProfilePrompt(){
   area.setSelectionRange(0,99999);
   document.execCommand('copy');
   toast('Prompt IA copiado.');
+}
+
+function generateUserDataText(){
+  const text=buildUserDataText(collectEditUserForPrompt());
+  const area=document.getElementById('e-user-data-text');
+  area.value=text;
+  area.select();
+  area.setSelectionRange(0,99999);
+  document.execCommand('copy');
+  toast('Datos de usuario copiados.');
 }
 
 function copyLatestReport(){
