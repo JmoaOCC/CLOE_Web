@@ -318,7 +318,7 @@ Reglas que la app reconoce:
 4. Calendario:
    En B. ENTRENAMIENTO, usa 14 lineas con este patron:
    Dia 1 - Martes 28/04: Fuerza A - Tren superior
-   La app detecta el tipo por palabras: Fuerza, Gym, Calistenia, Running, Cardio, Correr, Carrera, Tempo, Tirada, Rodaje, Natacion, Piscina, Rodillo, Ciclismo, Bici, Andar, Camin, Descanso.
+   La app detecta el tipo por palabras: Fuerza, Gym, Calistenia, Running, Cardio, Correr, Carrera, Tempo, Tirada, Rodaje, Natacion, Piscina, Rodillo, Ciclismo, Bici, Andar, Caminar, Descanso.
 
 5. Bloques de entreno:
    Usa separadores de guiones y titulo:
@@ -348,7 +348,7 @@ Reglas que la app reconoce:
    Bajo cada comida reconoce:
    Opcion A
    - Alimento: cantidad
-   TIPS: consejo breve
+   TIPS: consejo detallado
 
 8. Suplementos:
    La app reconoce estas ventanas:
@@ -363,12 +363,14 @@ Reglas que la app reconoce:
    Formato recomendado:
    - Nombre suplemento: Para que sirve | Dosis | Timing | Nota
 
+9. si se ha señalado ayuno intermitente, aplícalo con las características marcadas. 
+
 
 ======================================================================
 3. PLAN MODELO PEGABLE EN ADMIN.HTML
 ======================================================================
 
--- Copia desde la linea "C.L.O.E. COACH - PLAN Q1" hasta "Fin Q1" y pegalo en el campo Plan del usuario.
+-- Copia desde la linea "C.L.O.E. COACH - PLAN Q1" hasta "Fin Q1" y pegalo en el campo Plan del usuario. ESte es el modelo que has de rellenar sin modificar nada la estructura y devolver el resultado para pegar en el usuario y activar el plan Q correspondiente.
 
 C.L.O.E. COACH - PLAN Q1
 Usuario: Sandra Demo
