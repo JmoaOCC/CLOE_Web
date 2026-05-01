@@ -305,21 +305,21 @@ label{font-size:11px;color:var(--muted);display:block;margin-top:8px;margin-bott
   <div class="brand">C.L.O.E. <span>COACH</span></div>
   <div class="tagline">Crush Limits Or Explode V1</div>
   <div class="user-info">
-    <div class="user-name" id="sb-name">â€”</div>
-    <div class="user-meta" id="sb-goal">â€”</div>
+    <div class="user-name" id="sb-name">—</div>
+    <div class="user-meta" id="sb-goal">—</div>
   </div>
   <div class="nav">
-    <button class="on" onclick="view('dashboard')"><span class="ic">ðŸ“‹</span>MI PLAN</button>
-    <button onclick="view('traininglog')"><span class="ic">ðŸ‹ï¸</span>ENTRENAMIENTOS</button>
-    <button onclick="view('myplan')"><span class="ic">ðŸ¥—</span>NUTRICIÃ“N</button>
-    <button onclick="view('shopping')"><span class="ic">ðŸ›’</span>COMPRA</button>
-    <button onclick="view('report')"><span class="ic">ðŸ“Š</span>REPORTE QUINCENAL</button>
+    <button class="on" onclick="view('dashboard')"><span class="ic">📋</span>MI PLAN</button>
+    <button onclick="view('traininglog')"><span class="ic">🏋️</span>ENTRENAMIENTOS</button>
+    <button onclick="view('myplan')"><span class="ic">🥗</span>NUTRICIÓN</button>
+    <button onclick="view('shopping')"><span class="ic">🛒</span>COMPRA</button>
+    <button onclick="view('report')"><span class="ic">📊</span>REPORTE QUINCENAL</button>
   </div>
   <div class="week-pill" style="margin-top:8px">
-    <span id="sb-week">Q1</span> Â· DÃ­a <span id="sb-day">1</span>/14 Â· <span id="sb-phase">BASE</span>
+    <span id="sb-week">Q1</span> · Día <span id="sb-day">1</span>/14 · <span id="sb-phase">BASE</span>
   </div>
   <div style="margin-top:7px">
-    <button class="btn sec" style="width:100%;padding:6px;font-size:12px" onclick="logout()">Cerrar sesiÃ³n</button>
+    <button class="btn sec" style="width:100%;padding:6px;font-size:12px" onclick="logout()">Cerrar sesión</button>
   </div>
 </aside>
 <main class="main" id="main"></main>
@@ -1194,7 +1194,7 @@ function parsePlanSchedule(text){
     const dayLine=line.match(/^(?:Dia|DÃ­a)\s+(\d+)\s*[-â€“]\s*([^\s\d:\/-]+)(?:\s+\d{1,2}\/\d{1,2})?\s*[:\-]\s*([^|\n]+)/i);
     const m=dayLine||line.match(/^(?:\[)?\s*([A-Za-zÃ¡Ã©Ã­Ã³ÃºÃ±ÃÃ‰ÃÃ“ÃšÃ‘]+)(?:\s+\d+)?(?:\])?\s*[:\-]?\s*([^|\n]+)/);
     if(!m) return;
-        const k=(dayLine?m[2]:m[1]).toLowerCase().normalize('NFD').replace(/[Ì€-Í¯]/g,'');
+    const k=(dayLine?m[2]:m[1]).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const baseIdx=dm[k];if(baseIdx===undefined) return;
     const idx=dayLine?Math.min(13,Math.max(0,(parseInt(m[1])||1)-1)):baseIdx;
     const val=(dayLine?m[3]:m[2]).trim();
@@ -2708,24 +2708,24 @@ function renderMyPlan(q){
 // â”€â”€ REPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderReport(q){
   return `
-  <div class="ph"><h1>Reporte quincenal Â· Q${q}</h1><p>EnvÃ­a a tu coach cada 14 dÃ­as con fotos + datos completos</p></div>
-  <div class="alert">Los registros de ENTRENAMIENTOS se incluyen automÃ¡ticamente. Rellena todos los datos y genera el reporte para enviÃ¡rselo a tu coach.</div>
+  <div class="ph"><h1>Reporte quincenal · Q${q}</h1><p>Envía a tu coach cada 14 días con fotos + datos completos</p></div>
+  <div class="alert">Los registros de ENTRENAMIENTOS se incluyen automáticamente. Rellena todos los datos y genera el reporte para enviárselo a tu coach.</div>
 
-  <div class="stitle">MÃ©tricas generales</div>
+  <div class="stitle">Métricas generales</div>
   <div class="g2">
     <div><label>Peso medio esta quincena (kg)</label><input type="number" id="r-w" placeholder="72.5" step="0.1"></div>
     <div><label>Peso quincena anterior (kg)</label><input type="number" id="r-wp" placeholder="73.1" step="0.1"></div>
     <div><label>Cintura (cm)</label><input type="number" id="r-c" placeholder="88"></div>
-    <div><label>EnergÃ­a media (1-10)</label><input type="number" id="r-e" placeholder="7" min="1" max="10"></div>
+    <div><label>Energía media (1-10)</label><input type="number" id="r-e" placeholder="7" min="1" max="10"></div>
     <div><label>Hambre media (1-10)</label><input type="number" id="r-h" placeholder="5" min="1" max="10"></div>
-    <div><label>SueÃ±o medio (h)</label><input type="number" id="r-s" placeholder="7.2" step="0.5"></div>
+    <div><label>Sueño medio (h)</label><input type="number" id="r-s" placeholder="7.2" step="0.5"></div>
     <div><label>Adherencia entreno (%)</label><input type="number" id="r-a" placeholder="85"></div>
-    <div><label>Adherencia nutriciÃ³n (%)</label><input type="number" id="r-na" placeholder="80"></div>
+    <div><label>Adherencia nutrición (%)</label><input type="number" id="r-na" placeholder="80"></div>
   </div>
 
-  <div class="stitle" style="margin-top:16px">âš–ï¸ Datos bÃ¡scula inteligente (mediciÃ³n final Q${q})</div>
+  <div class="stitle" style="margin-top:16px">⚖️ Datos báscula inteligente (medición final Q${q})</div>
   <div class="win-3d" style="background:rgba(91,156,246,.05);border:1px solid rgba(91,156,246,.2);border-radius:10px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);margin-bottom:11px;line-height:1.7">
-    Introduce los datos que aparecen en tu bÃ¡scula inteligente. Son el input mÃ¡s valioso para que C.L.O.E. ajuste tu plan con precisiÃ³n.
+    Introduce los datos que aparecen en tu báscula inteligente. Son el input más valioso para que C.L.O.E. ajuste tu plan con precisión.
   </div>
   <div class="g2">
     <div><label>Peso bÃ¡scula (kg)</label><input type="number" id="sc-peso" placeholder="78.00" step="0.01"></div>
