@@ -1194,7 +1194,7 @@ function parsePlanSchedule(text){
     const dayLine=line.match(/^(?:Dia|DÃ­a)\s+(\d+)\s*[-â€“]\s*([^\s\d:\/-]+)(?:\s+\d{1,2}\/\d{1,2})?\s*[:\-]\s*([^|\n]+)/i);
     const m=dayLine||line.match(/^(?:\[)?\s*([A-Za-zÃ¡Ã©Ã­Ã³ÃºÃ±ÃÃ‰ÃÃ“ÃšÃ‘]+)(?:\s+\d+)?(?:\])?\s*[:\-]?\s*([^|\n]+)/);
     if(!m) return;
-    const k=(dayLine?m[2]:m[1]).toLowerCase().normalize('NFD').replace(/[Ì€-Í¯]/g,'');
+    const k=(dayLine?m[2]:m[1]).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const baseIdx=dm[k];if(baseIdx===undefined) return;
     const idx=dayLine?Math.min(13,Math.max(0,(parseInt(m[1])||1)-1)):baseIdx;
     const val=(dayLine?m[3]:m[2]).trim();
