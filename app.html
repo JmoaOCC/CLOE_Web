@@ -1979,8 +1979,6 @@ function renderShopping(q){
   <div class="ph"><h1>Compra</h1><p>Elige menús por semana, prepara en lote y genera lista para Mercadona</p></div>
   <div class="alert">Selecciona una opción por toma para cada semana. La lista agrupa ingredientes repetidos y las ideas de preparación te ayudan a cocinar rápido sin perder sabor.</div>
   ${rows}
-  <div class="stitle">Ideas de preparación semanal</div>
-  <div id="shop-prep" style="display:grid;gap:8px;margin-bottom:14px"></div>
   <button class="btn" onclick="generateMercadonaList(${q})">Generar lista de la compra Mercadona</button>
   <textarea id="shop-list" class="report-area" style="margin-top:10px;min-height:220px" readonly></textarea>`;
 }
@@ -2135,13 +2133,10 @@ function renderShopping(q){
         </tr>`).join('')}
       </tbody>
     </table></div>`).join('');
-  setTimeout(()=>renderShoppingPrep(q),0);
   return `
   <div class="ph"><h1>Compra</h1><p>Elige menús por día, prepara en lote y genera lista con cantidades</p></div>
   <div class="alert">Selecciona una opción por toma y día. La opción marcada aparece con check y la lista suma ingredientes y cantidades necesarias.</div>
   ${rows}
-  <div class="stitle">Ideas de preparación semanal</div>
-  <div id="shop-prep" style="display:grid;gap:8px;margin-bottom:14px"></div>
   <button class="btn" onclick="generateMercadonaList(${q})">Generar lista de la compra</button>
   <textarea id="shop-list" class="report-area" style="margin-top:10px;min-height:220px" readonly></textarea>`;
 }
