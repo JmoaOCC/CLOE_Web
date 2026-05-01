@@ -540,42 +540,42 @@ function getNutrition(){
 
   const training={
     kcal,protein:prot,carbs,fat,
-    timing:'Â¿CUÃNDO ENTRENAR?\n- MAÃ‘ANA (en ayunas): Toma tu suplementaciÃ³n base (agua, cafÃ©, creatina). Tu Comida 1 servirÃ¡ como tu Post-Entrenamiento.\n- TARDE (ej. 18:00h): Tu Comida 1 serÃ¡ tu base, la Comida 2 serÃ¡ tu Pre-Entreno ligero, y la Cena tu Post-Entreno.',
+    timing:'¿CUÁNDO ENTRENAR?\n- MAÑANA (en ayunas): Toma tu suplementación base (agua, café, creatina). Tu Comida 1 servirá como tu Post-Entrenamiento.\n- TARDE (ej. 18:00h): Tu Comida 1 será tu base, la Comida 2 será tu Pre-Entreno ligero, y la Cena tu Post-Entreno.',
     meals:[
       {
         key:'comida1',name:'Comida 1: Rompe-Ayuno',
         timing:'13:00h - 14:00h',
         options:[
           {
-            label:'OpciÃ³n A Â· Alta EnergÃ­a',kcal:480,p:46,hc:55,g:10,
+            label:'Opción A · Alta Energía',kcal:480,p:46,hc:55,g:10,
             items:[
               {f:'Pechuga de pollo a la plancha',a:'160g',note:'Comida principal fuerte'},
               {f:'Arroz blanco cocido',a:'220g (80g crudo)'},
               {f:'BrÃ³coli o espinacas',a:'150g'},
-              {f:'Aceite de oliva virgen extra',a:'10g',note:'AÃ±adir en crudo al final'},
+              {f:'Aceite de oliva virgen extra',a:'10g',note:'Añadir en crudo al final'},
             ],
-            tip:'Recarga tus depÃ³sitos de glucÃ³geno perfectamente. Ideal para Post-Entreno de maÃ±ana.'
+            tip:'Recarga tus depósitos de glucógeno perfectamente. Ideal para Post-Entreno de mañana.'
           },
           {
-            label:'OpciÃ³n B Â· Dulce y RÃ¡pida',kcal:460,p:40,hc:45,g:12,
+            label:'Opción B · Dulce y Rápida',kcal:460,p:40,hc:45,g:12,
             items:[
               {f:'Yogur griego 0%',a:'250g'},
               {f:'Whey Protein',a:'30g',note:'Mezclada con el yogur'},
               {f:'Avena cruda o cocida',a:'60g'},
-              {f:'PlÃ¡tano o Frutos rojos',a:'120g'},
+              {f:'Plátano o Frutos rojos',a:'120g'},
               {f:'Nueces o Crema cacahuete',a:'10g'},
             ],
-            tip:'Ideal si a las 13:00h estÃ¡s en la oficina y necesitas un desayuno contundente pero rÃ¡pido.'
+            tip:'Ideal si a las 13:00h estás en la oficina y necesitas un desayuno contundente pero rápido.'
           },
           {
-            label:'OpciÃ³n C Â· MÃ¡s saciante',kcal:490,p:44,hc:50,g:14,
+            label:'Opción C · Más saciante',kcal:490,p:44,hc:50,g:14,
             items:[
-              {f:'Ternera magra o SalmÃ³n',a:'150g'},
+              {f:'Ternera magra o Salmón',a:'150g'},
               {f:'Patata cocida',a:'200g'},
               {f:'Ensalada variada',a:'150g'},
               {f:'Aceite de oliva',a:'10g'},
             ],
-            tip:'En dÃ­as de descanso, la patata cocida aporta gran saciedad con menos calorÃ­as que el arroz.'
+            tip:'En días de descanso, la patata cocida aporta gran saciedad con menos calorías que el arroz.'
           },
         ]
       },
@@ -584,31 +584,31 @@ function getNutrition(){
         timing:'16:30h - 17:30h',
         options:[
           {
-            label:'OpciÃ³n A Â· SÃ³lido',kcal:250,p:24,hc:28,g:4,
+            label:'Opción A · Sólido',kcal:250,p:24,hc:28,g:4,
             items:[
               {f:'Pan integral',a:'70g'},
               {f:'Pechuga de pavo (90% carne)',a:'100g'},
-              {f:'Tomate natural y orÃ©gano',a:''},
+              {f:'Tomate natural y orégano',a:''},
             ],
-            tip:'Si faltan 2h para entrenar. Tostar el pan mejora la digestiÃ³n. Aporta carbohidratos complejos.'
+            tip:'Si faltan 2h para entrenar. Tostar el pan mejora la digestión. Aporta carbohidratos complejos.'
           },
           {
-            label:'OpciÃ³n B Â· LÃ­quido',kcal:220,p:25,hc:22,g:3,
+            label:'Opción B · Líquido',kcal:220,p:25,hc:22,g:3,
             items:[
               {f:'Whey Protein',a:'30g'},
               {f:'Avena triturada',a:'30g'},
-              {f:'Bebida vegetal sin azÃºcar',a:'250ml'},
+              {f:'Bebida vegetal sin azúcar',a:'250ml'},
             ],
-            tip:'Si falta 1h o menos para entrenar. Batido de fÃ¡cil y rapidÃ­sima digestiÃ³n.'
+            tip:'Si falta 1h o menos para entrenar. Batido de fácil y rapidísima digestión.'
           },
           {
-            label:'OpciÃ³n C Â· Ligero',kcal:200,p:20,hc:18,g:5,
+            label:'Opción C · Ligero',kcal:200,p:20,hc:18,g:5,
             items:[
               {f:'Queso fresco batido o yogur proteico',a:'200g'},
-              {f:'Fruta (manzana o piÃ±a)',a:'150g'},
+              {f:'Fruta (manzana o piña)',a:'150g'},
               {f:'Almendras',a:'15g'},
             ],
-            tip:'Snack equilibrado para mantener a raya el hambre hasta la cena en los dÃ­as que no entrenes.'
+            tip:'Snack equilibrado para mantener a raya el hambre hasta la cena en los días que no entrenes.'
           },
         ]
       },
@@ -617,32 +617,32 @@ function getNutrition(){
         timing:'20:00h - 20:45h',
         options:[
           {
-            label:'OpciÃ³n A Â· Post-Entreno Tarde',kcal:420,p:38,hc:35,g:14,
+            label:'Opción A · Post-Entreno Tarde',kcal:420,p:38,hc:35,g:14,
             items:[
               {f:'Huevos enteros',a:'2 uds'},
               {f:'Claras de huevo',a:'100g'},
               {f:'Patata cocida o Arroz',a:'150g'},
-              {f:'Verduras salteadas',a:'200g',note:'CalabacÃ­n, pimientos...'},
+              {f:'Verduras salteadas',a:'200g',note:'Calabacín, pimientos...'},
             ],
-            tip:'Si entrenaste a Ãºltima hora, necesitas carbohidratos para recuperar (patata/arroz). Alta saciedad.'
+            tip:'Si entrenaste a última hora, necesitas carbohidratos para recuperar (patata/arroz). Alta saciedad.'
           },
           {
-            label:'OpciÃ³n B Â· Baja en HC',kcal:350,p:36,hc:10,g:12,
+            label:'Opción B · Baja en HC',kcal:350,p:36,hc:10,g:12,
             items:[
               {f:'Merluza o Pescado blanco',a:'180g'},
-              {f:'BrÃ³coli o espÃ¡rragos al vapor',a:'200g'},
-              {f:'Aceite de oliva',a:'8g',note:'Para aliÃ±ar'},
+              {f:'Brócoli o espárragos al vapor',a:'200g'},
+              {f:'Aceite de oliva',a:'8g',note:'Para aliñar'},
             ],
-            tip:'La opciÃ³n mÃ¡s ligera y digestiva para cerrar la ventana alimentaria. Ideal para dÃ­as inactivos.'
+            tip:'La opción más ligera y digestiva para cerrar la ventana alimentaria. Ideal para días inactivos.'
           },
           {
-            label:'OpciÃ³n C Â· RÃ¡pida y Fresca',kcal:380,p:38,hc:15,g:15,
+            label:'Opción C · Rápida y Fresca',kcal:380,p:38,hc:15,g:15,
             items:[
               {f:'Pechuga de pollo a la plancha',a:'160g'},
               {f:'Ensalada grande',a:'250g'},
               {f:'Aceite de oliva',a:'8g'},
             ],
-            tip:'PreparaciÃ³n en menos de 10 minutos. AÃ±ade vinagre de manzana o limÃ³n como aliÃ±o base.'
+            tip:'Preparación en menos de 10 minutos. Añade vinagre de manzana o limón como aliño base.'
           },
         ]
       },
@@ -783,8 +783,8 @@ function normalizeSupplementItem(item){
       raw:item.raw||''
     };
   }
-  const parsed=parseSupplementLine(item)||{name:String(item||'Suplemento'),dose:'SegÃºn pauta del plan'};
-  return {...parsed,does:supplementDoes(parsed.name),timing:parsed.timing||'Tomar segÃºn la ventana indicada.'};
+  const parsed=parseSupplementLine(item)||{name:String(item||'Suplemento'),dose:'Según pauta del plan'};
+  return {...parsed,does:supplementDoes(parsed.name),timing:parsed.timing||'Tomar según la ventana indicada.'};
 }
 
 function orderSupplementSections(sections){
@@ -1600,21 +1600,21 @@ function renderSupplements(q){
   if(profile?._planSupplements?.length){
     const sections=orderSupplementSections(profile._planSupplements);
     return `
-  <div class="ph"><h1>Suplementos</h1><p>Protocolo personalizado de MI PLAN Â· Quincena ${q}</p></div>
+  <div class="ph"><h1>Suplementos</h1><p>Protocolo personalizado de MI PLAN · Quincena ${q}</p></div>
   ${sections.map(sec=>`
-    <div class="supp-section-pill">${sec.icon||'ðŸ’Š'} ${esc(sec.title)} Â· MI PLAN</div>
+    <div class="supp-section-pill">${sec.icon||'💊'} ${esc(sec.title)} · MI PLAN</div>
     <div class="supp-grid">
       ${sec.items.map(rawItem=>{
         const item=normalizeSupplementItem(rawItem);
-        if(!item.timing || item.timing==='Tomar segÃºn la ventana indicada.') item.timing=`Tomar en la ventana: ${sec.title}.`;
+        if(!item.timing || item.timing==='Tomar según la ventana indicada.') item.timing=`Tomar en la ventana: ${sec.title}.`;
         return `<div class="supp-card">
         <div class="supp-card-top">
-          <div class="supp-card-icon">${sec.icon||'ðŸ’Š'}</div>
+          <div class="supp-card-icon">${sec.icon||'💊'}</div>
           <div class="supp-card-name">${esc(item.name)}</div>
         </div>
-        <div class="supp-card-dose"><span style="color:var(--muted)">QuÃ© hace:</span> ${esc(item.does)}</div>
+        <div class="supp-card-dose"><span style="color:var(--muted)">Qué hace:</span> ${esc(item.does)}</div>
         <div class="supp-card-dose"><span style="color:var(--muted)">Cantidad:</span> ${esc(item.dose)}</div>
-        <div class="supp-card-time"><span style="color:var(--muted)">CÃ³mo tomarlo:</span> ${esc(item.timing)}</div>
+        <div class="supp-card-time"><span style="color:var(--muted)">Cómo tomarlo:</span> ${esc(item.timing)}</div>
         ${item.raw?`<div class="food-note" style="margin-top:8px">${esc(item.raw)}</div>`:''}
       </div>`;
       }).join('')}
@@ -1623,25 +1623,25 @@ function renderSupplements(q){
   const dayType=DAYTYPES[todayPlanIdx()];
   const extraKey=(dayType==='strength'||dayType==='calisthenics')?'entreno_fuerza':(['running','cycling','swim','walk'].includes(dayType)?'entreno_running':null);
   const sections=[
-    {key:'ayuno',title:'ðŸŒ… Al levantarte Â· En ayunas',badge:'OBLIGATORIO'},
-    ...(extraKey?[{key:extraKey,title:dayType==='strength'?'ðŸ‹ï¸ DÃ­a fuerza Â· Pre-entreno':'ðŸƒ DÃ­a running Â· Pre-entreno',badge:'HOY'}]:[]),
-    {key:'acostarse',title:'ðŸ˜´ Antes de acostarte',badge:'NOCHE'},
+    {key:'ayuno',title:'🌅 Al levantarte · En ayunas',badge:'OBLIGATORIO'},
+    ...(extraKey?[{key:extraKey,title:dayType==='strength'?'🏋️ Día fuerza · Pre-entreno':'🏃 Día running · Pre-entreno',badge:'HOY'}]:[]),
+    {key:'acostarse',title:'😴 Antes de acostarte',badge:'NOCHE'},
   ];
   return `
-  <div class="ph"><h1>Suplementos DOCE</h1><p>Protocolo basado en Programa DOCE Â· Quincena ${q}</p></div>
-  <div class="alert">Protocolo extraÃ­do del Programa DOCE. Los suplementos son de soporte â€” no sustituyen una dieta correcta. Consulta con tu mÃ©dico si tienes condiciones especÃ­ficas.</div>
+  <div class="ph"><h1>Suplementos DOCE</h1><p>Protocolo basado en Programa DOCE · Quincena ${q}</p></div>
+  <div class="alert">Protocolo extraído del Programa DOCE. Los suplementos son de soporte — no sustituyen una dieta correcta. Consulta con tu médico si tienes condiciones específicas.</div>
   ${orderSupplementSections(sections).map(sec=>{
     const supps=SUPPLEMENTS[sec.key]||[];
-    return `<div class="supp-section-pill">${sec.title} Â· ${sec.badge}</div>
+    return `<div class="supp-section-pill">${sec.title} · ${sec.badge}</div>
     <div class="supp-grid">
       ${supps.map(s=>`<div class="supp-card">
         <div class="supp-card-top">
           <div class="supp-card-icon">${s.icon}</div>
           <div class="supp-card-name">${s.name}</div>
         </div>
-        <div class="supp-card-dose"><span style="color:var(--muted)">QuÃ© hace:</span> ${supplementDoes(s.name)}</div>
+        <div class="supp-card-dose"><span style="color:var(--muted)">Qué hace:</span> ${supplementDoes(s.name)}</div>
         <div class="supp-card-dose"><span style="color:var(--muted)">Cantidad:</span> ${s.dose}</div>
-        <div class="supp-card-time"><span style="color:var(--muted)">CÃ³mo tomarlo:</span> ${s.timing}</div>
+        <div class="supp-card-time"><span style="color:var(--muted)">Cómo tomarlo:</span> ${s.timing}</div>
       </div>`).join('')}
     </div>`;
   }).join('')}`;
@@ -1781,44 +1781,44 @@ function renderNutrition(q){
     const data=profile._planNutrition;
     const macros=data.training||data.rest;
     return `
-  <div class="ph"><h1>NutriciÃ³n</h1><p>Plan personalizado de MI PLAN Â· Quincena ${q}</p></div>
+  <div class="ph"><h1>Nutrición</h1><p>Plan personalizado de MI PLAN · Quincena ${q}</p></div>
   ${macros?`<div class="macro-bar">
     <div class="macro-item"><div class="macro-val">${macros.kcal}</div><div class="macro-label">Kcal</div></div>
-    <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${macros.protein}g</div><div class="macro-label">ProteÃ­na</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${macros.protein}g</div><div class="macro-label">Proteína</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${macros.carbs}g</div><div class="macro-label">HC</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${macros.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>`:''}
-  <div class="alert">Las opciones se mantienen durante los 14 dÃ­as de la quincena. Elige una opciÃ³n por toma segÃºn preferencia y adherencia.</div>
+  <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Elige una opción por toma según preferencia y adherencia.</div>
   ${renderMealsVisual(data.meals)}
   ${renderNutritionRules()}`;
   }
   const N=getNutrition();
   const nutr=N.training;
   return `
-  <div class="ph"><h1>NutriciÃ³n C.L.O.E.</h1><p>Protocolo 16:8 Â· Sistema intercambios Â· Regla 80/20</p></div>
+  <div class="ph"><h1>Nutrición C.L.O.E.</h1><p>Protocolo 16:8 · Sistema intercambios · Regla 80/20</p></div>
   <div class="macro-bar">
     <div class="macro-item"><div class="macro-val">${nutr.kcal}</div><div class="macro-label">Kcal</div></div>
-    <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${nutr.protein}g</div><div class="macro-label">ProteÃ­na</div></div>
+    <div class="macro-item"><div class="macro-val" style="color:var(--accent3)">${nutr.protein}g</div><div class="macro-label">Proteína</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--accent2)">${nutr.carbs}g</div><div class="macro-label">HC</div></div>
     <div class="macro-item"><div class="macro-val" style="color:var(--muted)">${nutr.fat}g</div><div class="macro-label">Grasa</div></div>
   </div>
   <div class="win-3d" style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);padding:8px 10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent3);margin-bottom:12px;line-height:1.7;white-space:pre-line">${nutr.timing}</div>
-  <div class="alert">Las opciones se mantienen durante los 14 dÃ­as de la quincena. Diferencia A, B y C para alternar sin rehacer el plan.</div>
+  <div class="alert">Las opciones se mantienen durante los 14 días de la quincena. Diferencia A, B y C para alternar sin rehacer el plan.</div>
   ${renderMealsVisual(nutr.meals)}
   ${renderNutritionRules()}`;
 }
 
 function renderNutritionRules(){
   return `<div class="meal-block" style="border-color:rgba(167,139,250,.3)">
-    <div class="meal-name" style="color:var(--accent4)">ðŸ“‹ REGLAS GENERALES C.L.O.E.</div>
+    <div class="meal-name" style="color:var(--accent4)">📋 REGLAS GENERALES C.L.O.E.</div>
     <br>
     ${[
       'Flexibilidad 16:8: Al principio es normal no tener mucha hambre a las 13:00h. No te fuerces.',
-      'ModulaciÃ³n HC: Los dÃ­as de descanso recorta ligeramente arroz, patata o avena.',
+      'Modulación HC: Los días de descanso recorta ligeramente arroz, patata o avena.',
       'Beber 2.5-3 litros de agua mineral al dÃ­a.',
       'Sal rosa del Himalaya o electrolitos en los entrenamientos intensos.',
-      'Espray para cocinar las carnes â€” nunca aceite directo en sartÃ©n.',
-      'SeÃ±al de alerta: Si hay fatiga extrema, puedes abrir la ventana a las 12:00h.'
+      'Espray para cocinar las carnes — nunca aceite directo en sartén.',
+      'Señal de alerta: Si hay fatiga extrema, puedes abrir la ventana a las 12:00h.'
     ].map(r=>`<div class="food-row"><div class="food-name" style="font-size:13px">Â· ${r}</div></div>`).join('')}
   </div>`;
 }
@@ -1856,8 +1856,8 @@ function renderMealsVisual(meals){
           return `<div class="meal-option-card ${cls}">
             <div class="meal-option-head">
               <div>
-                <div class="meal-option-badge">OpciÃ³n ${letter}</div>
-                <div class="meal-macros" style="margin-top:6px">${esc(String(opt.label||'').replace(/^OpciÃ³n\s+[A-Z]\s*[-:Â·]?\s*/i,'')||mealName)}</div>
+                <div class="meal-option-badge">Opción ${letter}</div>
+                <div class="meal-macros" style="margin-top:6px">${esc(String(opt.label||'').replace(/^Opci[oÃ³]n\s+[A-Z]\s*[-:Â·]?\s*/i,'')||mealName)}</div>
               </div>
               ${opt.kcal?`<div class="meal-kcal">${opt.kcal} kcal</div>`:''}
             </div>
@@ -1882,10 +1882,10 @@ function stripHeader(html){
 
 function renderNutritionHub(q){
   return `
-  <div class="ph"><h1>NUTRICIÃ“N</h1><p>Suplementos y nutriciÃ³n de la quincena ${q}</p></div>
+  <div class="ph"><h1>NUTRICIÓN</h1><p>Suplementos y nutrición de la quincena ${q}</p></div>
   <div class="stitle">Suplementos</div>
   ${stripHeader(renderSupplements(q))}
-  <div class="stitle">NutriciÃ³n</div>
+  <div class="stitle">Nutrición</div>
   ${stripHeader(renderNutrition(q))}
   ${planCheatMealInfo()}`;
 }
@@ -2273,14 +2273,14 @@ function selectMealOpt(btn,mealKey,idx){
 
 // â”€â”€ PLAN QUINCENAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const Q_DESCRIPTIONS={
-  1:{title:'Q1 Â· Fundamentos y adaptaciÃ³n',text:`Esta primera quincena estÃ¡ diseÃ±ada para sentar las bases sÃ³lidas sobre las que se construirÃ¡ todo el programa. El objetivo principal es la adaptaciÃ³n neuromuscular y tÃ©cnica: aprender los patrones de movimiento correctos antes de aÃ±adir carga. En running, priorizamos el volumen aerÃ³bico suave para desarrollar la base cardiovascular sin riesgo de lesiÃ³n.\n\nQuÃ© conseguirÃ¡s: dominar la tÃ©cnica de los ejercicios principales, establecer los ritmos de referencia, y crear el hÃ¡bito del entrenamiento estructurado. La adherencia al plan es mÃ¡s importante que la intensidad.`},
-  2:{title:'Q2 Â· ConsolidaciÃ³n de la base',text:`Con la tÃ©cnica asentada, en esta quincena empezamos a testar los lÃ­mites de carga de forma controlada. Si las sesiones anteriores fueron limpias, introducimos las primeras progresiones de peso. En running, aumentamos ligeramente el volumen de las tiradas largas.\n\nQuÃ© conseguirÃ¡s: primeras evidencias de progresiÃ³n de carga, mayor eficiencia en los patrones de movimiento, y una base aerÃ³bica mÃ¡s robusta. Empieza a registrar bien tus pesos para que el algoritmo funcione.`},
-  3:{title:'Q3 Â· Inicio del volumen',text:`Entramos en la fase de volumen. AÃ±adimos una serie adicional en los ejercicios compuestos principales (de 3 a 4 series). El estÃ­mulo de entrenamiento aumenta de forma significativa. Es normal sentir mÃ¡s fatiga acumulada â€” es parte del proceso.\n\nQuÃ© conseguirÃ¡s: mayor volumen de trabajo muscular, inicio de la sobrecarga progresiva activa, y un salto notable en la capacidad de trabajo. Asegura el sueÃ±o y la proteÃ­na â€” son clave en esta fase.`},
-  4:{title:'Q4 Â· Pico de volumen',text:`El mayor volumen de entrenamiento de todo el programa. Las cargas estÃ¡n en progresiÃ³n y el cuerpo ya estÃ¡ adaptado para soportar este estÃ­mulo. En running, la tirada larga llega a los 65 minutos. Es la quincena mÃ¡s exigente fÃ­sicamente.\n\nQuÃ© conseguirÃ¡s: mÃ¡ximo estÃ­mulo de hipertrofia y resistencia, grandes progresos en composiciÃ³n corporal, y la base para la transiciÃ³n hacia la intensidad. AquÃ­ se construye el mÃºsculo que luego se afina.`},
-  5:{title:'Q5 Â· TransiciÃ³n a ritmo',text:`Reducimos ligeramente el volumen y empezamos a elevar la intensidad. En running, los intervalos se alargan a 800m y el tempo sube. En fuerza, el RIR se ajusta para mayor intensidad relativa. El cuerpo empieza a transformarse en rendimiento puro.\n\nQuÃ© conseguirÃ¡s: mejora notable del ritmo de carrera, mayor potencia muscular, y una composiciÃ³n corporal que empieza a acercarse al objetivo final. La nutriciÃ³n pre-entreno es especialmente crÃ­tica esta quincena.`},
-  6:{title:'Q6 Â· OptimizaciÃ³n del rendimiento',text:`EstÃ¡s cerca del objetivo. Los ritmos de entrenamiento se aproximan al ritmo de carrera objetivo. El cuerpo estÃ¡ entrenado, adaptado y en forma. En fuerza, mantenemos cargas altas con volumen controlado para no acumular fatiga excesiva.\n\nQuÃ© conseguirÃ¡s: ritmos prÃ³ximos al objetivo, alta eficiencia metabÃ³lica, y la confianza de sentirte en la mejor forma de tu vida. Cuida especialmente la recuperaciÃ³n y el sueÃ±o.`},
-  7:{title:'Q7 Â· Pico de forma y simulacro',text:`La quincena de mayor intensidad. Los intervalos llegan a 1200m. Realizamos al menos una sesiÃ³n simulacro de carrera para testear el ritmo objetivo en condiciones reales. En fuerza, mantenemos el estÃ­mulo sin arriesgar recuperaciÃ³n.\n\nQuÃ© conseguirÃ¡s: la mejor forma fÃ­sica del programa, confirmaciÃ³n del ritmo objetivo, y la preparaciÃ³n mental para el dÃ­a de la carrera.`},
-  8:{title:'Q8 Â· TAPER + Carrera',text:`Ha llegado el momento. Esta quincena es de reducciÃ³n de volumen y recuperaciÃ³n activa (taper). Los Ãºltimos 7 dÃ­as antes de la carrera, el volumen baja drÃ¡sticamente para llegar fresco y con las piernas cargadas de glucÃ³geno.\n\nQuÃ© conseguirÃ¡s: llegar al dÃ­a de la carrera en las mejores condiciones posibles. Todo el trabajo estÃ¡ hecho â€” ahora solo hay que ejecutar el plan de carrera con confianza y disfrutar del resultado.`},
+  1:{title:'Q1 · Fundamentos y adaptación',text:`Esta primera quincena está diseñada para sentar las bases sólidas sobre las que se construirá todo el programa. El objetivo principal es la adaptación neuromuscular y técnica: aprender los patrones de movimiento correctos antes de añadir carga. En running, priorizamos el volumen aeróbico suave para desarrollar la base cardiovascular sin riesgo de lesión.\n\nQué conseguirás: dominar la técnica de los ejercicios principales, establecer los ritmos de referencia, y crear el hábito del entrenamiento estructurado. La adherencia al plan es más importante que la intensidad.`},
+  2:{title:'Q2 · Consolidación de la base',text:`Con la técnica asentada, en esta quincena empezamos a testar los límites de carga de forma controlada. Si las sesiones anteriores fueron limpias, introducimos las primeras progresiones de peso. En running, aumentamos ligeramente el volumen de las tiradas largas.\n\nQué conseguirás: primeras evidencias de progresión de carga, mayor eficiencia en los patrones de movimiento, y una base aeróbica más robusta. Empieza a registrar bien tus pesos para que el algoritmo funcione.`},
+  3:{title:'Q3 · Inicio del volumen',text:`Entramos en la fase de volumen. Añadimos una serie adicional en los ejercicios compuestos principales (de 3 a 4 series). El estímulo de entrenamiento aumenta de forma significativa. Es normal sentir más fatiga acumulada — es parte del proceso.\n\nQué conseguirás: mayor volumen de trabajo muscular, inicio de la sobrecarga progresiva activa, y un salto notable en la capacidad de trabajo. Asegura el sueño y la proteína — son clave en esta fase.`},
+  4:{title:'Q4 · Pico de volumen',text:`El mayor volumen de entrenamiento de todo el programa. Las cargas están en progresión y el cuerpo ya está adaptado para soportar este estímulo. En running, la tirada larga llega a los 65 minutos. Es la quincena más exigente físicamente.\n\nQué conseguirás: máximo estímulo de hipertrofia y resistencia, grandes progresos en composición corporal, y la base para la transición hacia la intensidad. Aquí se construye el músculo que luego se afina.`},
+  5:{title:'Q5 · Transición a ritmo',text:`Reducimos ligeramente el volumen y empezamos a elevar la intensidad. En running, los intervalos se alargan a 800m y el tempo sube. En fuerza, el RIR se ajusta para mayor intensidad relativa. El cuerpo empieza a transformarse en rendimiento puro.\n\nQué conseguirás: mejora notable del ritmo de carrera, mayor potencia muscular, y una composición corporal que empieza a acercarse al objetivo final. La nutrición pre-entreno es especialmente crítica esta quincena.`},
+  6:{title:'Q6 · Optimización del rendimiento',text:`Estás cerca del objetivo. Los ritmos de entrenamiento se aproximan al ritmo de carrera objetivo. El cuerpo está entrenado, adaptado y en forma. En fuerza, mantenemos cargas altas con volumen controlado para no acumular fatiga excesiva.\n\nQué conseguirás: ritmos próximos al objetivo, alta eficiencia metabólica, y la confianza de sentirte en la mejor forma de tu vida. Cuida especialmente la recuperación y el sueño.`},
+  7:{title:'Q7 · Pico de forma y simulacro',text:`La quincena de mayor intensidad. Los intervalos llegan a 1200m. Realizamos al menos una sesión simulacro de carrera para testear el ritmo objetivo en condiciones reales. En fuerza, mantenemos el estímulo sin arriesgar recuperación.\n\nQué conseguirás: la mejor forma física del programa, confirmación del ritmo objetivo, y la preparación mental para el día de la carrera.`},
+  8:{title:'Q8 · TAPER + Carrera',text:`Ha llegado el momento. Esta quincena es de reducción de volumen y recuperación activa (taper). Los últimos 7 días antes de la carrera, el volumen baja drásticamente para llegar fresco y con las piernas cargadas de glucógeno.\n\nQué conseguirás: llegar al día de la carrera en las mejores condiciones posibles. Todo el trabajo está hecho — ahora solo hay que ejecutar el plan de carrera con confianza y disfrutar del resultado.`},
 };
 
 function renderPlan(q){
@@ -2294,10 +2294,10 @@ function renderPlan(q){
   </div>
 
   ${[
-    {c:'var(--accent2)',t:'FASE BASE Â· Q1â€“Q2 (dÃ­as 1â€“28)',d:'Easy 6:45/km Â· 6Ã—400 @ 5:20 Â· Tirada 50min Â· Fuerza 3 series RIR 3 Â· AdaptaciÃ³n tÃ©cnica y neuromotora'},
-    {c:'var(--accent3)',t:'FASE VOLUMEN Â· Q3â€“Q4 (dÃ­as 29â€“56)',d:'Easy 6:30/km Â· 8Ã—400 @ 5:10 Â· Tirada 65min Â· 4 series compuestos Â· MÃ¡ximo estÃ­mulo hipertrofia'},
-    {c:'var(--accent)',t:'FASE RITMO Â· Q5â€“Q6 (dÃ­as 57â€“84)',d:'Tempo 5:30/km Â· 6Ã—800 @ 5:00 Â· Tirada 75min Â· Alta intensidad Â· OptimizaciÃ³n rendimiento'},
-    {c:'#f1356a',t:'FASE ESPECÃFICO Â· Q7â€“Q8 (dÃ­as 85â€“112)',d:'Tempo 5:20/km Â· 4Ã—1200 @ 4:55 Â· Q7 Pico de forma Â· Q8 TAPER + Carrera objetivo'},
+    {c:'var(--accent2)',t:'FASE BASE · Q1–Q2 (días 1–28)',d:'Easy 6:45/km · 6×400 @ 5:20 · Tirada 50min · Fuerza 3 series RIR 3 · Adaptación técnica y neuromotora'},
+    {c:'var(--accent3)',t:'FASE VOLUMEN · Q3–Q4 (días 29–56)',d:'Easy 6:30/km · 8×400 @ 5:10 · Tirada 65min · 4 series compuestos · Máximo estímulo hipertrofia'},
+    {c:'var(--accent)',t:'FASE RITMO · Q5–Q6 (días 57–84)',d:'Tempo 5:30/km · 6×800 @ 5:00 · Tirada 75min · Alta intensidad · Optimización rendimiento'},
+    {c:'#f1356a',t:'FASE ESPECÍFICO · Q7–Q8 (días 85–112)',d:'Tempo 5:20/km · 4×1200 @ 4:55 · Q7 Pico de forma · Q8 TAPER + Carrera objetivo'},
   ].map(ph=>`<div class="win-3d" style="background:var(--surface2);border-radius:11px;padding:12px 14px;margin-bottom:9px;border-left:3px solid ${ph.c}">
     <div style="font-size:14px;font-weight:800;margin-bottom:5px">${ph.t}</div>
     <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);line-height:1.8">${ph.d}</div>
@@ -2307,9 +2307,9 @@ function renderPlan(q){
   ${Array.from({length:8},(_,i)=>i+1).map(qi=>{
     const p=getPaces(qi);const cur=qi===q;
     return `<div class="plan-row" style="${cur?'border:1px solid var(--accent)':''}">
-      <span style="color:${cur?'var(--accent)':'var(--accent2)'}">Q${qi}${cur?' â—€':''}</span>
+      <span style="color:${cur?'var(--accent)':'var(--accent2)'}">Q${qi}${cur?' ◀':''}</span>
       <span style="color:var(--muted)">${getPhase(qi)}</span>
-      <span style="color:var(--muted)">${qi===8?'ðŸ TAPER + CARRERA':p.easy+' Â· '+p.interval+'/km'}</span>
+      <span style="color:var(--muted)">${qi===8?'🏁 TAPER + CARRERA':p.easy+' · '+p.interval+'/km'}</span>
     </div>`;
   }).join('')}
   <div class="alert" style="margin-top:14px">ðŸ“Š REVISIÃ“N QUINCENAL: Al final de cada quincena genera el Reporte desde el menÃº lateral y envÃ­aselo a tu coach con fotos + CSV Intervals. C.L.O.E. ajustarÃ¡ la quincena siguiente segÃºn delta de peso, adherencia y progresiÃ³n de cargas.</div>`;
@@ -2562,9 +2562,9 @@ function planBiweeklyCalendar(q){
 function planCheatMealInfo(){
   return `<div class="win-3d" style="background:rgba(91,156,246,.06);border:1px solid rgba(91,156,246,.2);border-radius:11px;padding:11px 13px;margin-top:10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);line-height:1.8">
     <div style="color:var(--accent2);font-weight:500;margin-bottom:4px">Cheat meal semanal</div>
-    Es una comida libre planificada: puedes comer lo que quieras, pero es una comida, no un dÃ­a entero libre. Hazla 1 vez por semana, preferiblemente en comida o cena social. Come hasta quedar satisfecho sin acabar lleno, hidrÃ¡tate bien y vuelve a la siguiente toma del plan sin compensar con ayunos extremos.
-    <br><br><span style="color:var(--accent)">Si haces cheat meal en la comida:</span> mantÃ©n una cena ligera y alta en proteÃ­na: carne/pescado/huevos + verduras, sin repetir postre, alcohol ni otra raciÃ³n grande de hidratos.
-    <br><span style="color:var(--accent3)">Si haces cheat meal en la cena:</span> haz una comida normal del plan al mediodÃ­a, prioriza proteÃ­na y verduras, evita llegar con hambre extrema a la cena y no recortes agua ni suplementos.
+    Es una comida libre planificada: puedes comer lo que quieras, pero es una comida, no un día entero libre. Hazla 1 vez por semana, preferiblemente en comida o cena social. Come hasta quedar satisfecho sin acabar lleno, hidrátate bien y vuelve a la siguiente toma del plan sin compensar con ayunos extremos.
+    <br><br><span style="color:var(--accent)">Si haces cheat meal en la comida:</span> mantén una cena ligera y alta en proteína: carne/pescado/huevos + verduras, sin repetir postre, alcohol ni otra ración grande de hidratos.
+    <br><span style="color:var(--accent3)">Si haces cheat meal en la cena:</span> haz una comida normal del plan al mediodía, prioriza proteína y verduras, evita llegar con hambre extrema a la cena y no recortes agua ni suplementos.
   </div>`;
 }
 
@@ -2839,41 +2839,41 @@ function genReport(q){
   const hasSc=Object.values(sc).some(Boolean);
 
   const text=
-`â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-C.L.O.E. COACH Â· REPORTE QUINCENAL Q${q}
-Usuario: ${profile?.full_name||'â€”'} Â· ${new Date().toLocaleDateString('es-ES')}
-Objetivo: ${profile?.goal||'â€”'} Â· Edad: ${profile?.age||'â€”'} Â· Peso inicial: ${profile?.weight_kg||'â€”'}kg
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+`═══════════════════════════════════════════════════════
+C.L.O.E. COACH · REPORTE QUINCENAL Q${q}
+Usuario: ${profile?.full_name||'—'} · ${new Date().toLocaleDateString('es-ES')}
+Objetivo: ${profile?.goal||'—'} · Edad: ${profile?.age||'—'} · Peso inicial: ${profile?.weight_kg||'—'}kg
+═══════════════════════════════════════════════════════
 
-MÃ‰TRICAS GENERALES Q${q}
+MÉTRICAS GENERALES Q${q}
 Peso medio Q${q}:          ${wv||'n/d'} kg
 Peso medio Q${q-1}:        ${wpv||'n/d'} kg
-Delta peso:               ${deltaP} kg (objetivo recomposiciÃ³n: Â±0.2kg)
+Delta peso:               ${deltaP} kg (objetivo recomposición: ±0.2kg)
 Cintura:                  ${cv||'n/d'} cm
-EnergÃ­a media (1-10):     ${ev||'n/d'}
+Energía media (1-10):     ${ev||'n/d'}
 Hambre media (1-10):      ${hv||'n/d'}
-SueÃ±o medio:              ${sv||'n/d'} h
+Sueño medio:              ${sv||'n/d'} h
 Adherencia entreno:       ${av||'n/d'} %
-Adherencia nutriciÃ³n:     ${nav||'n/d'} %
+Adherencia nutrición:     ${nav||'n/d'} %
 ${hasSc?`
-BÃSCULA INTELIGENTE (mediciÃ³n final Q${q})
+BÁSCULA INTELIGENTE (medición final Q${q})
 Peso:                     ${sc.peso||'n/d'} kg
 BMI:                      ${sc.bmi||'n/d'}
 Grasa corporal:           ${sc.fat||'n/d'} %
-Grasa subcutÃ¡nea:         ${sc.subfat||'n/d'} %
+Grasa subcutánea:         ${sc.subfat||'n/d'} %
 Grasa visceral:           ${sc.visceral||'n/d'} (Ã­ndice)
 Agua corporal:            ${sc.water||'n/d'} %
-MÃºsculo esquelÃ©tico:      ${sc.muscle||'n/d'} %
+Músculo esquelético:      ${sc.muscle||'n/d'} %
 Masa muscular:            ${sc.musclemass||'n/d'} kg
-Masa Ã³sea:                ${sc.bone||'n/d'} kg
-ProteÃ­na corporal:        ${sc.protein||'n/d'} %
+Masa ósea:                ${sc.bone||'n/d'} kg
+Proteína corporal:        ${sc.protein||'n/d'} %
 BMR:                      ${sc.bmr||'n/d'} Kcal
-Edad metabÃ³lica:          ${sc.metage||'n/d'} aÃ±os`:''}
+Edad metabólica:          ${sc.metage||'n/d'} años`:''}
 
 OBSERVACIONES
-${nv||'â€”'}
+${nv||'—'}
 
-LOG DIARIO Q${q} (14 dÃ­as)
+LOG DIARIO Q${q} (14 días)
 ${daysSummary||'  Sin datos registrados en ENTRENAMIENTOS'}
 
 CSV INTERVALS.ICU
