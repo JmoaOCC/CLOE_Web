@@ -1,30 +1,1200 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; url=login.html">
-<title>C.L.O.E. COACH · Acceso</title>
-<link rel="canonical" href="login.html">
-<style>
-:root{--bg:#0c1018;--surface:#151b28;--border:#2b3448;--accent:#c8f135;--text:#ffffff;--muted:#cbd5e1}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-.card{width:min(92vw,420px);background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.05)}
-h1{margin:0 0 8px;font-size:30px}
-h1 span{color:var(--accent)}
-p{margin:0 0 20px;color:var(--muted)}
-a{display:inline-block;background:var(--accent);color:#111;text-decoration:none;font-weight:800;padding:12px 18px;border-radius:10px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C.L.O.E. COACH | Crush Limits Or Explode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-lime: #C5F533;
+            --dark-bg: #0a0a0a;
+            --dark-card: #111111;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --gradient-primary: linear-gradient(135deg, #C5F533 0%, #A8E028 100%);
+            --gradient-text: linear-gradient(135deg, #C5F533 0%, #8BC34A 100%);
+            --glass-border: 1px solid rgba(197, 245, 51, 0.2);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow-glow: 0 0 40px rgba(197, 245, 51, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .text-gradient {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: var(--primary-lime);
+            color: var(--dark-bg);
+            box-shadow: 0 4px 20px rgba(197, 245, 51, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(197, 245, 51, 0.6);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-lime);
+            color: var(--primary-lime);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-lime);
+            color: var(--dark-bg);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--glass-border);
+            padding: 15px 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            line-height: 1;
+        }
+
+        .logo-subtitle {
+            font-size: 0.7rem;
+            color: var(--primary-lime);
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-lime);
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .hero {
+            padding: 180px 0 100px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+
+        .hero-bg-glow {
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(197, 245, 51, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .hero-text .tagline {
+            font-size: 1.1rem;
+            color: var(--primary-lime);
+            margin-bottom: 25px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .hero-text p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            max-width: 90%;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .stat h3 {
+            font-size: 2.5rem;
+            color: var(--primary-lime);
+            font-weight: 900;
+        }
+
+        .stat p {
+            font-size: 0.85rem;
+            margin-bottom: 0;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-image {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px;
+            box-shadow: var(--shadow-glow);
+            transform: perspective(1000px) rotateY(-10deg) rotateX(5deg);
+            transition: transform 0.5s ease;
+        }
+
+        .hero-image:hover img {
+            transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+        }
+
+        .floating-card {
+            position: absolute;
+            background: rgba(17, 17, 17, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 25px;
+            border-radius: var(--radius-md);
+            border: var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .card-1 {
+            top: 5%;
+            left: -30px;
+        }
+
+        .card-2 {
+            bottom: 10%;
+            right: -30px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .philosophy {
+            padding: 120px 0;
+            text-align: center;
+            background: var(--dark-card);
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 70px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1.1rem;
+        }
+
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .phil-card {
+            background: var(--dark-bg);
+            border: var(--glass-border);
+            padding: 40px 30px;
+            border-radius: var(--radius-lg);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phil-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-lime);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .phil-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .phil-icon {
+            font-size: 3rem;
+            margin-bottom: 25px;
+            color: var(--primary-lime);
+        }
+
+        .phil-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .phil-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .features {
+            padding: 120px 0;
+            background: var(--dark-bg);
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            margin-bottom: 120px;
+        }
+
+        .feature-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-row.reverse {
+            direction: rtl;
+        }
+
+        .feature-row.reverse .feature-content {
+            direction: ltr;
+        }
+
+        .feature-image {
+            position: relative;
+        }
+
+        .feature-image img {
+            width: 100%;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .feature-content h3 {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .feature-content p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 35px;
+        }
+
+        .feature-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+        }
+
+        .feature-list li i {
+            color: var(--primary-lime);
+            font-size: 1.2rem;
+        }
+
+        .methodology {
+            padding: 120px 0;
+            text-align: center;
+            background: var(--dark-card);
+        }
+
+        .cycle-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 60px;
+        }
+
+        .cycle-step {
+            background: var(--dark-bg);
+            border: var(--glass-border);
+            padding: 35px 25px;
+            border-radius: var(--radius-lg);
+            width: 220px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .cycle-step:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-lime);
+        }
+
+        .cycle-step::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.8rem;
+            color: var(--primary-lime);
+            font-weight: 700;
+        }
+
+        .cycle-step:last-child::after {
+            display: none;
+        }
+
+        .step-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: rgba(197, 245, 51, 0.1);
+            position: absolute;
+            top: 10px;
+            left: 20px;
+        }
+
+        .cycle-step h4 {
+            margin-top: 25px;
+            margin-bottom: 12px;
+            color: var(--primary-lime);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .testimonials {
+            padding: 120px 0;
+            background: var(--dark-bg);
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
+        }
+
+        .testimonial-card {
+            background: var(--dark-card);
+            padding: 40px;
+            border-radius: var(--radius-md);
+            border: var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            border-color: var(--primary-lime);
+            transform: translateY(-5px);
+        }
+
+        .stars {
+            color: var(--primary-lime);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 25px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--dark-bg);
+            font-size: 1.2rem;
+        }
+
+        .cta-section {
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        }
+
+        .cta-box {
+            background: rgba(197, 245, 51, 0.1);
+            border: 2px solid var(--primary-lime);
+            border-radius: 40px;
+            padding: 100px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(197, 245, 51, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .cta-box h2 {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .cta-box p {
+            font-size: 1.3rem;
+            margin-bottom: 50px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--text-muted);
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--dark-bg);
+            font-size: 1.1rem;
+            padding: 18px 50px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-white:hover {
+            background: var(--primary-lime);
+            transform: scale(1.05);
+        }
+
+        footer {
+            background: #050505;
+            padding: 80px 0 40px;
+            border-top: var(--glass-border);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 50px;
+            margin-bottom: 50px;
+        }
+
+        .footer-brand h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            font-weight: 900;
+            letter-spacing: 3px;
+        }
+
+        .footer-brand p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 25px;
+            color: var(--text-main);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-col ul li a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary-lime);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--dark-card);
+            border: 2px solid var(--primary-lime);
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            color: var(--text-muted);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: var(--primary-lime);
+        }
+
+        .modal-content h2 {
+            color: var(--primary-lime);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .modal-content h3 {
+            color: var(--text-main);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .modal-content p {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .modal-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content li {
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 968px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .hero-image {
+                order: -1;
+                margin-bottom: 50px;
+            }
+
+            .feature-row {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .feature-row.reverse {
+                direction: ltr;
+            }
+
+            .cycle-step::after {
+                display: none;
+            }
+
+            .cycle-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .cycle-step {
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-box h2 {
+                font-size: 2.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 25px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-  <h1>C.L.O.E. <span>COACH</span></h1>
-  <p>Redirigiendo al acceso privado...</p>
-  <a href="login.html">Entrar al login</a>
-</div>
-<script>
-window.location.replace('login.html');
-</script>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div>
+                    <div class="logo">C.L.O.E.<br><span style="color: var(--primary-lime);">COACH</span></div>
+                    <div class="logo-subtitle">Crush Limits Or Explode</div>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#philosophy">Sistema C.L.O.E.</a></li>
+                    <li><a href="#features">Características</a></li>
+                    <li><a href="#methodology">Ciclo 14 Días</a></li>
+                    <li><a href="#testimonials">Resultados</a></li>
+                </ul>
+                <!-- Botón de LOGIN añadido arriba a la derecha -->
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <a href="https://jmoaocc.github.io/CLOE_Web/login.html" class="btn btn-primary" style="padding: 10px 25px; font-size: 0.85rem;">
+                        LOGIN <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                    </a>
+                    <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-bg-glow"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text" data-aos="fade-right">
+                    <div class="tagline">Acceso Privado • Sistema Científico</div>
+                    <h1>No busques el plan <span class="text-gradient">perfecto.</span> Construye tu <span class="text-gradient">evolución.</span></h1>
+                    <p>C.L.O.E. COACH es el primer sistema que integra entrenamiento, nutrición y mentalidad en ciclos de iteración científica de 14 días. Compatible con Intervals.icu. Basado en evidencia ACSM/ISSN.</p>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <h3>14</h3>
+                            <p>Días por Ciclo</p>
+                        </div>
+                        <div class="stat">
+                            <h3>100%</h3>
+                            <p>Personalizado</p>
+                        </div>
+                        <div class="stat">
+                            <h3>4</h3>
+                            <p>Pilares C.L.O.E.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image" data-aos="fade-left">
+                    <img src="https://images.unsplash.com/photo-1552674605-469523170d23?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Runner en acción">
+                    <div class="floating-card card-1">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-running" style="font-size: 1.5rem; color: var(--primary-lime);"></i>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">Ritmo Umbral</div>
+                                <div style="font-size: 0.8rem; color: var(--primary-lime);">5:15/km • Z4</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-card card-2">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fas fa-chart-line" style="font-size: 1.5rem; color: var(--primary-lime);"></i>
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.9rem;">Progreso</div>
+                                <div style="font-size: 0.8rem; color: var(--primary-lime);">-8s/km en 10K</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="philosophy" id="philosophy">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">El Sistema <span class="text-gradient">C.L.O.E.</span></h2>
+            <p class="section-subtitle" data-aos="fade-up">Cuerpo, Lógica, Objetivo, Evolución. No es magia, es ciencia aplicada con iteración quincenal.</p>
+            
+            <div class="philosophy-grid">
+                <div class="phil-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="phil-icon"><i class="fas fa-running"></i></div>
+                    <h3>C - Cuerpo</h3>
+                    <p>Tu vehículo. Entrenamos para mejorar composición corporal, rendimiento y salud, respetando tu biología y contexto real.</p>
+                </div>
+                <div class="phil-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="phil-icon"><i class="fas fa-brain"></i></div>
+                    <h3>L - Lógica</h3>
+                    <p>Sin intuiciones. Cálculo TMB con Mifflin-St Jeor, zonas de entrenamiento basadas en FTP/umbral, suplementación Tier S/A con evidencia sólida.</p>
+                </div>
+                <div class="phil-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="phil-icon"><i class="fas fa-bullseye"></i></div>
+                    <h3>O - Objetivo</h3>
+                    <p>SMART y alineado a tu vida. Correr una maratón, ganar fuerza o recomponer. Tu meta define el camino, no al revés.</p>
+                </div>
+                <div class="phil-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="phil-icon"><i class="fas fa-sync-alt"></i></div>
+                    <h3>E - Evolución</h3>
+                    <p>Iteración constante. Ciclos de 14 días donde medimos, ajustamos y avanzamos. El progreso no es lineal, pero siempre avanza.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="feature-row">
+                <div class="feature-image" data-aos="fade-right">
+                    <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Nutrición deportiva">
+                </div>
+                <div class="feature-content" data-aos="fade-left">
+                    <h3><i class="fas fa-utensils" style="color: var(--primary-lime);"></i> Nutrición Flexible</h3>
+                    <p>Olvídate de menús cerrados. C.L.O.E. te da macros calculados, bancos de alimentos y opciones A/B/C para cada comida. Timing nutricional estratégico y ayuno intermitente opcional.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Cálculo TMB y GET con Mifflin-St Jeor</li>
+                        <li><i class="fas fa-check-circle"></i> Bancos de alimentos con equivalencias</li>
+                        <li><i class="fas fa-check-circle"></i> Timing pre/intra/post entreno</li>
+                        <li><i class="fas fa-check-circle"></i> Hidratación y electrolitos personalizados</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="feature-row reverse">
+                <div class="feature-image" data-aos="fade-left">
+                    <img src="https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Entrenamiento running">
+                </div>
+                <div class="feature-content" data-aos="fade-right">
+                    <h3><i class="fas fa-stopwatch" style="color: var(--primary-lime);"></i> Entrenamiento Científico</h3>
+                    <p>Running, ciclismo, natación, fuerza o triatlón. Planes periodizados con zonas individuales (Z1-Z5) y formato nativo Intervals.icu listo para tu reloj GPS o rodillo.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Formatos .FIT y .ZWO exportables</li>
+                        <li><i class="fas fa-check-circle"></i> Zonas de FC, ritmo y potencia personalizadas</li>
+                        <li><i class="fas fa-check-circle"></i> Series, tempo, fartlek, tiradas largas</li>
+                        <li><i class="fas fa-check-circle"></i> Semanas de descarga programadas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-image" data-aos="fade-right">
+                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Mentalidad y adherencia">
+                </div>
+                <div class="feature-content" data-aos="fade-left">
+                    <h3><i class="fas fa-heart" style="color: var(--primary-lime);"></i> Mentalidad y Adherencia</h3>
+                    <p>El mejor plan es el que cumples. Trabajamos identidad, gestión del estrés, formación de hábitos y técnicas de respiración. La consistencia bate a la sofisticación.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check-circle"></i> Técnicas 4-7-8, box breathing, coherencia cardíaca</li>
+                        <li><i class="fas fa-check-circle"></i> Gestión de fatiga y HRV</li>
+                        <li><i class="fas fa-check-circle"></i> Visualización y preparación mental</li>
+                        <li><i class="fas fa-check-circle"></i> Regla del 80/20 sin obsesión</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="methodology" id="methodology">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">El Ciclo de <span class="text-gradient">14 Días</span></h2>
+            <p class="section-subtitle" data-aos="fade-up">No cambiamos el plan porque sí. Cambiamos porque los datos lo exigen. Evaluación → Planificación → Ejecución → Medición → Ajuste.</p>
+
+            <div class="cycle-container">
+                <div class="cycle-step" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="step-number">01</div>
+                    <h4>Evaluación</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Peso, medidas, sueño, energía, adherencia Q anterior</p>
+                </div>
+                <div class="cycle-step" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="step-number">02</div>
+                    <h4>Planificación</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Macros, entrenos Intervals.icu, suplementación</p>
+                </div>
+                <div class="cycle-step" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="step-number">03</div>
+                    <h4>Ejecución</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">14 días de adherencia al plan diseñado</p>
+                </div>
+                <div class="cycle-step" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="step-number">04</div>
+                    <h4>Medición</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Datos reales vs esperados, HRV, rendimiento</p>
+                </div>
+                <div class="cycle-step" data-aos="zoom-in" data-aos-delay="500">
+                    <div class="step-number">05</div>
+                    <h4>Ajuste</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Iteración inteligente para Q+1</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up" style="text-align: center;">Historias <span class="text-gradient">Reales</span></h2>
+            <p class="section-subtitle" data-aos="fade-up" style="text-align: center;">Dejaron de buscar atajos y empezaron a construir procesos. Resultados medibles, no promesas.</p>
+
+            <div class="testimonial-grid">
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Llevaba años estancado en 6:30/km. Con C.L.O.E. entendí que los easy deben ser fáciles. En 16 semanas bajé a 5:30/km en 10K. Los ciclos de 14 días me permitieron ajustar sin frustración."</p>
+                    <div class="user-info">
+                        <div class="user-avatar">MR</div>
+                        <div>
+                            <div style="font-weight: 700;">Miguel R.</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Runner • 47 años</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"La integración con Intervals.icu es brutal. Entreno con el plan en el Garmin sin pensar. La flexibilidad nutricional me salvó en viajes de trabajo. Adherencia del 92% en 6 meses."</p>
+                    <div class="user-info">
+                        <div class="user-avatar">AL</div>
+                        <div>
+                            <div style="font-weight: 700;">Ana L.</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Triatleta • Media Distancia</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"No es solo un plan, es educación. Ahora entiendo por qué hago series en Z4 y no en Z3. La suplementación Tier S me ahorró dinero dejando de comprar cosas inútiles. Progreso real."</p>
+                    <div class="user-info">
+                        <div class="user-avatar">JC</div>
+                        <div>
+                            <div style="font-weight: 700;">Javier C.</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Fuerza + Running</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="cta">
+        <div class="container">
+            <div class="cta-box" data-aos="zoom-in">
+                <h2>¿Listo para <span class="text-gradient">Evolucionar?</span></h2>
+                <p>Únete a C.L.O.E. COACH hoy. Plan personalizado Q1-Q8, nutrición flexible, entrenos Intervals.icu y mentalidad. Acceso privado. Garantía 14 días.</p>
+                <a href="https://jmoaocc.github.io/CLOE_Web/login.html" class="btn btn-white">Comenzar Transformación <i class="fas fa-rocket" style="margin-left: 10px;"></i></a>
+                <p style="margin-top: 30px; font-size: 0.95rem; color: var(--text-muted);">Sin compromisos • Cancela cuando quieras • Soporte directo</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>C.L.O.E. <span style="color: var(--primary-lime);">COACH</span></h3>
+                    <p>Crush Limits Or Explode. Sistema científico de evolución personal. Nutrición, entrenamiento y mentalidad con iteración quincenal. Compatible con Intervals.icu.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a onclick="openModal('avisoModal')">Aviso Médico</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contacto</h4>
+                    <ul>
+                        <li><a href="mailto:CLOECOACH@gmail.com">CLOECOACH@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2026 C.L.O.E. COACH. Todos los derechos reservados. | Acceso Privado
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Aviso Médico -->
+    <div id="avisoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('avisoModal')">&times;</span>
+            <h2>AVISO LEGAL Y DESCARGO DE RESPONSABILIDAD MÉDICA</h2>
+            
+            <h3>1. INFORMACIÓN GENERAL</h3>
+            <p>C.L.O.E. COACH ("el Servicio") proporciona información y herramientas relacionadas con nutrición, entrenamiento deportivo, suplementación y bienestar general. Este sitio web y sus contenidos tienen únicamente fines informativos y educativos.</p>
+            
+            <h3>2. NO SUSTITUYE EL CONSEJO MÉDICO PROFESIONAL</h3>
+            <p><strong>IMPORTANTE:</strong> La información proporcionada por C.L.O.E. COACH NO constituye asesoramiento médico, diagnóstico ni tratamiento profesional. Todo el contenido debe ser supervisado y aprobado por un médico o profesional de la salud cualificado antes de iniciar cualquier programa de nutrición, entrenamiento o suplementación.</p>
+            
+            <h3>3. OBLIGACIONES DEL USUARIO</h3>
+            <p>Al utilizar este Servicio, usted acepta y se compromete a:</p>
+            <ul>
+                <li>Consultar con su médico de cabecera o especialista antes de comenzar cualquier plan de nutrición, entrenamiento o suplementación</li>
+                <li>Informar a su médico sobre cualquier condición médica preexistente, lesión, alergia o medicación que esté tomando</li>
+                <li>Detener inmediatamente cualquier actividad si experimenta dolor, malestar o síntomas adversos</li>
+                <li>Buscar atención médica inmediata en caso de emergencia o lesión</li>
+                <li>No utilizar la información proporcionada como sustituto del juicio clínico profesional</li>
+            </ul>
+            
+            <h3>4. LIMITACIÓN DE RESPONSABILIDAD</h3>
+            <p>C.L.O.E. COACH, sus propietarios, empleados, colaboradores y agentes NO serán responsables bajo ningún concepto por:</p>
+            <ul>
+                <li>Lesiones físicas, daños o perjuicios derivados del uso de la información o programas proporcionados</li>
+                <li>Reacciones adversas a planes nutricionales o de suplementación</li>
+                <li>Empeoramiento de condiciones médicas preexistentes</li>
+                <li>Pérdida de beneficios o daños consecuentes, incidentales o indirectos</li>
+                <li>Cualquier decisión tomada basándose en la información proporcionada sin supervisión médica</li>
+            </ul>
+            
+            <h3>5. DECLARACIÓN DE RIESGOS</h3>
+            <p>La participación en programas de entrenamiento físico y cambios en la alimentación conlleva riesgos inherentes que incluyen, pero no se limitan a:</p>
+            <ul>
+                <li>Lesiones musculoesqueléticas (esguinces, fracturas, distensiones)</li>
+                <li>Problemas cardiovasculares</li>
+                <li>Deshidratación o sobrehidratación</li>
+                <li>Reacciones alérgicas a alimentos o suplementos</li>
+                <li>Interacciones con medicamentos</li>
+                <li>Agravamiento de condiciones médicas no diagnosticadas</li>
+            </ul>
+            
+            <h3>6. CONSENTIMIENTO INFORMADO</h3>
+            <p>Al utilizar C.L.O.E. COACH, usted declara expresamente que:</p>
+            <ul>
+                <li>Ha leído y comprendido este aviso legal</li>
+                <li>Es consciente de los riesgos asociados con programas de entrenamiento y nutrición</li>
+                <li>Ha consultado o consultará con un profesional médico antes de iniciar cualquier programa</li>
+                <li>Acepta voluntariamente asumir todos los riesgos asociados</li>
+                <li>Exime de responsabilidad a C.L.O.E. COACH por cualquier daño o lesión</li>
+            </ul>
+            
+            <h3>7. PROPIEDAD INTELECTUAL</h3>
+            <p>Todo el contenido, metodologías, planes y materiales proporcionados por C.L.O.E. COACH están protegidos por derechos de autor y propiedad intelectual. Queda prohibida su reproducción, distribución o uso comercial sin autorización expresa.</p>
+            
+            <h3>8. MODIFICACIONES</h3>
+            <p>C.L.O.E. COACH se reserva el derecho de modificar este aviso legal en cualquier momento sin previo aviso. Las modificaciones entrarán en vigor inmediatamente después de su publicación.</p>
+            
+            <h3>9. LEGISLACIÓN APLICABLE</h3>
+            <p>Este aviso se rige por la legislación vigente en materia de protección de datos, comercio electrónico y responsabilidad civil. Cualquier controversia será resuelta en los tribunales competentes.</p>
+            
+            <h3>10. CONTACTO</h3>
+            <p>Para cualquier consulta relacionada con este aviso legal:</p>
+            <p><strong>Email:</strong> CLOECOACH@gmail.com</p>
+            
+            <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--glass-border); color: var(--primary-lime); font-weight: 600;">
+                ÚLTIMA ACTUALIZACIÓN: Mayo 2026
+            </p>
+            
+            <p style="margin-top: 20px; background: rgba(197, 245, 51, 0.1); padding: 20px; border-left: 4px solid var(--primary-lime); border-radius: 8px;">
+                <strong style="color: var(--primary-lime);">RECUERDE:</strong> Su salud y seguridad son lo primero. Consulte siempre con su médico antes de comenzar cualquier programa de nutrición, entrenamiento o suplementación.
+            </p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Mobile Menu Toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                navLinks.style.display = 'flex';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '100%';
+                navLinks.style.left = '0';
+                navLinks.style.width = '100%';
+                navLinks.style.background = 'rgba(10, 10, 10, 0.98)';
+                navLinks.style.padding = '30px';
+                navLinks.style.backdropFilter = 'blur(10px)';
+                navLinks.style.borderBottom = '1px solid rgba(197, 245, 51, 0.2)';
+            }
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                // Close mobile menu if open
+                if (window.innerWidth <= 968) {
+                    navLinks.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
